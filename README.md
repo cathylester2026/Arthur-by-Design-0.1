@@ -1,30 +1,22 @@
-# Arthur: By Design 0.2
+# Arthur: By Design 0.4 Table Mechanics
 
-Complete multiplayer repository reconstructed from the approved concept. Version 0.2 fixes the iPhone join path.
+Mechanics build: private vote → see distribution → talk → table facilitator locks consensus → Arthur-specific consequence → Vitruvian aha.
 
-## Upload without a command line
-1. Extract this ZIP.
-2. In the GitHub repository, upload all extracted files and folders, replacing existing files.
-3. Commit to `main`.
-4. Keep GitHub Pages set to **GitHub Actions**.
+## Required Supabase update
+Run `supabase/schema.sql` in the existing project's SQL Editor before deploying. It creates the `votes` table and adds the table-facilitator mechanics. This is required.
 
-## GitHub secrets
-Under **Settings → Secrets and variables → Actions**, retain:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
+## GitHub-web-only deployment
+Extract this ZIP. Upload all contents to the repository, replacing existing files, and commit to `main`. Keep the existing Actions secrets and GitHub Pages source.
 
-## Supabase
-For a fresh project, run `supabase/schema.sql` in SQL Editor. If 0.1 is already installed, this script is safe to rerun and refreshes the prototype policies.
+## Test with at least three devices
+1. Desktop: create facilitator room.
+2. Two phones: join the same table with different initials.
+3. Both respond to willingness and vote for table facilitator.
+4. Lock the table facilitator.
+5. Advance to capability vote; both phones vote differently.
+6. Advance to talk; confirm distribution appears.
+7. Table facilitator locks consensus.
+8. Repeat for design commitment.
+9. Advance through Designed, Event, Consequence and Principle.
 
-Use the publishable client key, never the service-role secret. Do not store real patient information. The anonymous policies are only appropriate for a low-risk workshop prototype.
-
-## 0.2 join changes
-- Eight table buttons instead of typed table names
-- Four-character room validation
-- Automatic uppercase and whitespace cleanup
-- iPhone-safe form submission
-- Inline errors preserve the form
-- Separate inactive-room and connection messages
-
-## Test
-Create a room on the facilitator view. On a phone choose Join a Room, enter the four-character code, choose a table, add initials and join. The table should appear on the facilitator board. Advance through Leave Well to verify real-time synchronization.
+The table facilitator may lock any option, not only the plurality choice. A vote is an initial perspective, not an automatic winner.
