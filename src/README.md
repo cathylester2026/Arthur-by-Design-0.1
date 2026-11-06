@@ -1,25 +1,29 @@
-# Smart Discharge reveal build
-Built directly from uploaded main (10).js.
+# Coordinated Response reveal, merged into main (11).js
 
 ## Replace repository root
 - main.js
 
 ## Add repository root
-- smartDischargeReveal.js
-- smartDischargeReveal.css
+- coordinatedResponseReveal.js
+- coordinatedResponseReveal.css
 
 ## Add to assets/
-- smart-discharge-before.png
-- smart-discharge-activated.png
-- design-discharge-ai-plan-first.png
-- design-discharge-review-together.png
-- design-discharge-transition-guide.png
+- coordinated-response-before.png
+- coordinated-response-activated.png
+- design-response-system-alert.png
+- design-response-coordinated.png
+- design-response-transition-guide.png
 
-## Flow
-Before fragmented information -> Smart Discharge Activated -> existing A/B/C selection -> selected design impact -> Round 1 Design.
+## Visual progression
+- Before: Arthur waits while the transition problem is fragmented across services.
+- Activated: the same constraint is visible as one shared operational issue across existing workpoints.
+- 4A System Alert: awareness is embedded, but Arthur may still wait.
+- 4B Coordinated Response: responsive transition capacity and alternate workflow are activated.
+- 4C Transition Guide: an empowered coordinator secures and carries Arthur to the next viable handoff.
 
-## Selected design persistence
-For a Smart Discharge-only portfolio, Round 1 Design, Strengthen, consequence and final result retain the selected A/B/C image. If the player Extends with another capability, the existing combined storyboard remains.
+## Existing IDs preserved
+- unit = System Alert
+- center = Coordinated Response
+- liaison = Transition Guide
 
-## Logic preservation
-Existing IDs remain: bedside = AI Plan First, shared = Review Together, dedicated = Transition Guide. No costs, resources, state, scoring, causal logic, response eligibility, Strengthen/Extend mechanics, persistence or multiplayer logic changed.
+No cost, scoring, resource, causal, event, response, persistence, multiplayer or Strengthen/Extend mechanics changed.
