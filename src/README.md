@@ -1,17 +1,24 @@
-# Final accumulated architectural vision
+# Leave Well playtest priority fixes
+Built against main (13).js.
 
 ## Replace in src/
 - main.js
 
 ## Add in src/
-- finalArchitecturalVision.js
-- finalArchitecturalVision.css
+- portfolioExperience.js
+- portfolioExperience.css
+- smartRoutesReveal.js
+- smartRoutesReveal.css
 
-## New final result
-- Uses the player's actual A/B/C design imagery, one or two images depending on Strengthen vs Extend.
-- Shows what AI made possible, what was designed and how it responded.
-- Compiles the actual spatial relationships implied by the selected pathways.
-- Converts Useful / Resilient / Human into specific architectural obligations.
-- Brings the player's opening response back into the final vision.
-- Preserves the full technical game result and compiled image prompt inside expandable details.
-- Adds no decisions and changes no scoring, resources, outcomes, causal logic or Supabase capture.
+## Included
+- Mixed portfolios no longer hide the second investment behind the first matching specialist visual. The accumulated state displays both selected designs and an explicit ADD / DEEPEN / EXTEND integration rule.
+- Smart Routes now has a dedicated Before → Activated reveal and A/B/C design reveal.
+- Design screens are labeled DESIGN READINESS: what the design makes possible before disruption.
+- Consequence is labeled PERFORMANCE UNDER PRESSURE: what actually held.
+- Detailed causal explanation moves under Learn More.
+- Design → Adapt review is shortened to the accumulated design plus Go Deeper / Go Broader.
+- AHA becomes DESIGN INSIGHT.
+
+No scoring, costs, causal thresholds, response eligibility, resource accounting, Supabase capture or Strengthen/Extend mechanics changed.
+
+Existing A/B/C visual assets must remain in assets/, including the five Smart Routes images.
