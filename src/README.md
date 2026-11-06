@@ -1,28 +1,34 @@
-# Medication Check before-to-after reveal, drop-in build
+# Medication Check A/B/C reveal upgrade
 
-This build was merged directly into the supplied `main (9).js`. No patching is required.
+This is the next drop-in build after `Arthur_By_Design_Medication_Check_DropIn_main9_v1.zip`.
 
 ## Replace at repository root
 - `main.js`
 
 ## Add at repository root
+- `medicationDesignReveals.js`
+- `medicationDesignReveals.css`
+
+The existing transition files are included for completeness and may safely overwrite the deployed copies:
 - `medicationInvestmentTransition.js`
 - `medicationInvestmentTransition.css`
 
 ## Add to `assets/`
+- `design-meds-ai-check-first.png`
+- `design-meds-review-together.png`
+- `design-meds-plan-follows.png`
+
+The existing capability images are also included for completeness:
 - `medication-check-before.png`
 - `medication-check-activated.png`
 
-## Preserved flow and logic
-The only changed route is the single-player Medication Check capability reveal:
+## Resulting chain
+Before -> Medication Check Activated -> existing A/B/C selection -> selected A, B, or C design-impact reveal -> portfolio review.
 
-`select Medication Check -> before/after reveal -> click NOW DESIGN AROUND IT -> existing 3A/3B/3C screen`
+## Logic preserved
+The reveal branch uses the existing stored design IDs:
+- `nurse` = AI Check First
+- `pharmacy` = Review Together
+- `huddle` = Plan Follows Arthur
 
-The visual module does not modify `soloState`, Capital, Change, activation IDs, scoring, events, Strengthen/Extend, responses, persistence, or multiplayer logic. It never advances automatically. The existing `soloSet('commitment')` handoff runs only after the player clicks `NOW DESIGN AROUND IT`.
-
-## Timing and accessibility
-- Before: 1.6 sec
-- Crossfade: 0.65 sec
-- After freezes until player action
-- Skip Animation control
-- Reduced-motion support
+No cost, resource, scoring, causal, event, response, persistence, multiplayer, or Strengthen/Extend logic is changed. The player still clicks `REVIEW YOUR DESIGN` to continue to the existing `design` phase.
