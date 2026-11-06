@@ -1,34 +1,22 @@
-# Medication Check A/B/C reveal upgrade
+# Medication reveal timing + layout fix
 
-This is the next drop-in build after `Arthur_By_Design_Medication_Check_DropIn_main9_v1.zip`.
+Replace root files:
+- main.js
+- medicationInvestmentTransition.js
+- medicationInvestmentTransition.css
+- medicationDesignReveals.js
+- medicationDesignReveals.css
 
-## Replace at repository root
-- `main.js`
+Assets are included for completeness and may overwrite existing copies.
 
-## Add at repository root
-- `medicationDesignReveals.js`
-- `medicationDesignReveals.css`
+## Changes in this build
+- Before hold increased from 1.6s to 2.8s.
+- Crossfade increased from 0.65s to 1.2s.
+- After state holds for 1.0s before the impact content appears.
+- Total automatic reveal is about 5 seconds, plus player-controlled reading time.
+- Skip Animation remains available.
+- Fixed need-status strip layout rather than relying on missing generic styles.
+- Restored proper white cards, pills, spacing, Learn More, Design Insight, and full-width CTA.
+- Removed explicit fast-timing values from main.js so reveal module defaults control timing.
 
-The existing transition files are included for completeness and may safely overwrite the deployed copies:
-- `medicationInvestmentTransition.js`
-- `medicationInvestmentTransition.css`
-
-## Add to `assets/`
-- `design-meds-ai-check-first.png`
-- `design-meds-review-together.png`
-- `design-meds-plan-follows.png`
-
-The existing capability images are also included for completeness:
-- `medication-check-before.png`
-- `medication-check-activated.png`
-
-## Resulting chain
-Before -> Medication Check Activated -> existing A/B/C selection -> selected A, B, or C design-impact reveal -> portfolio review.
-
-## Logic preserved
-The reveal branch uses the existing stored design IDs:
-- `nurse` = AI Check First
-- `pharmacy` = Review Together
-- `huddle` = Plan Follows Arthur
-
-No cost, resource, scoring, causal, event, response, persistence, multiplayer, or Strengthen/Extend logic is changed. The player still clicks `REVIEW YOUR DESIGN` to continue to the existing `design` phase.
+No scoring, resource, state, decision ID, navigation destination, multiplayer, event, or causal logic changes.
