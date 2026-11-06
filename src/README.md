@@ -1,29 +1,26 @@
-# Coordinated Response reveal, merged into main (11).js
+# Leave Well architectural lens enhancements
+Built on the current main.js after the Coordinated Response reveal integration.
 
 ## Replace repository root
 - main.js
 
 ## Add repository root
-- coordinatedResponseReveal.js
-- coordinatedResponseReveal.css
+- architecturalLens.css
 
-## Add to assets/
-- coordinated-response-before.png
-- coordinated-response-activated.png
-- design-response-system-alert.png
-- design-response-coordinated.png
-- design-response-transition-guide.png
+## Included changes, no new screens
+- Spatial Design Challenge language on all four investment cards.
+- Compact Useful / Resilient / Human lens added to the first A/B/C design decision.
+- Strengthen and Extend descriptions now state architectural implications.
+- Disruption includes a physical-place challenge for Arthur.
+- Response cards explain how the existing environment supports Use / Adapt / Escalate.
+- Outcome adds a compact dynamic architectural assessment through Utilitas / Firmitas / Venustas.
+- THE AHA renamed DESIGN INSIGHT.
+- Final result compiles three architectural obligations without adding three new player decisions.
+- Player's opening response returns at the end.
+- Final thesis updated to: AI changed what the hospital could do. Architecture made it useful, resilient and human.
 
-## Visual progression
-- Before: Arthur waits while the transition problem is fragmented across services.
-- Activated: the same constraint is visible as one shared operational issue across existing workpoints.
-- 4A System Alert: awareness is embedded, but Arthur may still wait.
-- 4B Coordinated Response: responsive transition capacity and alternate workflow are activated.
-- 4C Transition Guide: an empowered coordinator secures and carries Arthur to the next viable handoff.
-
-## Existing IDs preserved
-- unit = System Alert
-- center = Coordinated Response
-- liaison = Transition Guide
-
-No cost, scoring, resource, causal, event, response, persistence, multiplayer or Strengthen/Extend mechanics changed.
+## Intentionally not changed
+- No new screens.
+- No new scoring system.
+- No additional end-game choices.
+- No capability, A/B/C, event, response, resource, causal, persistence, multiplayer or Strengthen/Extend logic changes.
