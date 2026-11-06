@@ -8,7 +8,7 @@ export const CAPABILITIES={
 export const NEEDS=[['UNDERSTAND','?'],['MOVE','→'],['CONNECT','∞'],['TRUST','✓']]
 export const EVENTS={route:{label:'ROUTE CHANGED',copy:'Arthur’s planned path to departure no longer works.'},information:{label:'PLAN CHANGED',copy:'Arthur’s plan changes immediately before departure.'},coordination:{label:'HANDOFF CHANGED',copy:'Transportation, family support and the receiving team are no longer aligned.'}}
 export const RESPONSES={use:{title:'Use What You Designed',copy:'Rely on the environment and support already created.'},adapt:{title:'Adapt',copy:'Use remaining Change capacity to adjust the response.'},escalate:{title:'Escalate',copy:'Activate additional people and implementation support.'}}
-export function asset(name){return new URL(`./assets/${name}`,document.baseURI).href}
+export function asset(name){return `${import.meta.env.BASE_URL}assets/${name}`}
 export function phaseIndex(p){return Math.max(0,PHASES.indexOf(p))}
 export function nextPhase(p){return PHASES[Math.min(PHASES.length-1,phaseIndex(p)+1)]}
 export function prevPhase(p){return PHASES[Math.max(0,phaseIndex(p)-1)]}
