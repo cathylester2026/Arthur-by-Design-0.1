@@ -1,15 +1,20 @@
-Arthur: By Design - fully merged causal main
+Arthur: By Design - Priority Logic Fixes v2
 
-Upload these three files to the repository root, beside gameData.js and architectureSpec.js:
-- main.js (replace the current main.js)
-- causalEngine.js (new)
-- causalAlignment.css (new)
+Upload to repository root:
+- main.js (replace current)
+- causalEngine.js (replace current)
+- causalAlignment.css (replace/current)
 
-No opening screens or slides were consolidated.
+Validation files are included for audit and do not need deployment:
+- validate_v2.mjs
+- validate_v2_results.json
 
-Developer fixed-event validation:
-- ?mode=solo&event=route
-- ?mode=solo&event=information
-- ?mode=solo&event=coordination
+Implemented:
+1. Machine-readable baseline and Strengthen readiness
+2. Same-event, same-response, same-resource revision comparison
+3. Authoritative medication plan pathways
+4. Explicit Adapt and Escalate semantics for every choice/event
+5. Recalibrated outcomes
+6. Complete 36-case causal explanation matrix
 
-The normal game continues to randomize and persist its event.
+No opening screens were consolidated.

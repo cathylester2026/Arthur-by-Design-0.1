@@ -1,0 +1,24 @@
+{
+  "distribution": {
+    "ABSORBED": 29,
+    "STRAINED": 56,
+    "EXPOSED": 35
+  },
+  "errors": [],
+  "total": 120,
+  "targeted": {
+    "p3c": "EXPOSED",
+    "p3b3c": "ABSORBED",
+    "p3as": "STRAINED",
+    "adapt2a": {
+      "eligible": true,
+      "boost": 0.65,
+      "why": "Adapt is available through recalculate."
+    },
+    "esc3a": {
+      "eligible": true,
+      "boost": 0.75,
+      "why": "Escalation can reach clinicalResolver. Success still depends on available capacity."
+    }
+  }
+}
