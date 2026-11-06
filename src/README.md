@@ -1,32 +1,30 @@
-# Medication Check Reveal Fix v4
+# Medication clean-image + persistent-design visual fix v6
 
-This corrects the issues visible in the screenshots.
-
-## Root: replace/overwrite
+## Replace at repository root
 - main.js
 - medicationInvestmentTransition.js
 - medicationInvestmentTransition.css
 - medicationDesignReveals.js
 - medicationDesignReveals.css
 
-## assets/: replace/overwrite
+## Add at repository root
+- medicationPortfolioVisual.js
+- medicationPortfolioVisual.css
+
+## Replace in assets/
 - medication-check-before.png
 - medication-check-activated.png
 - design-meds-ai-check-first.png
 - design-meds-review-together.png
 - design-meds-plan-follows.png
 
-## Corrected behavior
-- Medication capability reveal remains Before -> Activated -> NOW DESIGN AROUND IT.
-- All three medication designs route through the new dedicated design reveal component:
-  - nurse -> AI Check First image
-  - pharmacy -> Review Together image
-  - huddle -> Plan Follows Arthur image
-- Legacy storyboard/generic medication reveal is bypassed for all three design choices.
-- Need status uses icons + green/yellow/red pills.
-- Detailed white boxes are collapsed inside WHY THIS MATTERS - LEARN MORE.
-- AHA is replaced by DESIGN INSIGHT.
-- The design reveal is compact enough to fit substantially more content above the fold.
+## What changed
+- Capability After image and A/B/C design images are now clean image-only scenes. No duplicated titles, status strips, Design Insight, callouts or CTA are baked into the images.
+- The HTML card remains the single source for need status, Arthur consequence, collapsed Learn More and Design Insight.
+- Round 1 Design uses the selected Medication A/B/C image rather than the generic medication storyboard.
+- Strengthen retains the selected A/B/C image and adds a small `DESIGN STRENGTHENED` treatment. The environment no longer forgets the selected design.
+- Consequence and final result screens use the selected A/B/C image when Medication Check is the only activated capability.
+- If the player Extends with another capability, the existing combined storyboard remains in use because the portfolio now contains more than one visual state.
 
-## Logic
-No costs, resources, scoring, causal logic, stored IDs, Strengthen/Extend, events, responses, persistence, or multiplayer behavior changed.
+## Logic preserved
+No costs, resources, IDs, causal scoring, event selection, response eligibility, Strengthen/Extend mechanics, persistence or multiplayer behavior changed.
