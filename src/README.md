@@ -1,43 +1,24 @@
-# Permanent XPlayer shell + Medication Check 3B slice
+# XPlayer phone blank-screen hotfix
 
-## Upload to GitHub src/
-Replace:
+## Replace in src/
 - main.js
 
-Add:
+## Ensure these already exist in src/
 - xPlayer.js
 - xPlayer.css
 
-## Open
-Use the same deployed Pages URL with:
-`?mode=xplayer&room=ROOMCODE`
-Example: `https://your-pages-url/?mode=xplayer&room=ABCD`
+## Root issue addressed
+XPlayer was added as a static dependency of main.js. That means every route, including the QR `mode=player` route on phones, had to load/resolve the XPlayer module before the normal phone app could boot.
 
-## Permanent shell
-- 16:9 full-screen presentation surface
-- ARRIVE / INVEST / DESIGN / ADAPT / RESPOND / RESULT progress rail
-- live Supabase subscription to sessions, teams, players and votes
-- table LOCKED / THINKING strip without exposing choices
-- facilitator Back / Reveal / Next controls
-- keyboard: Left/Right arrows, Space to Reveal, F for fullscreen
-- no scrolling
+This patch isolates XPlayer with dynamic imports that run only when `mode=xplayer`.
+The phone QR route remains the established `?mode=player&room=XXXX` flow.
 
-## Medication Check 3B slice
-1. Arthur arrival
-2. Medication Check investment vote, live table locks
-3. Before reveal
-4. Medication Check Activated reveal
-5. A/B/C design vote, live table locks
-6. Review Together architectural payoff with facilitator-controlled layers:
-   - Arthur consequence
-   - Design Readiness
-   - Design Insight
+This main is based on the later opening-question/privacy version rather than reverting to an older main13 phone flow.
 
-## Phone synchronization
-Entering Investment sets session phase to `cap_vote1`.
-Entering capability reveal sets `cap_talk1`.
-Entering design vote sets `commit_vote1`.
-Entering design reveal sets `commit_talk1`.
-
-## Important current scope
-This is the permanent shell plus one validated content slice. The legacy facilitator view remains available at `?mode=facilitator&room=ROOMCODE`. The XPlayer does not yet replace every facilitator scene.
+## Test
+1. Upload all three src files and wait for GitHub Pages deploy to finish.
+2. Hard refresh facilitator page.
+3. Create a NEW room.
+4. Scan the new QR on a phone.
+5. Phone should open registration/table selection.
+6. For XPlayer, manually open the same site with `?mode=xplayer&room=XXXX` on the presentation computer.
