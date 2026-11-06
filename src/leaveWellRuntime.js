@@ -1,0 +1,18 @@
+export const LEAVE_WELL_PHASES=['elect','journey','story','opening_question','opening_cloud','needs','design_brief','rules','example','cap_vote1','cap_talk1','commit_vote1','commit_talk1','resource_check','cap_vote2','cap_talk2','commit_vote2','commit_talk2','designed','event','predict','consequence','principle','complete'];
+export const PHASE_META={
+ elect:['ARRIVE','Room setup'],journey:['ARRIVE','Arthur’s journey'],story:['ARRIVE','Meet Arthur'],opening_question:['ARRIVE','Room perspective'],opening_cloud:['ARRIVE','What the room sees'],needs:['ARRIVE','Arthur’s needs'],design_brief:['INVEST','Design brief'],rules:['INVEST','How the table plays'],example:['INVEST','How to read a capability'],cap_vote1:['INVEST','Investment 1'],cap_talk1:['INVEST','Capability activated'],commit_vote1:['DESIGN','Design decision'],commit_talk1:['DESIGN','Design created'],resource_check:['ADAPT','Go deeper or broader'],cap_vote2:['ADAPT','Investment 2'],cap_talk2:['ADAPT','Capability activated'],commit_vote2:['ADAPT','Design decision'],commit_talk2:['ADAPT','Portfolio created'],designed:['ADAPT','Accumulated design'],event:['RESPOND','Disruption'],predict:['RESPOND','Team response'],consequence:['RESULT','Performance under pressure'],principle:['RESULT','Architectural lesson'],complete:['RESULT','Leave Well complete']
+};
+export const CAPABILITIES={
+ ambient:{title:'SMART DISCHARGE',before:'smart-discharge-before.png',activated:'smart-discharge-activated.png',designs:{bedside:['AI PLAN FIRST','design-discharge-ai-plan-first.png'],shared:['REVIEW TOGETHER','design-discharge-review-together.png'],dedicated:['TRANSITION GUIDE','design-discharge-transition-guide.png']}},
+ wayfinding:{title:'SMART ROUTES',before:'smart-routes-before.png',activated:'smart-routes-activated.png',designs:{digital:['APP FIRST','design-routes-app-first.png'],layered:['LAYERED GUIDANCE','design-routes-layered-guidance.png'],escort:['GUIDED TRANSITION','design-routes-guided-transition.png']}},
+ meds:{title:'MEDICATION CHECK',before:'medication-check-before.png',activated:'medication-check-activated.png',designs:{nurse:['AI CHECK FIRST','design-meds-ai-check-first.png'],pharmacy:['REVIEW TOGETHER','design-meds-review-together.png'],huddle:['PLAN FOLLOWS ARTHUR','design-meds-plan-follows.png']}},
+ command:{title:'COORDINATED RESPONSE',before:'coordinated-response-before.png',activated:'coordinated-response-activated.png',designs:{unit:['SYSTEM ALERT','design-response-system-alert.png'],center:['COORDINATED RESPONSE','design-response-coordinated.png'],liaison:['TRANSITION GUIDE','design-response-transition-guide.png']}}
+};
+export function nextPhase(p){let i=LEAVE_WELL_PHASES.indexOf(p);return LEAVE_WELL_PHASES[Math.min(i+1,LEAVE_WELL_PHASES.length-1)]}
+export function previousPhase(p){let i=LEAVE_WELL_PHASES.indexOf(p);return LEAVE_WELL_PHASES[Math.max(i-1,0)]}
+export function teamActivations(team){return Array.isArray(team?.investments)?team.investments:[]}
+export function activeChoice(team){let acts=teamActivations(team);let last=acts.at(-1)||{};return{capabilityId:team?.locked_capability||last.capabilityId,commitmentId:team?.locked_commitment||last.commitmentId,strengthened:!!last.strengthened}}
+export function visualFor(capabilityId,commitmentId){let c=CAPABILITIES[capabilityId];let d=c?.designs?.[commitmentId];return c&&d?{capability:c.title,design:d[0],image:d[1],before:c.before,activated:c.activated}:null}
+export function phaseMeta(phase){let m=PHASE_META[phase]||['ARRIVE','Arthur: By Design'];return{beat:m[0],title:m[1]}}
+export function isVotePhase(p){return /^cap_vote|^commit_vote|^predict/.test(p)}
+export function isRevealPhase(p){return /^cap_talk|^commit_talk|^designed|^consequence|^principle/.test(p)}
