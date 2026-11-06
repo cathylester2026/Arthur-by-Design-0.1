@@ -1,30 +1,25 @@
-# Medication clean-image + persistent-design visual fix v6
+# Smart Discharge reveal build
+Built directly from uploaded main (10).js.
 
-## Replace at repository root
+## Replace repository root
 - main.js
-- medicationInvestmentTransition.js
-- medicationInvestmentTransition.css
-- medicationDesignReveals.js
-- medicationDesignReveals.css
 
-## Add at repository root
-- medicationPortfolioVisual.js
-- medicationPortfolioVisual.css
+## Add repository root
+- smartDischargeReveal.js
+- smartDischargeReveal.css
 
-## Replace in assets/
-- medication-check-before.png
-- medication-check-activated.png
-- design-meds-ai-check-first.png
-- design-meds-review-together.png
-- design-meds-plan-follows.png
+## Add to assets/
+- smart-discharge-before.png
+- smart-discharge-activated.png
+- design-discharge-ai-plan-first.png
+- design-discharge-review-together.png
+- design-discharge-transition-guide.png
 
-## What changed
-- Capability After image and A/B/C design images are now clean image-only scenes. No duplicated titles, status strips, Design Insight, callouts or CTA are baked into the images.
-- The HTML card remains the single source for need status, Arthur consequence, collapsed Learn More and Design Insight.
-- Round 1 Design uses the selected Medication A/B/C image rather than the generic medication storyboard.
-- Strengthen retains the selected A/B/C image and adds a small `DESIGN STRENGTHENED` treatment. The environment no longer forgets the selected design.
-- Consequence and final result screens use the selected A/B/C image when Medication Check is the only activated capability.
-- If the player Extends with another capability, the existing combined storyboard remains in use because the portfolio now contains more than one visual state.
+## Flow
+Before fragmented information -> Smart Discharge Activated -> existing A/B/C selection -> selected design impact -> Round 1 Design.
 
-## Logic preserved
-No costs, resources, IDs, causal scoring, event selection, response eligibility, Strengthen/Extend mechanics, persistence or multiplayer behavior changed.
+## Selected design persistence
+For a Smart Discharge-only portfolio, Round 1 Design, Strengthen, consequence and final result retain the selected A/B/C image. If the player Extends with another capability, the existing combined storyboard remains.
+
+## Logic preservation
+Existing IDs remain: bedside = AI Plan First, shared = Review Together, dedicated = Transition Guide. No costs, resources, state, scoring, causal logic, response eligibility, Strengthen/Extend mechanics, persistence or multiplayer logic changed.
