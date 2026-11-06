@@ -1,0 +1,37 @@
+{
+  "issues": [],
+  "directCases": 36,
+  "feasiblePairEventCases": 81,
+  "continuity": {
+    "outcome": "STRAINED",
+    "raw": 2.1,
+    "reasons": [
+      "A downstream setting is not participating in the shared plan."
+    ]
+  },
+  "invalidRevisionResponse": {
+    "eligible": false,
+    "boost": 0,
+    "before": "ABSORBED",
+    "after": "EXPOSED"
+  },
+  "mixedFeatures": {
+    "enabled": [
+      "consultation_environment",
+      "acoustic_privacy",
+      "family_participation",
+      "ambient_intelligence",
+      "responsive_wayfinding",
+      "architectural_landmarks",
+      "accessible_route_hierarchy"
+    ],
+    "preserved": [
+      "pharmacy_dependency",
+      "transport_dependency",
+      "operational_governance"
+    ],
+    "excluded": [
+      "operational_adaptability"
+    ]
+  }
+}

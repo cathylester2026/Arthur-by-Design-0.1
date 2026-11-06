@@ -1,20 +1,26 @@
-Arthur: By Design - Priority Logic Fixes v2
+Arthur: By Design - Causal Validation v3
 
-Upload to repository root:
+UPLOAD TO REPOSITORY ROOT
 - main.js (replace current)
 - causalEngine.js (replace current)
-- causalAlignment.css (replace/current)
+- causalAlignment.css (replace current)
+- architectureFeatureResolver.js (new)
 
-Validation files are included for audit and do not need deployment:
-- validate_v2.mjs
-- validate_v2_results.json
+KEEP EXISTING
+- architectureSpec.js
+- architectureSpec.css
+- all game data, supporting JavaScript, CSS, and assets
 
-Implemented:
-1. Machine-readable baseline and Strengthen readiness
-2. Same-event, same-response, same-resource revision comparison
-3. Authoritative medication plan pathways
-4. Explicit Adapt and Escalate semantics for every choice/event
-5. Recalibrated outcomes
-6. Complete 36-case causal explanation matrix
+VALIDATION ONLY, NO DEPLOYMENT REQUIRED
+- validate_v3.mjs
+- validate_v3_results.json
 
-No opening screens were consolidated.
+IMPLEMENTED
+1. Medication 3C assumes one confirmed discharge plan and separately tests late confirmation and downstream participation.
+2. Revision preserves response for comparison, applies zero benefit when the revised design cannot execute it, and labels the response unavailable.
+3. Designed readiness is separated from event-specific realized readiness.
+4. Mixed architectural portfolios resolve structured feature IDs before prompt prose is compiled.
+5. Arthur consequence language is generated from actual outcome and realized conditions.
+6. Operating requirement and accepted vulnerability are separated in the reveal.
+
+No capabilities, costs, opening screens, design pathways, or overall sequence were changed.
