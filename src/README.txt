@@ -1,26 +1,21 @@
-Arthur: By Design - Causal Validation v3
+Arthur: By Design - UI + Opening Reflection v4
 
 UPLOAD TO REPOSITORY ROOT
 - main.js (replace current)
-- causalEngine.js (replace current)
 - causalAlignment.css (replace current)
-- architectureFeatureResolver.js (new)
+- causalEngine.js (same v3 logic, included for version consistency)
+- architectureFeatureResolver.js (same v3 resolver, included for version consistency)
 
-KEEP EXISTING
-- architectureSpec.js
-- architectureSpec.css
-- all game data, supporting JavaScript, CSS, and assets
+CHANGES
+- Instruction screens now use distinct warm/sand + rust visual treatment and HOW TO PLAY label.
+- Rules CTA changed to LEARN HOW TO READ A CARD.
+- Sample screen renamed HOW TO READ AN INVESTMENT CARD with SAMPLE CARD marker.
+- Redundant capability preview replaced by a short instruction handoff.
+- Gameplay investment cards condensed to a medium-density format.
+- Removed duplicate 'If activated, X remains' line from investment cards.
+- Technology / built environment / operations moved into MORE DETAIL.
+- Single-player open question immediately after Meet Arthur, followed by response reflection.
+- Multiplayer open question immediately after Meet Arthur; phone responses aggregate into facilitator word cloud.
+- Opening responses are reflection only and do not affect scoring.
 
-VALIDATION ONLY, NO DEPLOYMENT REQUIRED
-- validate_v3.mjs
-- validate_v3_results.json
-
-IMPLEMENTED
-1. Medication 3C assumes one confirmed discharge plan and separately tests late confirmation and downstream participation.
-2. Revision preserves response for comparison, applies zero benefit when the revised design cannot execute it, and labels the response unavailable.
-3. Designed readiness is separated from event-specific realized readiness.
-4. Mixed architectural portfolios resolve structured feature IDs before prompt prose is compiled.
-5. Arthur consequence language is generated from actual outcome and realized conditions.
-6. Operating requirement and accepted vulnerability are separated in the reveal.
-
-No capabilities, costs, opening screens, design pathways, or overall sequence were changed.
+No causal scoring, capability costs, architectural choices, or outcome thresholds were changed.
