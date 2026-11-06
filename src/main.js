@@ -74,6 +74,7 @@ function joinUrl(){let u=new URL(location.href);u.search='';u.searchParams.set('
 function qr(text){let z=new QRCode(-1,L.M);z.addData(text);z.make();let n=z.getModuleCount(),d='',m=4;for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(z.isDark(r,c))d+=`M${c+m} ${r+m}h1v1h-1z`;return`<svg viewBox="0 0 ${n+8} ${n+8}" shape-rendering="crispEdges"><rect width="100%" height="100%" fill="white"/><path d="${d}" fill="#000"/></svg>`}
 
 async function facilitator(){let room=qs.get('room');if(!room){layout(`<h1>Create the room.</h1><button id="create">CREATE SESSION</button>`);q('#create').onclick=create;return}try{await load(room)}catch(e){error(e.message)}}
+async function player(){let room=qs.get('room')||localStorage.getItem('abd10-room')||'';if(!room){joinForm('');return}try{await load(room);let pid=localStorage.getItem('abd10-player');if(pid){me=players.find(p=>p.id===pid)||null;team=me?teams.find(t=>t.id===me.team_id)||null:null}render()}catch(e){console.error('Player boot failed',e);joinForm(room)}}
 function investments(t=team){return(t?.investments||[]).filter(i=>i.stage===S().id)}
 function remaining(t=team){let x=investments(t);return{capital:7-x.reduce((n,i)=>n+i.capital,0),change:6-x.reduce((n,i)=>n+i.change,0)}}
 function bars(t=team){let r=remaining(t);return`<div class="bars"><div><b>CAPITAL</b><span>${'●'.repeat(r.capital)}${'○'.repeat(7-r.capital)}</span><strong>${r.capital}</strong></div><div><b>CHANGE</b><span>${'●'.repeat(r.change)}${'○'.repeat(6-r.change)}</span><strong>${r.change}</strong></div></div>`}

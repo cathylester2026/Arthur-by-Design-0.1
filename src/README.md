@@ -1,24 +1,21 @@
-# XPlayer phone blank-screen hotfix
+# Player QR blank-screen fix v3
 
-## Replace in src/
-- main.js
+## Root cause
+The router called `player()` for `?mode=player&room=XXXX`, but the current merged main.js did not contain a `player()` bootstrap function. That causes a JavaScript ReferenceError immediately after a phone scans the QR, leaving the app root blank.
 
-## Ensure these already exist in src/
-- xPlayer.js
-- xPlayer.css
+## Fix
+Adds `async function player()` that:
+1. reads the room from the QR query string,
+2. loads the Supabase session,
+3. restores a previously joined player/table from localStorage when available,
+4. otherwise lets playerView() render the registration/table join screen,
+5. falls back to joinForm(room) if session loading fails instead of leaving a blank screen.
 
-## Root issue addressed
-XPlayer was added as a static dependency of main.js. That means every route, including the QR `mode=player` route on phones, had to load/resolve the XPlayer module before the normal phone app could boot.
+XPlayer remains dynamically isolated and the QR still points to `mode=player`.
 
-This patch isolates XPlayer with dynamic imports that run only when `mode=xplayer`.
-The phone QR route remains the established `?mode=player&room=XXXX` flow.
-
-This main is based on the later opening-question/privacy version rather than reverting to an older main13 phone flow.
+## GitHub
+Replace `src/main.js`.
+Keep `src/xPlayer.js` and `src/xPlayer.css` present.
 
 ## Test
-1. Upload all three src files and wait for GitHub Pages deploy to finish.
-2. Hard refresh facilitator page.
-3. Create a NEW room.
-4. Scan the new QR on a phone.
-5. Phone should open registration/table selection.
-6. For XPlayer, manually open the same site with `?mode=xplayer&room=XXXX` on the presentation computer.
+After Pages deploy finishes, create a NEW room and scan the NEW QR. The phone should render registration immediately.
