@@ -1,18 +1,8 @@
-# Arthur: By Design - Session Sync & Registration Fix CLEAN v2
+# Arthur: By Design - Onboarding & Instructions Parity CLEAN v1
+Built directly from the exact files provided after Session Sync CLEAN v2.
 
-This package contains NO nested `base/` directory and only the deployment files.
+Replace root: index.html
+Replace/add in src/: leaveWellExperience.js, parityRouter.js, parityEngine.js, parityHost.js, parityPhone.js, parity.css
+Do not replace src/main.js.
 
-Repository root:
-- replace `index.html`
-
-Existing `src/` directory:
-- replace/add `leaveWellExperience.js`
-- replace/add `parityRouter.js`
-- replace/add `parityEngine.js`
-- replace/add `parityHost.js`
-- replace/add `parityPhone.js`
-- replace/add `parity.css`
-
-Do not replace `src/main.js`.
-
-Includes: consent restoration, opening-prompt Submit/Skip fix, live table/player/vote readiness panel, and guarded facilitator NEXT during decision phases.
+Scope only: Meet Arthur, opening prompt, room response, Journey, Four Things Matter, How to Play, How to Read a Card, and phone equivalents. Existing consent, table/player status, vote readiness and synchronization logic remains in place.
