@@ -1,21 +1,13 @@
-# Player QR blank-screen fix v3
+# Arthur: By Design - Visual Language Lock v1
 
-## Root cause
-The router called `player()` for `?mode=player&room=XXXX`, but the current merged main.js did not contain a `player()` bootstrap function. That causes a JavaScript ReferenceError immediately after a phone scans the QR, leaving the app root blank.
+Replace only these three files in src/:
+- parityHost.js
+- parityPhone.js
+- parity.css
 
-## Fix
-Adds `async function player()` that:
-1. reads the room from the QR query string,
-2. loads the Supabase session,
-3. restores a previously joined player/table from localStorage when available,
-4. otherwise lets playerView() render the registration/table join screen,
-5. falls back to joinForm(room) if session loading fails instead of leaving a blank screen.
+No changes to phase engine, QR, registration, consent, table status, synchronization, or Solo mode.
 
-XPlayer remains dynamically isolated and the QR still points to `mode=player`.
-
-## GitHub
-Replace `src/main.js`.
-Keep `src/xPlayer.js` and `src/xPlayer.css` present.
-
-## Test
-After Pages deploy finishes, create a NEW room and scan the NEW QR. The phone should render registration immediately.
+Locked visual system:
+- Journey matches Solo triptych with ↗ Leave Well, ⌂ Recover Well, ◎ Live Well.
+- Arthur lens ? Understand, → Move, ∞ Connect, ✓ Trust is present on facilitator and phone.
+- How to Play uses ◎ Choose, ◇ Design, ↗ Adapt, ϟ Respond; full Arthur lens; full Capital/Change explanation; warm instructional background.
