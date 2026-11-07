@@ -1,8 +1,9 @@
-# Arthur: By Design - Onboarding & Instructions Parity CLEAN v1
-Built directly from the exact files provided after Session Sync CLEAN v2.
+# Arthur: By Design - Onboarding Lock v2
 
-Replace root: index.html
-Replace/add in src/: leaveWellExperience.js, parityRouter.js, parityEngine.js, parityHost.js, parityPhone.js, parity.css
-Do not replace src/main.js.
+Replace root index.html and replace/add the six files under src/. Do not replace src/main.js.
 
-Scope only: Meet Arthur, opening prompt, room response, Journey, Four Things Matter, How to Play, How to Read a Card, and phone equivalents. Existing consent, table/player status, vote readiness and synchronization logic remains in place.
+Fixes:
+1. Explore on My Own clears Solo-related local state and opens at the beginning.
+2. Shared room reflection adapts to 1 response, 2-4 responses, or 5+ responses. Solo remains separate and unchanged.
+3. Journey explicitly shows Leave Well as playable today, Recover Well as in development, and Live Well as future. The shared experience no longer implies all three are already playable.
+4. Facilitator Four Things Matter restores the Arthur story banner, icon strip, four definitions, and challenge bar. Phone treatment remains compact.
