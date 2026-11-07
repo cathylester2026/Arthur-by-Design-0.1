@@ -1,6 +1,5 @@
-import{ROLE_PLAYER,createClient}from'https://esm.sh/@supabase/supabase-js@2'
+import{supabase as sb}from'./supabase.js'
 import{FLOW,decision}from'./leaveWellExperience.js'
-export const sb=createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY)
 export const PLAYER='abd-parity-player',ROOM='abd-parity-room'
 export async function createRoom(){let code=Math.random().toString(36).slice(2,6).toUpperCase(),r=await sb.from('sessions').insert({code,phase:'meet',screen:'parity',status:'active',stage_index:0,reveal_step:0}).select().single();if(r.error)throw r.error;return r.data}
 export async function load(code){let r=await sb.from('sessions').select('*').eq('code',code.toUpperCase()).single();if(r.error)throw r.error;return r.data}
