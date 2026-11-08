@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+const store=new Map();
+global.localStorage={setItem:(k,v)=>store.set(k,String(v)),getItem:k=>store.get(k)||null,removeItem:k=>store.delete(k)};
+global.location={href:'https://example.test/?mode=join&room=ABCD&player=stolen'};
+global.history={replaceState:()=>{}};
+const m=await import('./playerIdentity.js');
+const players=[{id:'A',session_id:'S1'},{id:'B',session_id:'S1'},{id:'C',session_id:'S2'}];
+assert.equal(m.resolveBoundPlayer('ABCD',players,'S1'),null);
+m.bindPlayer('ABCD','A');
+assert.equal(m.resolveBoundPlayer('ABCD',players,'S1').id,'A');
+assert.equal(m.resolveBoundPlayer('ABCD',players,'S2'),null);
+m.bindPlayer('EFGH','B');
+assert.equal(m.resolveBoundPlayer('EFGH',players,'S1').id,'B');
+assert.equal(m.resolveBoundPlayer('ABCD',players,'S1').id,'A');
+m.clearBoundPlayer('ABCD');
+assert.equal(m.resolveBoundPlayer('ABCD',players,'S1'),null);
+console.log('PASS: room-scoped device identity is isolated and URL-independent');
