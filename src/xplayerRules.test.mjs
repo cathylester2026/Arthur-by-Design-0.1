@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import{canAfford,spendCapability,voteDistribution,evaluateTable}from'./xplayerRules.js';
+let t={capital:7,change_budget:6,investments:[]};
+assert.equal(canAfford(t,'command'),true);
+let after=spendCapability(t,'command');assert.deepEqual(after,{capital:2,change_budget:1});
+assert.equal(canAfford({...t,...after},'meds'),false);
+assert.throws(()=>spendCapability({...t,...after},'meds'),/not affordable/);
+let votes=[{team_id:'A',decision:'capability1',choice:'meds'},{team_id:'A',decision:'capability1',choice:'wayfinding'},{team_id:'A',decision:'capability1',choice:'ambient'}];
+assert.deepEqual(voteDistribution(votes,'A','capability1'),{meds:1,wayfinding:1,ambient:1});
+let a=evaluateTable({investments:[{capabilityId:'ambient',commitmentId:'shared',strengthened:false}]});
+let b=evaluateTable({investments:[{capabilityId:'command',commitmentId:'center',strengthened:true},{capabilityId:'meds',commitmentId:'pharmacy',strengthened:false}]});
+assert.notEqual(a.outcome,b.outcome);assert.equal(b.outcome,'HOLDS');
+console.log('xplayerRules regression tests passed');
