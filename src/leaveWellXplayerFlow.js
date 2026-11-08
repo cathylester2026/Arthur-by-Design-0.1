@@ -1,39 +1,45 @@
-import'./leaveWellXplayerFlow.css';
-import{supabase as sb}from'./supabase.js';
-import{load,all,vote,lockChoice,phase,evaluate}from'./parityEngine.js';
-import{CAPABILITIES,RESPONSES,asset,decision}from'./leaveWellExperience.js';
-import{canAfford,affordableChoices,budgetOf}from'./xplayerRules.js';
-const qs=new URLSearchParams(location.search),mode=qs.get('mode'),room=(qs.get('room')||'').toUpperCase();
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const activePlayers=(d,t)=>d.players.filter(p=>p.team_id===t.id);
-const counts=(votes,teamId,key,allowed=null)=>{let c={};votes.filter(v=>v.team_id===teamId&&v.decision===key&&(!allowed||allowed.includes(v.choice))).forEach(v=>c[v.choice]=(c[v.choice]||0)+1);return c};
-const leaders=c=>{let m=Math.max(0,...Object.values(c));return m?Object.keys(c).filter(k=>c[k]===m):[]};
-const rnd=a=>a[crypto.getRandomValues(new Uint32Array(1))[0]%a.length];
-const keyFor=(t,p)=>p==='invest'?decision('capability',t):p==='design'?decision('design',t):p==='adapt'?'strategy':p==='event'?'prediction':p==='respond'?'response':null;
-const label=(t,p,id)=>p==='invest'?CAPABILITIES[id]?.title:p==='design'?CAPABILITIES[t.locked_capability]?.options?.[id]?.[0]:p==='adapt'?(id==='strengthen'?'STRENGTHEN':'EXTEND'):p==='event'?id:p==='respond'?RESPONSES[id]?.[0]:id;
-const img=(t,p,id)=>p==='invest'?CAPABILITIES[id]?.image:p==='design'?CAPABILITIES[t.locked_capability]?.options?.[id]?.[1]:null;
-const runoff=(t,p)=>{let r=t.game_state?.runoff;return r&&r.phase===p&&r.status==='open'?r:null};
-async function setRunoff(t,p,key,options){let game_state={...(t.game_state||{}),runoff:{phase:p,baseKey:key,key:`${key}__runoff`,options,status:'open',createdAt:new Date().toISOString()}};let q=await sb.from('teams').update({game_state}).eq('id',t.id);if(q.error)throw q.error}
-async function resolveRunoff(t,choice,source){let game_state={...(t.game_state||{}),runoff:{...(t.game_state?.runoff||{}),status:'resolved',choice,source,resolvedAt:new Date().toISOString()}};let q=await sb.from('teams').update({game_state}).eq('id',t.id);if(q.error)throw q.error}
-const remainingOthers=t=>Object.keys(CAPABILITIES).filter(id=>!(t.investments||[]).some(i=>i.capabilityId===id));
-const canExtend=t=>remainingOthers(t).some(id=>canAfford(t,id));
-const impact=t=>evaluate(t,'handoff_changed');
-const responseEligibility=t=>{let b=budgetOf(t);return{use:{ok:true,cost:'◆0 · ●0',why:'Rely on the design and operating commitments already funded.'},adapt:{ok:b.change>=1,cost:'●1 CHANGE',why:b.change>=1?'Adjust how the existing design operates during the disruption.':'No Change capacity remains.'},escalate:{ok:b.capital>=1&&b.change>=1,cost:'◆1 CAPITAL · ●1 CHANGE',why:b.capital>=1&&b.change>=1?'Add targeted people and implementation support.':'Insufficient Capital / Change to mobilize additional support.'}}};
-function nextPhase(p,teams){if(p==='invest')return'activation';if(p==='design')return'designReveal';if(p==='adapt')return teams.some(t=>t.status==='extend')?'invest':'event';if(p==='event')return'respond';if(p==='respond')return'result';return null}
-async function hostAdvance(e){if(mode!=='host'||!room)return;let btn=e.target.closest?.('#n');if(!btn)return;let s=await load(room),d=await all(s),p=s.phase;if(!['invest','design','adapt','event','respond'].includes(p))return;let teams=d.teams.filter(t=>activePlayers(d,t).length&&keyFor(t,p));
-// Prevent impossible Extend before tally/tie resolution.
-if(p==='adapt'){d.votes.filter(v=>v.decision==='strategy'&&v.choice==='extend').forEach(v=>{let t=teams.find(x=>x.id===v.team_id);if(t&&!canExtend(t))throw new Error(`${t.table_name} cannot Extend because no remaining capability is affordable.`)})}
-let ties=[];for(let t of teams){if(runoff(t,p))continue;let lead=leaders(counts(d.votes,t.id,keyFor(t,p)));if(lead.length>1)ties.push({t,key:keyFor(t,p),lead})}
-if(ties.length){e.preventDefault();e.stopImmediatePropagation();for(let x of ties)await setRunoff(x.t,p,x.key,x.lead);return}
-let opens=teams.filter(t=>runoff(t,p));if(opens.length){e.preventDefault();e.stopImmediatePropagation();for(let t of opens){let r=runoff(t,p),people=activePlayers(d,t),cast=d.votes.filter(v=>v.team_id===t.id&&v.decision===r.key);if(cast.length<people.length){alert(`Waiting for ${people.length-cast.length} runoff vote(s) at ${t.table_name}.`);return}}
-for(let t of teams){let r=runoff(t,p),key=keyFor(t,p),choice,source='table_vote';if(r){let ls=leaders(counts(d.votes,t.id,r.key,r.options));choice=ls.length===1?ls[0]:rnd(ls);source=ls.length===1?'runoff_vote':'random_after_runoff_tie'}else{choice=leaders(counts(d.votes,t.id,key))[0]}if(!choice)continue;if(p==='adapt'&&choice==='extend'&&!canExtend(t))choice='strengthen';if(p==='respond'){let elig=responseEligibility(t)[choice];if(elig&&!elig.ok)choice='use'}let q=await lockChoice(t,d.players,d.votes,key,choice,{source});if(q?.error)throw q.error;if(r)await resolveRunoff(t,choice,source)}let fresh=await all(s),next=nextPhase(p,fresh.teams);if(next)await phase(s,next)} }
-function runoffPhone(s,d,p,t,r){let my=d.votes.find(v=>v.player_id===p.id&&v.decision===r.key);return`<main id="lw-overlay" class="lw-overlay runoff"><small>${esc(t.table_name)} · RUNOFF</small><h1>YOUR TABLE IS TIED.</h1><p>Vote again between only the tied options.</p><div class="lw-choice-grid">${r.options.map(id=>`<article>${img(t,s.phase,id)?`<img src="${asset(img(t,s.phase,id))}">`:''}<h2>${esc(label(t,s.phase,id))}</h2><button data-lw-vote="${esc(id)}" class="${my?.choice===id?'selected':''}">${my?.choice===id?'VOTED':'VOTE'}</button></article>`).join('')}</div><p class="lw-rule">If the runoff ties again, the game randomly selects between the tied options so the table can keep moving.</p></main>`}
-function impactPhone(t){let e=impact(t),prediction=t.game_state?.prediction||'—',inv=t.investments||[];return`<main id="lw-overlay" class="lw-overlay impact"><small>${esc(t.table_name)} · DESIGN UNDER PRESSURE</small><h1>${esc(e.outcome)}</h1><p class="prediction">YOUR PREDICTION · ${esc(prediction)}</p><section><b>WHAT HELD</b>${e.reasons.map(x=>`<p>✓ ${esc(x)}</p>`).join('')||'<p>— No dependency fully held.</p>'}</section><section><b>WHAT WAS EXPOSED</b>${e.exposures.map(x=>`<p>△ ${esc(x)}</p>`).join('')||'<p>✓ No material exposure remained.</p>'}</section><section class="design-thread"><b>DESIGN THREAD</b><p>${inv.map(i=>`${esc(CAPABILITIES[i.capabilityId]?.title)} · ${esc(CAPABILITIES[i.capabilityId]?.options?.[i.commitmentId]?.[0]||'')}`).join('<br>')}</p><p>The disruption is testing the architecture, engineering infrastructure and operating dependencies created by those choices.</p></section><button id="lw-impact-ok">CONTINUE TO RESPONSE</button></main>`}
-function responsePhone(t,s,d,p){let k='response',my=d.votes.find(v=>v.player_id===p.id&&v.decision===k),el=responseEligibility(t),e=impact(t);return`<main id="lw-overlay" class="lw-overlay response"><small>${esc(t.table_name)} · HANDOFF CHANGED</small><h1>HOW WILL YOUR TABLE RESPOND?</h1><p class="challenge"><b>THE CHALLENGE</b><br>Transportation arrived early. Family support is unavailable. The receiving team has the old plan.</p><div class="lw-budget"><b>◆ ${esc(t.capital)} CAPITAL</b><b>● ${esc(t.change_budget)} CHANGE</b><b>${esc(e.outcome)}</b></div><div class="lw-choice-grid three">${Object.entries(el).map(([id,x])=>`<article class="${x.ok?'':'disabled'}"><h2>${esc(RESPONSES[id]?.[0]||id)}</h2><strong>${esc(x.cost)}</strong><p>${esc(x.why)}</p><button data-lw-response="${id}" ${x.ok?'':'disabled'}>${my?.choice===id?'VOTED':x.ok?'CHOOSE':'NOT AVAILABLE'}</button></article>`).join('')}</div><p class="lw-rule">No response capacity left? Your table must rely on the design it already funded.</p></main>`}
-async function phoneOverlay(){if(mode!=='join'||!room)return;let s=await load(room),d=await all(s),id=localStorage.getItem(`abd-xplayer-player:${room}`),p=d.players.find(x=>x.id===id),t=p&&d.teams.find(x=>x.id===p.team_id);if(!p||!t)return;let existing=document.querySelector('#lw-overlay'),r=runoff(t,s.phase);if(r){if(!existing)document.body.insertAdjacentHTML('beforeend',runoffPhone(s,d,p,t,r));document.querySelectorAll('[data-lw-vote]').forEach(b=>b.onclick=()=>vote({session:s,team:t,player:p,key:r.key,choice:b.dataset.lwVote}).then(phoneOverlay));return}
-// Impact reveal after prediction vote is complete but before response vote is cast. One acknowledgment per device/session.
-let impactKey=`lw-impact:${s.id}:${t.id}`;if(s.phase==='respond'&&!sessionStorage.getItem(impactKey)){existing?.remove();document.body.insertAdjacentHTML('beforeend',impactPhone(t));document.querySelector('#lw-impact-ok').onclick=()=>{sessionStorage.setItem(impactKey,'1');document.querySelector('#lw-overlay')?.remove();phoneOverlay()};return}
-if(s.phase==='respond'){existing?.remove();document.body.insertAdjacentHTML('beforeend',responsePhone(t,s,d,p));document.querySelectorAll('[data-lw-response]').forEach(b=>b.onclick=()=>vote({session:s,team:t,player:p,key:'response',choice:b.dataset.lwResponse}).then(phoneOverlay));return}existing?.remove()}
-function hostOverlay(){if(mode!=='host')return;(async()=>{let s=await load(room),d=await all(s),old=document.querySelector('#lw-host-overlay');if(s.phase==='respond'){let rows=d.teams.filter(t=>activePlayers(d,t).length).map(t=>({t,e:impact(t),el:responseEligibility(t)}));let html=`<aside id="lw-host-overlay" class="lw-host-overlay"><small>RESPOND · HANDOFF CHANGED</small><h2>YOUR DESIGNS HAVE BEEN TESTED.</h2><p><b>The challenge:</b> Transportation arrived early. Family support is unavailable. The receiving team has the old plan.</p><div>${rows.map(x=>`<section><b>${esc(x.t.table_name)} · ${esc(x.e.outcome)}</b><span>◆${esc(x.t.capital)} · ●${esc(x.t.change_budget)}</span><small>ADAPT ${x.el.adapt.ok?'✓':'×'} · ESCALATE ${x.el.escalate.ok?'✓':'×'}</small></section>`).join('')}</div></aside>`;if(!old)(document.querySelector('.host .stage')||document.body).insertAdjacentHTML('afterbegin',html);else old.outerHTML=html}else old?.remove()})().catch(()=>{})}
-if(mode==='host'){document.addEventListener('click',e=>hostAdvance(e).catch(err=>{e.preventDefault();e.stopImmediatePropagation();alert(err.message)}),true);setInterval(hostOverlay,650)}
-if(mode==='join')setInterval(()=>phoneOverlay().catch(()=>{}),550);
+// One pure flow contract, shared by phones, facilitator and regression tests.
+import { CAPABILITIES } from './leaveWellExperience.js';
+import { canAfford, canStrengthen, responseEligibility } from './xplayerRules.js';
+export const DECISION_PHASES = ['invest','design','adapt','event','impact','respond'];
+export function baseDecision(team, phase) {
+  if (team.status === 'inactive') return null;
+  const n = (team.investments || []).length + 1;
+  if (phase === 'invest') return n <= 2 && (n === 1 || team.status === 'extend') ? `capability${n}` : null;
+  if (phase === 'design') return n <= 2 && team.status === 'capability_locked' ? `design${n}` : null;
+  return {adapt:'strategy',event:'prediction',impact:'impact_ack',respond:'response'}[phase] || null;
+}
+export function canExtend(team) {
+  return (team.investments || []).length < 2 && Object.keys(CAPABILITIES).some(id => !(team.investments || []).some(i => i.capabilityId === id) && canAfford(team,id));
+}
+export function allowedChoices(team, phase) {
+  if (!baseDecision(team,phase)) return [];
+  if (phase === 'invest') return Object.keys(CAPABILITIES).filter(id => !(team.investments || []).some(i => i.capabilityId === id) && canAfford(team,id));
+  if (phase === 'design') return Object.keys(CAPABILITIES[team.locked_capability]?.options || {});
+  if (phase === 'adapt') return [canStrengthen(team) && 'strengthen', canExtend(team) && 'extend'].filter(Boolean);
+  if (phase === 'event') return ['YES','NOT SURE','NO'];
+  if (phase === 'impact') return ['ready'];
+  if (phase === 'respond') return Object.entries(responseEligibility(team)).filter(([,v])=>v.ok).map(([k])=>k);
+  return [];
+}
+export function openRunoff(team, phase) {
+  const r=team.game_state?.runoff;
+  return r?.phase===phase && r.status==='open' ? r : null;
+}
+export function ballot(team, phase) {
+  const key=baseDecision(team,phase), r=openRunoff(team,phase);
+  return key ? {key:r?.key || key,baseKey:key,options:r?.options || allowedChoices(team,phase),runoff:!!r} : null;
+}
+export function tally(team, phase, players, votes) {
+  const b=ballot(team,phase), people=players.filter(p=>p.team_id===team.id), ids=new Set(people.map(p=>p.id)), seen=new Map();
+  for(const v of votes) if(b && v.team_id===team.id && ids.has(v.player_id) && v.decision===b.key && b.options.includes(v.choice)) seen.set(v.player_id,v);
+  const counts={}; for(const v of seen.values()) counts[v.choice]=(counts[v.choice]||0)+1;
+  const max=Math.max(0,...Object.values(counts)), leaders=max?Object.keys(counts).filter(k=>counts[k]===max):[];
+  return {team,ballot:b,people,counts,leaders,cast:seen.size,ready:!!b && people.length>0 && seen.size===people.length};
+}
+export function nextDecisionPhase(phase,teams) {
+  return {invest:'activation',design:'designReveal',adapt:teams.some(t=>t.status==='extend')?'invest':'event',event:'impact',impact:'respond',respond:'result'}[phase] || null;
+}
+export function choiceLabel(team,phase,id) {
+  return phase==='invest'?CAPABILITIES[id]?.title || id:phase==='design'?CAPABILITIES[team.locked_capability]?.options?.[id]?.[0] || id:phase==='adapt'?(id==='strengthen'?'STRENGTHEN':'EXTEND'):id;
+}
