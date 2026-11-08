@@ -1,0 +1,11 @@
+import assert from'node:assert/strict';
+const lead=c=>{let m=Math.max(...Object.values(c));return Object.keys(c).filter(k=>c[k]===m)};
+assert.deepEqual(lead({A:2,B:2,C:0}),['A','B']);
+assert.deepEqual(lead({A:3,B:1}),['A']);
+const afford=(b,c)=>b.capital>=c.capital&&b.change>=c.change;
+assert.equal(afford({capital:2,change:1},{capital:3,change:2}),false);
+assert.equal(afford({capital:2,change:2},{capital:2,change:2}),true);
+const response=(b)=>({adapt:b.change>=1,escalate:b.capital>=1&&b.change>=1});
+assert.deepEqual(response({capital:1,change:0}),{adapt:false,escalate:false});
+assert.deepEqual(response({capital:1,change:1}),{adapt:true,escalate:true});
+console.log('PASS: runoff, affordability and response eligibility regressions');
