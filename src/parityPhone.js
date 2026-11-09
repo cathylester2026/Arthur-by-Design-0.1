@@ -1,5 +1,6 @@
+import {mountPhoneStory} from './phoneFinalReveal.js';
 import './leaveWellXplayerFlow.css';
-import {ballot, openRunoff} from './leaveWellXplayerFlow.js';
+import {ballot, openRunoff,choiceLabel} from './leaveWellXplayerFlow.js';
 import {runoffHTML,impactHTML,responseHTML,strategyHTML,resultHTML} from './xplayerFlowViews.js';
 import {perspectiveHTML,escapeHTML} from './perspectivePrompts.js';
 import "./parityEvent.css";
@@ -11,6 +12,7 @@ import { bindPlayer, resolveBoundPlayer, cleanJoinUrl, clearBoundPlayer } from "
 import { canAfford, budgetOf } from "./xplayerRules.js";
 import { load, all, join, vote, sub, PLAYER, ROOM, evaluate } from "./parityEngine.js";
 import { CAPABILITIES, RESPONSES, asset, decision } from "./leaveWellExperience.js";
+import './phoneMediaFit.css';
 let root, s, d, p, t, refreshing = false, refreshAgain = false;
 const q = (x) => document.querySelector(x), E = escapeHTML;
 function reg() {
@@ -52,21 +54,22 @@ function wait(h, c, i) {
   return `<main class="phone wait">${i ? `<img src="${asset(i)}">` : ""}<h1>${h}</h1><p>${c}</p></main>`;
 }
 function journeyMap() {
-  let f = normalizePhase(s?.phase), leave = ["meet", "opening", "reflection", "journey", "needs", "rules", "card", "invest", "activation", "design", "designReveal", "adapt", "event", "impact", "respond", "result", "principles"].includes(f);
+  let f = normalizePhase(s?.phase), leave = ["meet", "opening", "reflection", "journey", "needs", "rules", "card", "invest", "activation", "design", "designReveal", "adapt", "event", "impact", "respond", "result", "finalReveal", "principles"].includes(f);
   return `<nav class="journey-map" aria-label="Arthur journey"><span class="${leave ? "active" : ""}"><b>01</b> LEAVE WELL<small>Hospital \u2192 Home</small></span><i></i><span><b>02</b> RECOVER WELL<small>At Home</small></span><i></i><span><b>03</b> LIVE WELL<small>In the Community</small></span></nav>`;
 }
 function applyPhoneChrome() {
   let main = root?.querySelector?.("main.phone");
   if (main && !main.querySelector(":scope > .journey-map")) main.insertAdjacentHTML("afterbegin", journeyMap());
 }
-function renderScreen() {
+function renderScreen(forceReflection=false) {
   if(t.status==="inactive")return root.innerHTML=wait("YOUR TABLE IS PAUSED","The facilitator continued without a vote from your table. Follow the room screen for the discussion.");
-  let f = normalizePhase(s.phase);
+  let f = forceReflection?'principles':normalizePhase(s.phase);
   if(openRunoff(t,f))return root.innerHTML=runoffHTML(t,f,p,d.votes);
   if(f==='impact')return root.innerHTML=impactHTML(t,p,d.votes);
   if(f==='respond')return root.innerHTML=responseHTML(t,p,d.votes);
   if(f==='adapt')return root.innerHTML=strategyHTML(t,p,d.votes);
   if(f==='result')return root.innerHTML=resultHTML(t);
+
   if (f === "meet") return root.innerHTML = `<main class="phone team-standby"><span>ARTHUR: BY DESIGN \xB7 LIVE DESIGN STUDIO</span><small>YOU JOINED</small><h1>${E(t?.table_name || "YOUR DESIGN TEAM")}</h1><div class="standby-mark"><i></i><i></i><i></i></div><h2>YOU\u2019RE IN.</h2><p>Keep this phone open. The facilitator will begin the shared story when every design team is ready.</p><div class="standby-note"><b>WHAT HAPPENS NEXT</b><p>You\u2019ll add a few words, discuss choices with your table and vote together.</p></div></main>`;
   if (f === "opening") {
     let v = mine("opening_challenge");
@@ -97,6 +100,7 @@ function renderScreen() {
     return;
   }
   if (f === "activation") {
+    if(t.status==="ready")return root.innerHTML=wait("YOUR STRENGTHENED DESIGN IS READY","Your table is keeping its reinforced first design while other tables complete a second investment.");
     let investments = t.investments || [], inv = investments.at(-1), capId = t.locked_capability || inv?.capabilityId, c = CAPABILITIES[capId], round = investments.length + 1, impact = capabilityImpact(capId, investments);
     return c ? root.innerHTML = `<main class="phone table-reveal-phone capability-impact-phone"><span>${E(t.table_name)} \xB7 ROUND ${round} \xB7 YOUR TABLE CHOSE</span><img src="${asset(c.activated)}"><h1>${c.title}</h1><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>WHAT THIS MAKES POSSIBLE</b><br>${c.line}</p>${impact}<div class="reveal-next">Next, your table will decide how this capability changes the space, systems and delivery model.</div></main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your investment is being confirmed.");
   }
@@ -121,12 +125,16 @@ function renderScreen() {
   }
   if (f === "principles") return root.innerHTML = `<main class="phone principles-phone"><span>ARTHUR: BY DESIGN</span><h1>WHAT WILL ARTHUR BE ABLE TO RELY ON?</h1><p>Technology created possibilities. Your table\u2019s design, operating commitments and response determined what held.</p><div><b>UNDERSTAND</b><b>MOVE</b><b>CONNECT</b><b>TRUST</b></div></main>`;
 }
+let showReflection=false;
 function render(){
- renderScreen();applyPhoneChrome();const f=normalizePhase(s.phase),main=root.querySelector('main');
- if(main){main.insertAdjacentHTML('beforeend',perspectiveHTML(p,f,d.votes,t));
- const save=root.querySelector('#save-perspective');if(save)save.onclick=()=>cast(save.dataset.key,root.querySelector('#perspective-thought').value.trim());}
+ const f=normalizePhase(s.phase),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive';
+ if(finished&&!showReflection){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,onReflect:()=>{showReflection=true;render()}});applyPhoneChrome();return}
+ if(!finished)showReflection=false;
+ renderScreen(finished&&showReflection);applyPhoneChrome();const main=root.querySelector('main');
+ if(main){main.dataset.capability=t.locked_capability||t.investments?.at(-1)?.capabilityId||'';main.insertAdjacentHTML('beforeend',perspectiveHTML(p,f,d.votes,t));const save=root.querySelector('#save-perspective');if(save)save.onclick=()=>cast(save.dataset.key,root.querySelector('#perspective-thought').value.trim())}
+ if(finished&&showReflection){const button=document.createElement('button');button.id='replay-table-reveal';button.textContent='BACK TO MY STORY';button.onclick=()=>{showReflection=false;render()};main?.appendChild(button)}
  root.querySelectorAll('[data-flow-choice]').forEach(b=>b.onclick=()=>cast(ballot(t,f).key,b.dataset.flowChoice));
- const source=t.game_state?.last_decision?.source;if(source==='random_after_runoff_tie'&&main){const n=document.createElement('p');n.className='flow-notice';n.textContent='The runoff tied again. The game randomly selected '+t.game_state.last_decision.choice+' from the tied options.';main.prepend(n)}
+ const source=t.game_state?.last_decision?.source;if(source==='random_after_runoff_tie'&&main){const n=document.createElement('p');n.className='flow-notice';n.textContent='A tied runoff was resolved by a disclosed random selection.';main.prepend(n)}
 }
 function updateDiagnostic() {
   if(new URLSearchParams(location.search).get("debug")!=="1")return;
