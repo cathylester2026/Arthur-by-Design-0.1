@@ -1,3 +1,4 @@
+import {portfolioStackHTML} from './portfolioRevealViews.js';
 import {applyStudioBrand} from './studioBrand.js';
 import {captureView,restoreView} from './studioViewState.js';
 import {applyArchitectureDetails} from './designDepth.js';
@@ -128,21 +129,21 @@ function renderScreen(forceReflection=false) {
   if (f === "activation") {
     if(t.status==="ready")return root.innerHTML=`<main class="phone">${strengthenImpact(t.investments?.at(-1),CAPABILITIES)}<p>Follow the facilitator while other tables complete their second investment.</p></main>`;
     let investments = t.investments || [], inv = investments.at(-1), capId = t.locked_capability || inv?.capabilityId, c = CAPABILITIES[capId], round = investments.length + 1, impact = capabilityImpact(capId, investments);
-    return c ? root.innerHTML = `<main class="phone table-reveal-phone capability-impact-phone"><span>${E(t.table_name)} \xB7 ROUND ${round} \xB7 YOUR TABLE CHOSE</span><img src="${asset(c.activated)}"><h1>${c.title}</h1><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>WHAT THIS MAKES POSSIBLE</b><br>${c.line}</p>${impact}<div class="reveal-next">Next, your table will decide how this capability changes the space, systems and delivery model.</div></main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your investment is being confirmed.");
+    return c ? root.innerHTML = `<main class="phone table-reveal-phone capability-impact-phone"><span>${E(t.table_name)} \xB7 ROUND ${round} \xB7 YOUR TABLE CHOSE</span>${portfolioStackHTML(t,{pending:true})}<img src="${asset(c.activated)}"><h1>${c.title}</h1><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>WHAT THIS MAKES POSSIBLE</b><br>${c.line}</p>${impact}<div class="reveal-next">Next, your table will decide how this capability changes the space, systems and delivery model.</div></main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your investment is being confirmed.");
   }
   if (f === "design") {
     if (t.status === "ready") return root.innerHTML = wait("YOUR TABLE’S RECORDED PATH: STRENGTHEN", "Your design is locked and reinforced. Other tables are completing their second investment. Follow the room screen for the comparison.");
     let c = CAPABILITIES[t.locked_capability];
     if (!c) return root.innerHTML = wait("WAITING FOR THE TABLE RESULT", "The investment vote is locking.");
     let k = decision("design", t), v = mine(k);
-    root.innerHTML = `<main class="phone"><h1>${c.question}</h1><div class="lens" aria-label="Useful, resilient, human"><b>USEFUL</b> <b>RESILIENT</b> <b>HUMAN</b></div>${Object.entries(c.options).map(([id, o],index) => `<article data-design="${id}"><img src="${asset(o[1])}"><h2>${'ABC'[index]} · ${o[0]}</h2><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><button data-c="${id}" class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : "CHOOSE"}</button></article>`).join("")}</main>`;
+    root.innerHTML = `<main class="phone"><h1>${c.question}</h1>${portfolioStackHTML(t,{pending:true})}<div class="lens" aria-label="Useful, resilient, human"><b>USEFUL</b> <b>RESILIENT</b> <b>HUMAN</b></div>${Object.entries(c.options).map(([id, o],index) => `<article data-design="${id}"><img src="${asset(o[1])}"><h2>${'ABC'[index]} · ${o[0]}</h2><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><button data-c="${id}" class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : "CHOOSE"}</button></article>`).join("")}</main>`;
     document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => cast(k, b.dataset.c));
     return;
   }
   if (f === "designReveal") {
     if(t.investments?.length===1&&t.investments[0].strengthened)return root.innerHTML=`<main class="phone">${strengthenImpact(t.investments[0],CAPABILITIES)}</main>`;
     let investments = t.investments || [], inv = investments.at(-1), c = inv && CAPABILITIES[inv.capabilityId], o = c?.options?.[inv.commitmentId], impact = inv ? designImpact(inv.capabilityId, inv.commitmentId) : "", combined = investments.length > 1 ? combinedImpact(investments, CAPABILITIES) : "";
-    return o ? root.innerHTML = `<main class="phone table-reveal-phone design-impact-phone"><span>${E(t.table_name)} \xB7 YOUR TABLE DESIGNED</span><img src="${asset(o[1])}"><h1>${o[0]}</h1><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><p><b>WHY THIS MATTERS</b><br>${c.insight}</p>${impact}${combined}</main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your design decision is being confirmed.");
+    return o ? root.innerHTML = `<main class="phone table-reveal-phone design-impact-phone"><span>${E(t.table_name)} \xB7 YOUR TABLE DESIGNED</span>${portfolioStackHTML(t)}<img src="${asset(o[1])}"><h1>${o[0]}</h1><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><p><b>WHY THIS MATTERS</b><br>${c.insight}</p>${impact}${combined}</main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your design decision is being confirmed.");
   }
   if (f === "event") {
     let e = evaluate(t, "handoff_changed"), portfolio = (t.investments || []).map((i) => CAPABILITIES[i.capabilityId]?.title).filter(Boolean), k = "prediction", v = mine(k);
