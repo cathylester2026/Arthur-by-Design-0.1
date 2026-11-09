@@ -64,33 +64,49 @@ const explanation={
  'command.liaison.coordination':'An empowered coordinator intervenes across services, subject to bounded authority and available alternatives.'
 };
 export function causalExplanation(a,eventId){let c=canonicalChoice(a);return explanation[`${a.capabilityId}.${a.commitmentId}.${eventId}`]||`${c?.title||'The design'} contributes to the disruption while its operating dependencies remain active.`}
+function hasClinicalEscalation(state){const owners=new Set(['planReviewer','transitionPlanOwner','clinicalResolver','medicationReviewer','medicationPlanOwner']);return (state.activations||[]).some(a=>owners.has(canonicalChoice(a)?.escalate?.information))}
 function deriveReadiness(state,eventId,responseId,deps){
  const acts=state.activations||[];
  // A collaborative medication review establishes one authoritative plan. Strengthened AI Check does too.
  if(acts.some(a=>a.capabilityId==='meds'&&a.commitmentId==='pharmacy'))deps.add('authoritativeMedicationPlan');
  if(acts.some(a=>a.capabilityId==='meds'&&a.commitmentId==='nurse'&&a.strengthened))deps.add('authoritativeMedicationPlan');
  // A qualified escalation during Plan Changed can establish the authoritative plan.
- if(eventId==='information'&&responseId==='escalate'&&acts.some(a=>canonicalChoice(a)?.escalate?.information))deps.add('authoritativeMedicationPlan');
+ if(eventId==='information'&&responseId==='escalate'&&hasClinicalEscalation(state))deps.add('authoritativeMedicationPlan');
  return deps
 }
 export function responseEligibility(state,responseId,eventId){let choices=(state.activations||[]).map(canonicalChoice).filter(Boolean);if(responseId==='use')return{eligible:true,boost:0,why:'The funded design must hold without extra recovery capacity.'};if(responseId==='adapt'){let methods=choices.map(c=>c.adapt?.[eventId]).filter(Boolean);return methods.length?{eligible:true,boost:.65,why:`Adapt is available through ${methods.join(' + ')}.`}:{eligible:false,boost:0,why:`Adapt is unavailable because the portfolio created no alternate ${eventId==='route'?'route or navigation path':eventId==='information'?'review or information path':'space, handoff, or coordination path'}.`}}
  if(responseId==='escalate'){let recipients=choices.map(c=>c.escalate?.[eventId]).filter(Boolean);return recipients.length?{eligible:true,boost:.75,why:`Escalation can reach ${recipients.join(' + ')}. Success still depends on available capacity.`}:{eligible:false,boost:0,why:`Escalation is unavailable because no accountable ${eventId==='route'?'navigation or route owner':eventId==='information'?'clinical or plan owner':'transition or operational owner'} was designed.`}}return{eligible:false,boost:0,why:'Unknown response.'}}
 function realizedAdjustment(a,eventId,realized){let delta=0,reasons=[];
- if(a.capabilityId==='meds'&&a.commitmentId==='huddle'&&eventId==='information'&&!realized.planChangeConfirmed){delta-=.3;reasons.push('The discharge plan was confirmed, but the late change has not yet been clinically confirmed.')}
- if(a.capabilityId==='meds'&&a.commitmentId==='huddle'&&eventId==='coordination'&&!realized.downstreamParticipating){delta-=.25;reasons.push('A downstream setting is not participating in the shared plan.')}
- if(a.capabilityId==='command'&&a.commitmentId==='center'&&!realized.capacityAvailable){delta-=.4;reasons.push('The responsive operating model is designed, but no appropriate capacity remains available.')}
+ if(a.capabilityId==='meds'&&a.commitmentId==='huddle'&&eventId==='information'&&realized.planChangeConfirmed===false){delta-=.3;reasons.push('The discharge plan was confirmed, but the late change has not yet been clinically confirmed.')}
+ if(a.capabilityId==='meds'&&a.commitmentId==='huddle'&&eventId==='coordination'&&realized.downstreamParticipating===false){delta-=.25;reasons.push('A downstream setting is not participating in the shared plan.')}
+ if(a.capabilityId==='command'&&a.commitmentId==='center'&&realized.capacityAvailable===false){delta-=.4;reasons.push('The responsive operating model is designed, but no appropriate capacity remains available.')}
  if(['dedicated','escort','liaison'].includes(a.commitmentId)&&realized.staffAvailable===false){delta-=.3;reasons.push('The human support role is unavailable during this disruption.')}
  return{delta,reasons}}
 export function choiceEffect(a,eventId,deps,realized={}){let c=canonicalChoice(a);if(!c)return{fit:0,causal:'Legacy choice is not mapped.'};let fit=c.events[eventId]||0;if(a.strengthened)fit+=c.strengthen?.event?.[eventId]||0;let adjustment=realizedAdjustment(a,eventId,realized);fit=Math.max(0,fit+adjustment.delta);return{fit,blocked:null,title:c.title,canonicalId:c.canonicalId,causal:causalExplanation(a,eventId),realizedReasons:adjustment.reasons,activation:a}}
-function outcomeNarrative(effect,outcome,eventId){let potential=effect.causal,limits=effect.realizedReasons||[];if(outcome==='ABSORBED')return`${potential} The required conditions held well enough for Arthur to continue through the disruption.${limits.length?' Remaining constraint: '+limits.join(' '):''}`;if(outcome==='STRAINED')return`${potential} Arthur completed the transition with delay, added effort, or human support.${limits.length?' '+limits.join(' '):''}`;return`${potential} The design could not provide a usable response in time, so Arthur absorbed the disruption.${limits.length?' '+limits.join(' '):''}`}
+function outcomeNarrative(effect,outcome,eventId){let potential=effect.causal,limits=effect.realizedReasons||[];if(outcome==='ABSORBED')return`${potential} The required conditions held well enough for Arthur to continue through the disruption.${limits.length?' Remaining constraint: '+limits.join(' '):''}`;if(outcome==='STRAINED')return`${potential} Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition.${limits.length?' '+limits.join(' '):''}`;return`${potential} The design could not provide a usable response in time, so Arthur absorbed the disruption.${limits.length?' '+limits.join(' '):''}`}
 export function evaluatePortfolio(state={},eventId=state.eventId||'route',responseId=state.response||'use'){
  let deps=deriveReadiness(state,eventId,responseId,dependencySet(state)),realized={...(eventDefinitions[eventId]?.realized||{}),...(state.realizedReadiness||{})},effects=(state.activations||[]).map(a=>choiceEffect(a,eventId,deps,realized)),need={UNDERSTAND:0,MOVE:0,CONNECT:0,TRUST:0};
  for(const a of state.activations||[]){let c=canonicalChoice(a);for(const[k,v]of Object.entries(c?.needs||{}))need[k]=Math.min(3,need[k]+v)}
  let event=eventDefinitions[eventId],pressureAvg=event.pressure.reduce((n,k)=>n+need[k],0)/event.pressure.length,fit=effects.reduce((n,e)=>n+e.fit,0),response=responseEligibility(state,responseId,eventId),blocked=effects.filter(e=>e.blocked).length;
  // Calibrated after deterministic portfolio simulation: aligned choices can absorb; gaps remain exposed.
  let raw=pressureAvg*.58+fit+response.boost-blocked*.45;
+ const readinessGaps=[];
+ if(eventId==='information'){
+  const medication=(state.activations||[]).some(a=>a.capabilityId==='meds');
+  const reviewed=(state.activations||[]).some(a=>a.capabilityId==='ambient'&&a.commitmentId==='shared'||a.capabilityId==='meds'&&(a.commitmentId==='pharmacy'||a.commitmentId==='nurse'&&a.strengthened));
+  const qualifiedEscalation=responseId==='escalate'&&response.eligible&&hasClinicalEscalation(state);
+  const confirmed=realized.planChangeConfirmed===true||realized.reviewerAvailable===true&&(medication?deps.has('authoritativeMedicationPlan'):reviewed||qualifiedEscalation);
+  if(!confirmed)readinessGaps.push('The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan.');
+  if(realized.reviewerAvailable===false&&realized.planChangeConfirmed!==true)readinessGaps.push('The qualified reviewer is unavailable; a funded review path alone does not confirm this change.');
+ }
+ if(eventId!=='information'&&(state.activations||[]).some(a=>a.capabilityId==='command'&&a.commitmentId==='center')){
+  if(realized.capacityAvailable===false)readinessGaps.push('Appropriate response capacity is unavailable in this scenario. Strengthen funds standby arrangements; it does not guarantee that a suitable resource is available.');
+  else if(realized.capacityAvailable!==true)readinessGaps.push('Appropriate response capacity has not been established for this demand. Unknown capacity is not treated as unavailable, but cannot support a claim that the demand holds.');
+ }
+ // Readiness limits cap the numeric result too, so the composite cannot hide unresolved prerequisites.
+ if(readinessGaps.length)raw=Math.min(raw,2.89);
  let outcome=raw>=2.9?'ABSORBED':raw>=1.3?'STRAINED':'EXPOSED';if(blocked&&outcome==='ABSORBED')outcome='STRAINED';
- effects=effects.map(e=>({...e,outcomeNarrative:outcomeNarrative(e,outcome,eventId)}));return{outcome,raw:+raw.toFixed(2),scores:need,event,effects,response,dependencies:[...deps],designedReadiness:effects.map(e=>canonicalChoice(e.activation)?.baselineReadiness||[]).flat(),realizedReadiness:realized,vulnerabilities:event.pressure.filter(k=>need[k]<2),causalSummary:effects.map(e=>e.outcomeNarrative)}
+ effects=effects.map(e=>({...e,outcomeNarrative:outcomeNarrative(e,outcome,eventId)+(readinessGaps.length?' Remaining readiness: '+readinessGaps.join(' '):'')}));return{outcome,readinessGaps,raw:+raw.toFixed(2),scores:need,event,effects,response,dependencies:[...deps],designedReadiness:effects.map(e=>canonicalChoice(e.activation)?.baselineReadiness||[]).flat(),realizedReadiness:realized,vulnerabilities:event.pressure.filter(k=>need[k]<2),causalSummary:effects.map(e=>e.outcomeNarrative)}
 }
 export function strengthenCopy(a){return canonicalChoice(a)?.strengthen?.copy||'Strengthening reinforces the selected design’s stated vulnerability.'}
 export function compareEvaluations(before,after){let rank={EXPOSED:0,STRAINED:1,ABSORBED:2},delta=rank[after.outcome]-rank[before.outcome];return{classificationChanged:delta!==0,delta,before:before.outcome,after:after.outcome,whatChanged:after.causalSummary.filter(x=>!before.causalSummary.includes(x)),summary:delta>0?'The revised design improved how Arthur experienced the same disruption.':delta<0?'The revised design removed protection Arthur previously relied on.':'The headline result stayed the same, but the causal path and remaining dependency changed.'}}

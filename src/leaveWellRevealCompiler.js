@@ -1,0 +1,29 @@
+import {PROMPT_LIBRARY} from './leaveWellPromptLibrary.js';
+import {ARCHITECTURAL_BASELINE} from './leaveWellArchitecturalBaseline.js';
+import {resolveArchitecturalFeatures,compileResolvedImagePrompt} from './architectureFeatureResolver.js';
+const ids={ambient:{bedside:'SD1A',shared:'SD1B',dedicated:'SD1C'},wayfinding:{digital:'SR2A',layered:'SR2B',escort:'SR2C'},meds:{nurse:'MC3A',pharmacy:'MC3B',huddle:'MC3C'},command:{unit:'CR4A',center:'CR4B',liaison:'CR4C'}};
+const order=['ambient','wayfinding','meds','command'];
+export const REVEAL_VERSION='leave-well-phone-reveal-v1';
+export function compileLeaveWellReveal(team){
+ const investments=(team.investments||[]).map(i=>({capabilityId:i.capabilityId,commitmentId:i.commitmentId,strengthened:i.strengthened===true}));
+ if(investments.length<1||investments.length>2)throw Error('A reveal requires one or two completed investments.');
+ if(new Set(investments.map(i=>i.capabilityId)).size!==investments.length)throw Error('Duplicate capabilities cannot produce a reveal.');
+ for(const i of investments)if(!ids[i.capabilityId]?.[i.commitmentId])throw Error('Unrecognized architectural choice.');
+ const sorted=[...investments].sort((a,b)=>order.indexOf(a.capabilityId)-order.indexOf(b.capabilityId));
+ const choiceIds=sorted.map(i=>ids[i.capabilityId][i.commitmentId]);
+ const key=choiceIds.length===2?choiceIds.join('+'):choiceIds[0]+(sorted[0].strengthened?'-S':'');
+ const template=PROMPT_LIBRARY[key];if(!template)throw Error('Canonical prompt is missing for '+key);
+ const state={activations:sorted},features=resolveArchitecturalFeatures(state);
+ const baseline=sorted.map((i,n)=>({id:choiceIds[n],...ARCHITECTURAL_BASELINE[choiceIds[n].slice(-2)]}));
+ const outcome=team.game_state?.evaluation?.outcome;
+ if(!['HOLDS','STRAINED','EXPOSED'].includes(outcome))throw Error('Lock the table result before generating its final reveal.');
+ const response=team.game_state?.responseId||'use';if(!['use','adapt','escalate'].includes(response))throw Error('Unknown response.');
+ const conditions=baseline.map(b=>b['PRIMARY VULNERABILITY']).filter(Boolean);
+ const realized=team.game_state?.evaluation?.details?.flatMap(d=>[...(d.readinessGaps||[]),...(d.effects||[]).flatMap(e=>e.realizedReasons||[])])||[];
+ const outcomeDirection=outcome==='EXPOSED'?'Arthur is still waiting or seeking support; the selected design has not provided a usable response in time. Never depict a completed successful departure.':outcome==='STRAINED'?'Arthur progresses with visible delay, added effort or assistance; keep the unresolved dependency legible. Never imply the entire transition is solved.':'Arthur can use the earned response, while at least one finite-capacity or cross-setting boundary remains visible. Do not imply universally successful hospital operations.';
+ const obligations={useful:'Arthur visibly uses the selected design to understand or navigate a real transition.',resilient:'Keep a visible finite limit and the selected operating dependencies; Strengthen deepens the same strategy.',human:'Keep Arthur central, dignified, accessible and actively participating; people retain their distinct responsibilities.'};
+ const prompt=[template.prompt,'AUTHORITATIVE RESOLVED PORTFOLIO STATE: '+compileResolvedImagePrompt(state),'Resolve restrictions feature-by-feature: an explicitly enabled architectural feature overrides a conventional-space restriction only for that feature and that setting. Retain conventional hospital areas elsewhere. Shared space never grants shared staffing, clinical authority or unlimited capacity.',features.enabled.includes('shared_adaptable_transition_setting')?'Use ONE adaptable shared consultation setting, with separate medication and discharge responsibilities. Do not create duplicate consultation rooms.':'Keep the selected spaces part of one cohesive journey; no split-screen collage.',sorted.some(i=>i.strengthened)?'Strengthen reinforces the SAME selected strategy. Do not add another capability or erase its primary vulnerability.':'','LOCKED GAMEPLAY RESULT: '+outcome+'. RESPONSE: '+response+'. '+outcomeDirection,'CONDITIONS TO PRESERVE: '+conditions.join(' '),realized.length?'REALIZED OPERATING LIMITS: '+[...new Set(realized)].sort().join(' '):'','FINAL USEFUL / RESILIENT / HUMAN OBLIGATIONS: '+Object.entries(obligations).map(([k,v])=>k.toUpperCase()+': '+v).join(' '),'REFERENCE CONTINUITY: The first reference image defines fictional Arthur and the established visual identity. Retain the same older adult recovering from cardiac surgery; do not depict a real identifiable patient. The selected future is additive to a safe accessible contemporary hospital baseline.'].filter(Boolean).join('\n\n');
+ const motionPrompt='Exactly 10 seconds, 16:9. One continuous, slow architectural tracking shot with restrained natural human motion. Fictional Arthur remains central and consistent with the approved first frame. Preserve its exact earned architecture, people and visible limitations; add no new rooms, services, staffing or technology. '+outcomeDirection+' Warm daylight, realistic scale. No cuts, captions, logos, giant screens, holograms, magical transformations or celebratory perfection.';
+ return {version:REVEAL_VERSION,key,title:template.title,choiceIds,investments:sorted,outcome,response,features,conditions,obligations,prompt,motionPrompt,durationSeconds:10,aspectRatio:'16:9',immediateReveals:baseline.map(b=>({id:b.id,title:b.title,copy:b['IMMEDIATE REVEAL'],vulnerability:b['PRIMARY VULNERABILITY']}))};
+}
+export function revealIdentity(team){const r=compileLeaveWellReveal(team);return JSON.stringify({version:r.version,choices:r.investments,outcome:r.outcome,response:r.response,limits:r.conditions,details:team.game_state?.evaluation?.details?.map(d=>({id:d.id,raw:d.raw,realizedReadiness:d.realizedReadiness}))||[]})}

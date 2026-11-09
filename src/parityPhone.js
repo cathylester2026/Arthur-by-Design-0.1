@@ -1,3 +1,4 @@
+import {operatingConditionsHTML} from './xplayerFlowViews.js';
 import {openingInputs} from './studioInputs.js';
 import {mountPhoneStory} from './phoneFinalReveal.js';
 import './leaveWellXplayerFlow.css';
@@ -7,10 +8,10 @@ import {perspectiveHTML,escapeHTML} from './perspectivePrompts.js';
 import "./parityEvent.css";
 import "./parityPhoneVisual.css";
 import "./portfolioImpact.css";
-import { capabilityImpact, designImpact, combinedImpact } from "./portfolioImpact.js";
+import { capabilityImpact, designImpact, combinedImpact, strengthenImpact } from "./portfolioImpact.js";
 import { normalizePhase, ONBOARDING_COPY, PARTICIPATION_COPY } from "./onboardingRuntime.js";
 import { bindPlayer, resolveBoundPlayer, cleanJoinUrl, clearBoundPlayer } from "./playerIdentity.js";
-import { canAfford, budgetOf } from "./xplayerRules.js";
+import { canAfford, budgetOf, budgetConsequence } from "./xplayerRules.js";
 import { load, all, join, vote, sub, PLAYER, ROOM, evaluate } from "./parityEngine.js";
 import { CAPABILITIES, RESPONSES, asset, decision } from "./leaveWellExperience.js";
 import './phoneMediaFit.css';
@@ -96,12 +97,12 @@ function renderScreen(forceReflection=false) {
     let used = (t.investments || []).map((i) => i.capabilityId), round = used.length + 1;
     if (used.length >= 1 && t.status !== "extend") return root.innerHTML = wait("YOUR TABLE CHOSE TO STRENGTHEN", "Your current design is being reinforced. Follow the room screen while other tables complete their path.");
     let k = decision("capability", t), v = mine(k);
-    root.innerHTML = `<main class="phone investment-phone"><span>ROUND ${round} \xB7 YOUR TABLE</span><h1>${round === 1 ? "WHAT WILL YOU INVEST FIRST?" : "WHAT WILL YOU ADD NEXT?"}</h1><div class="phone-budget"><b>\u25C6 ${t.capital} CAPITAL</b><b>\u25CF ${t.change_budget} CHANGE</b></div><p class="investment-help">Choose an affordable AI-powered capability. Each card shows Arthur\u2019s gain, the design challenge and cost.</p>${Object.entries(CAPABILITIES).filter(([id]) => !used.includes(id)).map(([id, c]) => `<article><img src="${asset(c.image)}"><h2>${c.title}</h2><p>${c.line}</p><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>DESIGN CHALLENGE</b><br>${c.challenge}</p><b>\u25C6${c.cost[0]} \xB7 \u25CF${c.cost[1]}</b><button data-c="${id}" ${!canAfford(t, id) ? "disabled" : ""} class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : canAfford(t, id) ? "INVEST" : `NEEDS ${c.cost[0]} \u25C6 \xB7 ${c.cost[1]} \u25CF`}</button></article>`).join("")}</main>`;
+    root.innerHTML = `<main class="phone investment-phone"><span>ROUND ${round} \xB7 YOUR TABLE</span><h1>${round === 1 ? "WHAT WILL YOU INVEST FIRST?" : "WHAT WILL YOU ADD NEXT?"}</h1><div class="phone-budget"><b>\u25C6 ${t.capital} CAPITAL</b><b>\u25CF ${t.change_budget} CHANGE</b></div><p class="investment-help">Choose an affordable AI-powered capability. Each card shows Arthur\u2019s gain, the design challenge and cost.</p>${Object.entries(CAPABILITIES).filter(([id]) => !used.includes(id)).map(([id, c]) => `<article><img src="${asset(c.image)}"><h2>${c.title}</h2><p>${c.line}</p><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>DESIGN CHALLENGE</b><br>${c.challenge}</p><b>\u25C6${c.cost[0]} \xB7 \u25CF${c.cost[1]}</b><p class="budget-consequence">${E(budgetConsequence(t,'invest',id))}</p><button data-c="${id}" ${!canAfford(t, id) ? "disabled" : ""} class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : canAfford(t, id) ? "INVEST" : `NEEDS ${c.cost[0]} \u25C6 \xB7 ${c.cost[1]} \u25CF`}</button></article>`).join("")}</main>`;
     document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => cast(k, b.dataset.c));
     return;
   }
   if (f === "activation") {
-    if(t.status==="ready")return root.innerHTML=wait("YOUR STRENGTHENED DESIGN IS READY","Your table is keeping its reinforced first design while other tables complete a second investment.");
+    if(t.status==="ready")return root.innerHTML=`<main class="phone">${strengthenImpact(t.investments?.at(-1),CAPABILITIES)}<p>Follow the facilitator while other tables complete their second investment.</p></main>`;
     let investments = t.investments || [], inv = investments.at(-1), capId = t.locked_capability || inv?.capabilityId, c = CAPABILITIES[capId], round = investments.length + 1, impact = capabilityImpact(capId, investments);
     return c ? root.innerHTML = `<main class="phone table-reveal-phone capability-impact-phone"><span>${E(t.table_name)} \xB7 ROUND ${round} \xB7 YOUR TABLE CHOSE</span><img src="${asset(c.activated)}"><h1>${c.title}</h1><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>WHAT THIS MAKES POSSIBLE</b><br>${c.line}</p>${impact}<div class="reveal-next">Next, your table will decide how this capability changes the space, systems and delivery model.</div></main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your investment is being confirmed.");
   }
@@ -115,12 +116,13 @@ function renderScreen(forceReflection=false) {
     return;
   }
   if (f === "designReveal") {
+    if(t.investments?.length===1&&t.investments[0].strengthened)return root.innerHTML=`<main class="phone">${strengthenImpact(t.investments[0],CAPABILITIES)}</main>`;
     let investments = t.investments || [], inv = investments.at(-1), c = inv && CAPABILITIES[inv.capabilityId], o = c?.options?.[inv.commitmentId], impact = inv ? designImpact(inv.capabilityId, inv.commitmentId) : "", combined = investments.length > 1 ? combinedImpact(investments, CAPABILITIES) : "";
     return o ? root.innerHTML = `<main class="phone table-reveal-phone design-impact-phone"><span>${E(t.table_name)} \xB7 YOUR TABLE DESIGNED</span><img src="${asset(o[1])}"><h1>${o[0]}</h1><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><p><b>WHY THIS MATTERS</b><br>${c.insight}</p>${impact}${combined}</main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your design decision is being confirmed.");
   }
   if (f === "event") {
     let e = evaluate(t, "handoff_changed"), portfolio = (t.investments || []).map((i) => CAPABILITIES[i.capabilityId]?.title).filter(Boolean), k = "prediction", v = mine(k);
-    root.innerHTML = `<main class="phone macro-event-phone"><span>MACRO EVENT \xB7 HANDOFF CHANGED</span><h1>THREE THINGS CHANGE AT ONCE.</h1><div class="phone-event-collisions"><article><b>01</b><p>Transportation arrives 20 minutes early.</p></article><article><b>02</b><p>Arthur\u2019s family contact is unavailable.</p></article><article><b>03</b><p>The receiving team has the original plan.</p></article></div><section class="prediction-vote"><small>YOUR PREDICTION</small><h2>WILL YOUR DESIGN HOLD?</h2><div>${["YES", "NOT SURE", "NO"].map((x) => `<button data-prediction="${x}" class="${v?.choice === x ? "selected-vote" : ""}">${v?.choice === x ? "VOTED \xB7 " : ""}${x}</button>`).join("")}</div><p>${v ? "Your opinion is saved. It does not change the outcome; you can change it until the facilitator advances." : "Your opinion does not change the outcome. The facilitator can continue with any number of predictions."}</p></section></main>`;
+    root.innerHTML = `<main class="phone macro-event-phone"><span>MACRO EVENT \xB7 HANDOFF CHANGED</span><h1>THREE THINGS CHANGE AT ONCE.</h1><div class="phone-event-collisions"><article><b>01</b><p>Transportation arrives 20 minutes early.</p></article><article><b>02</b><p>Arthur\u2019s family contact is unavailable.</p></article><article><b>03</b><p>The receiving team has the original plan.</p></article></div>${operatingConditionsHTML()}<section class="prediction-vote"><small>YOUR PREDICTION</small><h2>WILL YOUR DESIGN HOLD?</h2><div>${["YES", "NOT SURE", "NO"].map((x) => `<button data-prediction="${x}" class="${v?.choice === x ? "selected-vote" : ""}">${v?.choice === x ? "VOTED \xB7 " : ""}${x}</button>`).join("")}</div><p>${v ? "Your opinion is saved. It does not change the outcome; you can change it until the facilitator advances." : "Your opinion does not change the outcome. The facilitator can continue with any number of predictions."}</p></section></main>`;
     document.querySelectorAll("[data-prediction]").forEach((b) => b.onclick = () => cast(k, b.dataset.prediction));
     return;
   }

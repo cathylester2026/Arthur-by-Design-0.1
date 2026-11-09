@@ -26,8 +26,17 @@ export function evaluateTable(t,eventId='handoff_changed',responseId='use'){
   const state=stateOf(t),details=demands.map(([id,label])=>({id,label,...evaluatePortfolio(state,id,responseId)}));
   const score=+(details.reduce((n,d)=>n+d.raw,0)/details.length).toFixed(2);
   const exposed=details.some(d=>d.outcome==='EXPOSED');
-  const outcome=score>=2.9&&!exposed?'HOLDS':score>=1.3?'STRAINED':'EXPOSED';
-  const reasons=details.flatMap(d=>d.effects.filter(e=>e.fit>=.6).map(e=>`${d.label}: ${e.causal}`));
-  const exposures=details.filter(d=>d.outcome!=='ABSORBED').map(d=>`${d.label} remains ${d.outcome.toLowerCase()}: ${d.effects.flatMap(e=>e.realizedReasons).join(' ')||'The funded design and response do not fully cover this demand.'}`);
-  return {outcome,score,reasons,exposures,eventId,responseId,details,model:'causal-composite-prototype-v1'};
+  const unresolved=details.some(d=>d.readinessGaps?.length);
+  const outcome=score>=2.9&&!exposed&&!unresolved?'HOLDS':score>=1.3?'STRAINED':'EXPOSED';
+  const reasons=details.flatMap(d=>d.effects.filter(e=>e.fit>=.6&&!e.realizedReasons?.length&&d.outcome==='ABSORBED').map(e=>`${d.label}: ${e.causal}`));
+  const exposures=details.filter(d=>d.outcome!=='ABSORBED').map(d=>`${d.label} remains ${d.outcome.toLowerCase()}: ${[...(d.readinessGaps||[]),...d.effects.flatMap(e=>e.realizedReasons)].filter((x,i,a)=>a.indexOf(x)===i).join(' ')||'The funded design and response do not fully cover this demand.'}`);
+  return {outcome,score,reasons,exposures,eventId,responseId,details,model:'causal-composite-readiness-v2'};
+}
+
+export function budgetConsequence(t,action,id){
+ let next;try{next=action==='invest'?{...t,...spendCapability(t,id)}:{...t,capital:t.capital-STRENGTHEN_COST.capital,change_budget:t.change_budget-STRENGTHEN_COST.change};}catch{return ''}
+ if(next.capital<0||next.change_budget<0)return '';
+ const strengthenWarning=action==='invest'&&next.capital>=1&&next.change_budget===1?' If you then Strengthen, only Use will remain affordable.':'';
+ const b=budgetOf(next),budgetActions=Object.entries(RESPONSE_COSTS).filter(([,c])=>b.capital>=c.capital&&b.change>=c.change).map(([k])=>k==='use'?'Use':k==='adapt'?'Adapt':'Escalate');
+ return `After ${action==='invest'?'this investment':'Strengthen'}: ${b.capital} Capital / ${b.change} Change. ${budgetActions.length===1?'Your remaining budget will allow only Use at the response stage.':`Budget can cover ${budgetActions.join(', ')}; actual availability also depends on your design and any later spending.`}${strengthenWarning}`;
 }
