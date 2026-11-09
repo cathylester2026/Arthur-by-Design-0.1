@@ -1,3 +1,4 @@
+import {applyStudioBrand} from './studioBrand.js';
 import {captureView,restoreView} from './studioViewState.js';
 import {applyArchitectureDetails} from './designDepth.js';
 import {navigateStudio,claimTransferredSeat} from './studioClient.js';
@@ -5,7 +6,7 @@ import './studioControls.css';
 import {clockHTML,tickClock,decisionNoticeHTML} from './studioViews.js';
 import {votingOpen} from './studioPolicy.js';
 import {operatingConditionsHTML} from './xplayerFlowViews.js';
-import {openingInputs} from './studioInputs.js';
+import {openingInputs,openingWallHTML} from './studioInputs.js';
 import {mountPhoneStory} from './phoneFinalReveal.js';
 import './leaveWellXplayerFlow.css';
 import {ballot, openRunoff,choiceLabel} from './leaveWellXplayerFlow.js';
@@ -69,6 +70,7 @@ function journeyMap() {
   return `<nav class="journey-map" aria-label="Arthur journey"><span class="${leave ? "active" : ""}"><b>01</b> LEAVE WELL<small>Hospital \u2192 Home</small></span><i></i><span><b>02</b> RECOVER WELL<small>At Home</small></span><i></i><span><b>03</b> LIVE WELL<small>In the Community</small></span></nav>`;
 }
 function applyPhoneChrome() {
+  applyStudioBrand(root);
   let main = root?.querySelector?.("main.phone");
   if (main && !main.querySelector(":scope > .journey-map")) main.insertAdjacentHTML("afterbegin", journeyMap());
   if(main&&p&&!main.querySelector('[data-player-reference]'))main.insertAdjacentHTML('beforeend',`<small data-player-reference>PLAYER REFERENCE · ${E(p.id.slice(0,8))}</small>`);
@@ -84,26 +86,23 @@ function renderScreen(forceReflection=false) {
   if(f==='adapt')return root.innerHTML=strategyHTML(t,p,d.votes);
   if(f==='result')return root.innerHTML=resultHTML(t);
 
-  if (f === "meet") return root.innerHTML = `<main class="phone team-standby"><span>ARTHUR: BY DESIGN \xB7 LIVE DESIGN STUDIO</span><small>YOU JOINED</small><h1>${E(t?.table_name || "YOUR DESIGN TEAM")}</h1><div class="standby-mark"><i></i><i></i><i></i></div><h2>YOU\u2019RE IN.</h2><p>Keep this phone open. The facilitator will begin the shared story when every design team is ready.</p><div class="standby-note"><b>WHAT HAPPENS NEXT</b><p>You\u2019ll add a few words, discuss choices with your table and vote together.</p></div></main>`;
+  if (f === "meet") return root.innerHTML = `<main class="phone team-standby"><header class="studio-phone-intro"><span class="studio-eyebrow">Arthur by Design · Design studio</span><span class="studio-table-badge">${E(t?.table_name||'Your design team')}</span></header><h1>You’re in.</h1><p class="studio-phone-lead">Keep your phone open. We’ll begin Arthur’s story together.</p><img class="studio-standby-art" src="${asset('arthur-leave-well.png')}" alt="Arthur preparing to leave hospital"><section class="studio-standby-next"><h2>What happens next</h2><ol><li>Share your first instinct.</li><li>Discuss the possibilities with your table.</li><li>Vote on your phone. See your table’s story.</li></ol></section><p class="studio-wait-note">The facilitator moves the shared story forward.</p></main>`;
   if (f === "opening") {
-    let v = mine("opening_challenge");
-    root.innerHTML = `<main class="phone"><img src="${asset("arthur-leave-well.png")}"><h1>WHAT IS THE BIGGEST CHALLENGE ARTHUR FACES GETTING HOME SAFELY?</h1>${v ? "<p>Your response is saved.</p>" : '<textarea id="thought" placeholder="Enter a few words\u2026"></textarea><button id="send">SUBMIT MY THOUGHT</button><button id="skip">SKIP FOR NOW</button>'}</main>`;
-    if (!v) {
-      q("#send").onclick = () => {
-        let text = q("#thought").value.trim();
-        if (text) cast("opening_challenge", text);
-      };
-      q("#skip").onclick = () => cast("opening_challenge", "[SKIPPED]");
+    const saved=openingInputs(d.votes).find(v=>v.player_id===p.id);
+    root.innerHTML=`<main class="phone studio-opening"><span class="studio-eyebrow">Your first instinct</span><h1>What is Arthur’s biggest challenge getting home safely?</h1><p>A few words are enough. Your response joins the room’s design brief.</p>${saved?`<blockquote class="studio-own-response" data-personal-response><small>Your response · saved</small><p>“${E(saved.choice)}”</p></blockquote>`:'<label for="thought">Your response</label><textarea id="thought" maxlength="500" placeholder="What would matter most to Arthur?"></textarea><button id="send">SUBMIT MY THOUGHT</button><button id="skip" class="secondary">SKIP FOR NOW</button><p id="opening-status" role="status">Optional. A blank answer is not recorded.</p>'}<p class="studio-wait-note">Follow the facilitator. Your answer does not affect scoring.</p></main>`;
+    if(!saved){
+      q('#send').onclick=()=>{const text=q('#thought').value.trim();if(text)cast('opening_challenge',text);else q('#opening-status').textContent='Enter a few words to submit, or continue with the room. No response has been recorded.'};
+      q('#skip').onclick=()=>{q('#thought').value='';q('#opening-status').textContent='No response recorded. Keep your phone open and follow the facilitator.'};
     }
     return;
   }
   if (f === "reflection") {
-    let all2 = d.votes.filter((v) => v.decision === "opening_challenge" && v.choice !== "[SKIPPED]"), mineText = all2.find((v) => v.player_id === p.id)?.choice, phrases = openingInputs(d.votes).slice(0, 25);
-    return root.innerHTML = `<main class="phone phone-reflection-design"><span>YOUR FIRST INSTINCT IS NOW PART OF THE ROOM.</span><h1>ARTHUR\u2019S CHALLENGE,<br>IN YOUR WORDS.</h1><div class="phone-response-field">${phrases.map((v, i) => `<b class="${v.player_id === p.id ? "mine" : ""} p${i % 4}">\u201C${E(v.choice)}\u201D</b>`).join("") || '<b class="mine">The room is starting here.</b>'}</div>${mineText ? `<div class="my-instinct"><small>YOUR RESPONSE</small><strong>\u201C${E(mineText)}\u201D</strong></div>` : ""}<p><b>Different perspectives. One Arthur.</b><br>Keep yours in mind as your table begins to design.</p></main>`;
+    const own=openingInputs(d.votes).some(v=>v.player_id===p.id);
+    return root.innerHTML=`<main class="phone phone-reflection-design"><span class="studio-eyebrow">${own?'Your perspective is part of the room':'A shared design brief'}</span><h1>Arthur’s challenge,<br>in your words.</h1>${openingWallHTML(d.votes,{phone:true,playerId:p.id})}<p class="studio-wait-note">Different perspectives. One Arthur. Keep these needs in mind as your table begins to design.</p></main>`;
   }
   if (f === "journey") return root.innerHTML = `<main class="phone journey-phone-locked"><span>ARTHUR: BY DESIGN</span><h1>A JOURNEY OF CARE.<br>A LIFETIME OF POSSIBILITY.</h1><p>${t.game_state?.journey_complete?"Leave Well is complete. The facilitator can start a fresh Leave Well room. Recover Well and Live Well are coming later.":"Today we begin with Leave Well."}</p><div class="phone-journey-locked">${[["arthur-leave-well.png", "\u2197", "LEAVE WELL", "Hospital \u2192 Home"], ["arthur-recover-well.png", "\u2302", "RECOVER WELL", "At Home"], ["arthur-live-well.png", "\u25CE", "LIVE WELL", "In the Community"]].map((a, i) => `<article class="${i === 0 ? "active" : ""}"><img src="${asset(a[0])}"><div><i>${a[1]}</i><h2>${a[2]}</h2><p>${a[3]}</p></div></article>`).join("")}</div><div class="today-bar">${t.game_state?.journey_complete?"LEAVE WELL COMPLETE · FOLLOW THE FACILITATOR":"TODAY: LEAVE WELL"}</div></main>`;
   if (f === "needs") return root.innerHTML = `<main class="phone needs-phone-locked"><img class="phone-hero-locked" src="${asset("arthur-leave-well.png")}"><span>LEAVE WELL \xB7 THE CHALLENGE</span><h1>FOUR THINGS MATTER.</h1><div class="phone-lens"><b><i>?</i>UNDERSTAND</b><b><i>\u2192</i>MOVE</b><b><i>\u221E</i>CONNECT</b><b><i>\u2713</i>TRUST</b></div>${Object.entries({ UNDERSTAND: "Does Arthur know what happened, what changed and what comes next?", MOVE: "Can Arthur move safely and confidently from hospital to home?", CONNECT: "Can Arthur stay connected to medications, people and follow-up?", TRUST: "Does Arthur trust what to do next and who will respond?" }).map(([n, c]) => `<article><h2>${n}</h2><p>${c}</p></article>`).join("")}<div class="phone-challenge"><b>YOUR CHALLENGE</b><p>Design an environment that helps Arthur leave well.</p></div></main>`;
-  if (f === "rules") return root.innerHTML = `<main class="phone rules-phone-locked"><img class="phone-hero-locked" src="${asset("arthur-leave-well.png")}"><b class="instruction-pill">HOW TO PLAY</b><span>INSTRUCTION \xB7 HOW THE GAME WORKS</span><h1>${PARTICIPATION_COPY.join.decision}</h1><p>${PARTICIPATION_COPY.join.challenge}</p><h2>HOW WILL WE DESIGN ARTHUR\u2019S PATH?</h2><div class="phone-action-thread">${[["\u25CE", "CHOOSE", "Invest in AI-powered options."], ["\u25C7", "DESIGN", "Make it work here."], ["\u2197", "ADAPT", "Strengthen or extend."], ["\u03DF", "RESPOND", "Conditions change."]].map((x) => `<article><i>${x[0]}</i><h2>${x[1]}</h2><p>${x[2]}</p></article>`).join("")}</div><div class="phone-lens"><b><i>?</i>UNDERSTAND</b><b><i>\u2192</i>MOVE</b><b><i>\u221E</i>CONNECT</b><b><i>\u2713</i>TRUST</b></div><div class="phone-resource-locked"><small>YOUR RESOURCES</small><b>\u25C6 7 CAPITAL</b><b>\u25CF 6 CHANGE</b><p>Capital funds what you build. Change is the capacity to implement it. Invest in up to 2 AI-powered options.</p></div></main>`;
+  if (f === "rules") return root.innerHTML=`<main class="phone rules-phone-locked"><span class="studio-eyebrow">Design studio · How to play</span><h1>Discover together.<br>Design what comes next.</h1><p>Same Arthur. Same challenge. Your table’s choices shape his journey.</p><img class="studio-phone-art" src="${asset('arthur-leave-well.png')}" alt="Arthur’s transition from hospital to home"><ol class="studio-phone-steps">${[['Choose','Invest in an AI-powered capability.'],['Design','Make it useful in Arthur’s environment.'],['Adapt','Strengthen your design or add a capability.'],['Respond','Conditions change. Decide what to do.']].map(([title,copy],i)=>`<li><span>${String(i+1).padStart(2,'0')}</span><div><h2>${title}</h2><p>${copy}</p></div></li>`).join('')}</ol><section class="studio-phone-resources"><h2>Your resources</h2><p><b>7 Capital · 6 Change</b><br>Invest in up to two capabilities. Capital funds what you build; Change supports implementation.</p></section><p class="studio-wait-note">Understand · Move · Connect · Trust</p></main>`;
   if (f === "card") return root.innerHTML = `<main class="phone card-phone-solo"><b class="instruction-pill">HOW TO PLAY</b><span>INSTRUCTION \xB7 SAMPLE CARD</span><h1>HOW TO READ AN<br>INVESTMENT CARD.</h1><p class="card-guide-thesis"><b>Technology creates the capability.</b> Design determines Arthur\u2019s experience.</p><article class="phone-sample-investment"><img src="${asset("capability-ambient.png")}"><div class="sample-meta"><b>SAMPLE CARD</b><strong>\u25C6 3 \xB7 \u25CF 2</strong></div><h2>SMART DISCHARGE</h2><p>AI turns the discharge conversation into a plan Arthur can take home.</p><p><small>WHAT IT DOES</small><br><b>Creates one take-home plan.</b></p><p><small>WHY ARTHUR CARES</small><br>Arthur knows what changed and what comes next.</p><p><small>TO MAKE IT WORK</small><br>Someone must confirm and own the plan.</p><div class="design-consideration"><small>DESIGN CONSIDERATION</small><b>Give Arthur privacy and a place to review the plan before leaving.</b></div><details class="learn-more"><summary>LEARN MORE</summary><p><b>Technology can</b><br>Turn the discharge conversation into a plan Arthur can take home.</p><p><b>Design must</b><br>Support privacy, participation, understanding and follow-through.</p></details></article></main>`;
   if (f === "invest") {
     let used = (t.investments || []).map((i) => i.capabilityId), round = used.length + 1;
@@ -144,6 +143,7 @@ let showReflection=false,completedStoryOpen=false,renderedViewKey=null;
 function render(){
  const saved=captureView(root,renderedViewKey);
  renderContent();
+ applyStudioBrand(root);
  applyArchitectureDetails(root);
  const key=JSON.stringify([s.id,t.id,p.id,s.phase,ballot(t,s.phase)?.key||t.investments?.length,showReflection,completedStoryOpen]);
  restoreView(root,saved,key);renderedViewKey=key;

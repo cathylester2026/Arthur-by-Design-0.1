@@ -1,0 +1,112 @@
+/* Stantec-inspired studio treatment: light surfaces, clear type and a restrained green accent. */
+.arthur-studio-app{--studio-ink:#263735;--studio-teal:#124c4e;--studio-green:#c4d600;--studio-paper:#f7f9f6;--studio-line:#d8e1da;--studio-muted:#52655e;background:var(--studio-paper);color:var(--studio-ink);font-family:Arial,Helvetica,sans-serif}
+html.arthur-studio-doc{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+main.arthur-studio,main.arthur-studio *,main.arthur-studio *::before,main.arthur-studio *::after{box-sizing:border-box}
+main.arthur-studio .studio-eyebrow{display:block;color:var(--studio-teal);font-size:11px;font-weight:700;letter-spacing:.11em;line-height:1.4;text-transform:uppercase}
+/* Phone sizes are tied to the viewport, never the projector layout. */
+main.phone.arthur-studio{width:100%!important;inline-size:100%!important;max-width:640px!important;min-width:0!important;min-inline-size:0!important;max-inline-size:640px!important;min-height:100svh;padding:16px 16px 28px!important;margin:0 auto!important;background:var(--studio-paper)!important;color:var(--studio-ink)!important;overflow-wrap:anywhere;clip-path:none!important;transform:none!important}
+main.phone.arthur-studio::before,main.phone.arthur-studio::after{content:none!important}
+main.phone.arthur-studio :where(div,section,article,figure,header,nav,blockquote,ol,li){min-width:0;max-width:100%}
+main.phone.arthur-studio h1{font-size:clamp(27px,7.3vw,34px)!important;line-height:1.12!important;letter-spacing:-.025em!important;margin:14px 0!important;max-width:100%;white-space:normal!important}
+main.phone.arthur-studio h2{font-size:21px;line-height:1.2;letter-spacing:-.015em;white-space:normal}
+main.phone.arthur-studio p{font-size:16px;line-height:1.5;white-space:normal;overflow-wrap:anywhere;max-width:100%}
+main.phone.arthur-studio>.journey-map{margin:-16px -16px 20px!important;padding:12px!important;max-width:none!important;max-inline-size:none!important;width:auto!important;grid-template-columns:minmax(0,1fr) 8px minmax(0,1fr) 8px minmax(0,1fr);gap:4px;background:#243d3a;color:#c6d4cc}
+main.phone.arthur-studio>.journey-map span{font-size:10px;letter-spacing:.01em;white-space:normal}
+main.phone.arthur-studio>.journey-map small{font-size:9px;line-height:1.2;white-space:normal}
+main.phone.arthur-studio>.journey-map span b{color:var(--studio-green)}
+main.phone.arthur-studio button{min-height:48px;border-radius:7px;background:var(--studio-teal);color:#fff;font-size:14px;line-height:1.3;white-space:normal;max-width:100%;padding:13px 14px}
+main.phone.arthur-studio button.secondary{background:#e7eee8;color:var(--studio-ink)}
+main.phone.arthur-studio button.selected-vote{background:var(--studio-green)!important;color:#213530!important;border:1px solid #758200}
+main.phone.arthur-studio button:disabled{background:#e0e5df;color:#65716b}
+main.phone.arthur-studio :is(input,textarea,select){font-size:16px;line-height:1.45;border:1px solid #aebfb4;border-radius:7px;background:#fff;color:var(--studio-ink);max-width:100%;width:100%}
+main.phone.arthur-studio textarea{min-height:130px;resize:vertical}
+main.phone.arthur-studio>article{background:#fff;border:1px solid var(--studio-line);border-left:3px solid var(--studio-teal);border-radius:9px;padding:14px;margin:14px 0}
+main.phone.arthur-studio .studio-phone-intro{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+main.phone.arthur-studio .studio-table-badge{display:inline-flex;padding:8px 12px;background:var(--studio-green);color:#213530;border-radius:5px;font-size:15px;font-weight:700}
+main.phone.arthur-studio.team-standby h1{font-size:34px!important;margin-top:24px!important}
+main.phone.arthur-studio .studio-phone-lead{font-size:18px;line-height:1.45}
+main.phone.arthur-studio .studio-standby-art{height:180px!important;max-height:180px!important;border-radius:10px;background:#e6ece5;margin:20px 0}
+main.phone.arthur-studio .studio-standby-next{padding:18px;background:white;border:1px solid var(--studio-line);border-top:3px solid var(--studio-green);border-radius:9px}
+main.phone.arthur-studio .studio-standby-next h2{font-size:20px;margin:0 0 12px}
+main.phone.arthur-studio .studio-standby-next ol{padding-left:20px;margin:0}
+main.phone.arthur-studio .studio-standby-next li{font-size:16px;line-height:1.5;margin:8px 0}
+main.phone.arthur-studio .studio-wait-note{font-size:14px;line-height:1.5;color:var(--studio-muted);margin:18px 0}
+main.phone.arthur-studio [data-player-reference]{font-size:11px;color:#52655e;margin-top:24px;line-height:1.5;letter-spacing:.02em}
+main.phone.arthur-studio .studio-phone-steps{list-style:none;padding:0;display:grid;gap:10px;margin:18px 0}
+main.phone.arthur-studio .studio-phone-steps li{display:grid;grid-template-columns:35px minmax(0,1fr);gap:12px;padding:14px;background:#fff;border:1px solid var(--studio-line);border-radius:9px}
+main.phone.arthur-studio .studio-phone-steps li>span{font-size:19px;font-weight:700;color:var(--studio-teal);border-top:3px solid var(--studio-green);padding-top:5px}
+main.phone.arthur-studio .studio-phone-steps h2{margin:0 0 4px!important;font-size:19px!important}
+main.phone.arthur-studio .studio-phone-steps p{margin:0;font-size:15px}
+main.phone.arthur-studio .studio-phone-resources{border-left:3px solid var(--studio-green);padding:12px 16px;background:#edf2eb;border-radius:6px}
+main.phone.arthur-studio .studio-phone-resources h2{font-size:18px;margin:0 0 6px}
+main.phone.arthur-studio .studio-phone-resources p{font-size:15px;margin:0}
+main.phone.arthur-studio .phone-event-collisions article{background:#eef3ed;color:var(--studio-ink);border-left-color:#809232}
+main.phone.arthur-studio .phone-event-collisions b{color:var(--studio-teal)}
+main.phone.arthur-studio .perspective-prompt{border-top:3px solid var(--studio-green);background:#edf3ee;color:var(--studio-ink);padding:16px;border-radius:9px;margin-top:20px}
+main.phone.arthur-studio .perspective-prompt h2{font-size:20px!important}
+main.phone.arthur-studio .phone-budget b{border:1px solid var(--studio-line);background:#fff;color:var(--studio-ink)}
+/* Opening responses: real quotes and display-only examples remain visibly distinct. */
+main.arthur-studio .studio-inputs{margin-top:18px;min-width:0;max-width:100%}
+main.arthur-studio .studio-inputs-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--studio-line);margin-bottom:14px}
+main.arthur-studio .studio-inputs-heading>span{font-size:18px;font-weight:700;color:var(--studio-ink)}
+main.arthur-studio .studio-inputs-heading>b{font-size:12px;font-weight:500;color:var(--studio-muted)}
+main.arthur-studio .studio-example-note{font-size:14px;color:var(--studio-muted);line-height:1.45;margin:0 0 14px}
+main.arthur-studio .studio-input-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+main.arthur-studio .studio-input-card,main.arthur-studio .studio-own-response{margin:0;padding:16px;background:#fff;border:1px solid var(--studio-line);border-left:4px solid var(--studio-teal);border-radius:8px;min-width:0;overflow-wrap:anywhere;transform:none}
+main.arthur-studio .studio-input-card small,main.arthur-studio .studio-own-response small{display:block;font-size:11px;color:var(--studio-muted);font-weight:700;letter-spacing:.04em;margin-bottom:8px}
+main.arthur-studio .studio-input-card p,main.arthur-studio .studio-own-response p{font-size:17px;line-height:1.45;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--studio-ink)}
+main.arthur-studio .studio-input-card.is-example{border-left-color:#91a03c;background:#f3f6ed}
+main.arthur-studio .studio-own-response{border-left-color:#9eb400;background:#eef5e7;margin:14px 0}
+main.arthur-studio .studio-input-count{font-size:13px;color:var(--studio-muted)}
+main.arthur-studio .all-studio-inputs{padding:14px;background:white;border:1px solid var(--studio-line);border-radius:8px;margin-top:14px}
+main.arthur-studio .all-studio-inputs li{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0;font-size:16px;line-height:1.45}
+main.phone.arthur-studio .studio-input-grid{grid-template-columns:minmax(0,1fr)}
+main.phone.arthur-studio .studio-inputs-heading{align-items:flex-start;flex-direction:column;gap:5px}
+main.phone.arthur-studio .studio-input-card p,main.phone.arthur-studio .studio-own-response p{font-size:16px}
+/* Shared projector styling, including the instruction layout from the screenshot. */
+main.host.arthur-studio{background:var(--studio-paper)}
+main.host.arthur-studio>header{background:white;border-bottom-color:var(--studio-teal)}
+main.host.arthur-studio>aside{background:white;border-color:var(--studio-line)}
+main.host.arthur-studio>.stage{background:var(--studio-paper)}
+main.host.arthur-studio .facilitator-status{background:#edf3ee!important;border-color:var(--studio-line)!important}
+main.host.arthur-studio>footer{background:#fff}
+main.host.arthur-studio :is(.journey-locked,.needs-locked,.instruction-locked,.table-comparison,.live-vote-room,.room-results){background:var(--studio-paper)!important}
+main.host.arthur-studio .studio-howto{padding:20px 24px;display:grid;gap:16px;align-content:start;min-height:100%;background:white;border:1px solid var(--studio-line);border-radius:12px}
+main.host.arthur-studio .studio-howto-intro{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(230px,.8fr);align-items:center;gap:28px}
+main.host.arthur-studio .studio-howto h1{font-size:clamp(32px,2.8vw,48px)!important;line-height:1.08!important;letter-spacing:-.025em;margin:8px 0 12px;color:var(--studio-ink)}
+main.host.arthur-studio .studio-howto-intro p{font-size:17px;line-height:1.4;margin:0;color:var(--studio-muted)}
+main.host.arthur-studio .studio-howto figure{margin:0;min-width:0}
+main.host.arthur-studio .studio-howto figure img{width:100%;height:170px;object-fit:cover;border-radius:9px}
+main.host.arthur-studio .studio-howto figcaption{font-size:12px;color:var(--studio-muted);margin-top:5px}
+main.host.arthur-studio .studio-howto-steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+main.host.arthur-studio .studio-howto-steps li{padding:15px;background:#f4f7f1;border:1px solid var(--studio-line);border-top:4px solid var(--studio-green);border-radius:8px;min-width:0}
+main.host.arthur-studio .studio-howto-steps li>span{font-size:20px;font-weight:700;color:var(--studio-teal)}
+main.host.arthur-studio .studio-howto-steps h2{font-size:23px!important;line-height:1.1;margin:9px 0 7px;color:var(--studio-ink)}
+main.host.arthur-studio .studio-howto-steps p{font-size:15px!important;line-height:1.4;margin:0;color:var(--studio-muted)}
+main.host.arthur-studio .studio-howto-footer{display:grid;grid-template-columns:1fr 1fr;gap:24px;border-top:1px solid var(--studio-line);padding-top:14px}
+main.host.arthur-studio .studio-howto-footer p{font-size:14px;line-height:1.4;margin:4px 0;color:var(--studio-muted)}
+main.host.arthur-studio .studio-howto-footer b{font-size:19px;color:var(--studio-ink)}
+main.host.arthur-studio .studio-needs-tags{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+main.host.arthur-studio .studio-needs-tags span{font-size:14px;padding:6px 9px;background:#edf2e8;border-radius:5px;color:#294036}
+main.host.arthur-studio .studio-howto-next{font-size:13px;margin:0;color:var(--studio-teal)}
+main.host.arthur-studio .studio-opening-room,main.host.arthur-studio .studio-reflection-room{padding:24px;background:white;border:1px solid var(--studio-line);border-radius:12px;min-height:100%}
+main.host.arthur-studio .studio-opening-intro{display:grid;grid-template-columns:minmax(0,1fr) 220px;align-items:center;gap:25px}
+main.host.arthur-studio .studio-opening-intro img{width:100%;height:160px;object-fit:cover;border-radius:9px}
+main.host.arthur-studio :is(.studio-opening-room,.studio-reflection-room) h1{font-size:clamp(30px,3vw,46px)!important;line-height:1.1!important;letter-spacing:-.025em;margin:10px 0 14px;color:var(--studio-ink)}
+main.host.arthur-studio :is(.studio-opening-room,.studio-reflection-room)>header p{font-size:17px;line-height:1.4;color:var(--studio-muted);margin:0}
+main.host.arthur-studio .studio-reflection-close{font-size:16px;color:var(--studio-teal);border-top:1px solid var(--studio-line);padding-top:14px;margin:20px 0 0}
+main.host.arthur-studio .xwelcome{background:#fff!important;color:var(--studio-ink);border:1px solid var(--studio-line);border-radius:12px}
+main.host.arthur-studio .xwelcome h1{color:var(--studio-ink);letter-spacing:-.025em}
+main.host.arthur-studio .xwelcome :is(.xwelcome-kicker,.xwelcome-join>span,.xwelcome-teams>b){color:var(--studio-teal)}
+main.host.arthur-studio .xwelcome .xwelcome-steps article{background:#f1f5ee;border:1px solid var(--studio-line);border-top:3px solid var(--studio-green);border-radius:8px}
+main.host.arthur-studio .xwelcome .xwelcome-steps :is(span,strong){color:var(--studio-ink)}
+main.host.arthur-studio .xwelcome .xwelcome-steps article>b{color:var(--studio-teal)}
+main.host.arthur-studio .xwelcome-close{border-left-color:#a4b800}
+main.host.arthur-studio .xwelcome-teams span{background:#edf2e7;color:var(--studio-ink)}
+main.host.arthur-studio .compact-vote-room .live-option.has-votes{background:#edf5dc;border-color:#8a9d2f}
+main.host.arthur-studio .compact-vote-room .live-option.has-votes>b{background:#315d3b}
+@media(max-height:800px){main.host.arthur-studio .studio-howto{padding:14px 18px;gap:12px}main.host.arthur-studio .studio-howto figure img{height:120px}main.host.arthur-studio .studio-howto h1{font-size:34px!important;margin:7px 0}main.host.arthur-studio .studio-howto-intro p{font-size:15px}main.host.arthur-studio .studio-howto-steps li{padding:11px}main.host.arthur-studio .studio-howto-steps h2{font-size:21px!important;margin:6px 0}main.host.arthur-studio .studio-howto-steps p{font-size:14px!important}main.host.arthur-studio .studio-howto-footer{padding-top:10px}}
+@media(max-width:1050px){main.host.arthur-studio .studio-howto-intro{grid-template-columns:1.4fr 1fr;gap:18px}main.host.arthur-studio .studio-howto-steps{grid-template-columns:repeat(2,minmax(0,1fr))}main.host.arthur-studio .studio-input-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){main.host.arthur-studio .studio-opening-intro,main.host.arthur-studio .studio-howto-intro,main.host.arthur-studio .studio-howto-footer{grid-template-columns:1fr}main.host.arthur-studio .studio-input-grid{grid-template-columns:1fr}}
+/* A voting clock may precede the journey strip; do not pull that strip over it. */
+main.phone.arthur-studio>.journey-map:not(:first-child){margin-top:0!important}
