@@ -3,6 +3,7 @@ import { CAPABILITIES, RESPONSES } from './leaveWellExperience.js';
 import { canAfford, canStrengthen, responseEligibility } from './xplayerRules.js';
 export const DECISION_PHASES = ['invest','design','adapt','event','respond'];
 export function baseDecision(team, phase) {
+  if(team.game_state?.ballot_pending?.phase===phase)return null;
   if (team.status === 'inactive') return null;
   const n = (team.investments || []).length + 1;
   if (phase === 'invest') return n <= 2 && (n === 1 || team.status === 'extend') ? `capability${n}` : null;
@@ -31,7 +32,7 @@ export function ballot(team, phase) {
   return key ? {key:r?.key || key,baseKey:key,options:r?.options || allowedChoices(team,phase),runoff:!!r} : null;
 }
 export function tally(team, phase, players, votes) {
-  const b=ballot(team,phase), people=players.filter(p=>p.team_id===team.id), ids=new Set(people.map(p=>p.id)), seen=new Map();
+  const b=ballot(team,phase), people=players.filter(p=>p.team_id===team.id&&p.seat_active!==false), ids=new Set(people.map(p=>p.id)), seen=new Map();
   for(const v of votes) if(b && v.team_id===team.id && ids.has(v.player_id) && v.decision===b.key && b.options.includes(v.choice)) seen.set(v.player_id,v);
   const counts={}; for(const v of seen.values()) counts[v.choice]=(counts[v.choice]||0)+1;
   const max=Math.max(0,...Object.values(counts)), leaders=max?Object.keys(counts).filter(k=>counts[k]===max):[];

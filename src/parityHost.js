@@ -1,3 +1,7 @@
+import {remainingSeconds} from './studioPolicy.js';
+import './studioControls.css';
+import {controlRoom,insights,hasHost,hostSecret,saveHostSecret,navigateStudio} from './studioClient.js';
+import {clockHTML,tickClock,runoffDiscussionHTML} from './studioViews.js';
 import {operatingConditionsHTML} from './xplayerFlowViews.js';
 import './hostStudio.css';
 import {openingInputs} from './studioInputs.js';
@@ -55,13 +59,13 @@ function roomDesignReveal() {
   return `<section class="table-comparison"><span>TABLE REVEALS \xB7 DESIGN</span><h1>WHAT DID EACH TABLE DESIGN?</h1><div class="comparison-grid">${rows.map((x) => `<article data-capability="${x.capId}"><small>${E(x.team.table_name)}</small><img src="${asset(x.o[1])}"><h2>${x.o[0]}</h2><p>${x.o[2]}</p></article>`).join("")}</div></section>`;
 }
 function phaseDecision(t){return ballot(t,s.phase)?.key||null}
-function statusModel(){const decisionPhase=DECISION_PHASES.includes(s.phase),rows=d.teams.map(t=>{const x=tally(t,s.phase,d.players,d.votes);return {t,people:x.people,key:x.ballot?.key,votes:x.cast,applicable:!!x.ballot,ready:!decisionPhase||!x.ballot||x.ready,runoff:x.ballot?.runoff}}),activeRows=rows.filter(x=>x.people.length&&x.applicable);return {rows,activeRows,decisionPhase,allReady:s.phase==='event'||!decisionPhase||activeRows.length>0&&activeRows.every(x=>x.ready)}}
+function statusModel(){const decisionPhase=DECISION_PHASES.includes(s.phase),rows=d.teams.map(t=>{const x=tally(t,s.phase,d.players,d.votes),pending=t.game_state?.ballot_pending?.phase===s.phase?t.game_state.ballot_pending:null;return {t,people:x.people,key:x.ballot?.key||pending?.key,votes:pending?.cast??x.cast,applicable:!!x.ballot,ready:!decisionPhase||!x.ballot||x.ready,runoff:x.ballot?.runoff}}),activeRows=rows.filter(x=>x.people.length&&x.applicable);return {rows,activeRows,decisionPhase,allReady:s.phase==='event'||!decisionPhase||activeRows.length>0&&activeRows.every(x=>x.ready)}}
 function participantLabel(p) {
   return p.participant_alias || p.initials || "PLAYER";
 }
 function facilitatorPanel() {
-  let m = statusModel(), joined = d.players.length;
-  return `<section class="facilitator-status"><div class="facilitator-status-head"><div><small>LIVE SESSION</small><strong>${joined} ${joined === 1 ? "PLAYER" : "PLAYERS"} JOINED</strong></div>${m.decisionPhase ? `<div class="advance-signal ${m.allReady ? "ready" : "waiting"}">${s.phase==='event'?"OPINIONS · ADVANCE WHEN READY":m.allReady ? "ALL ACTIVE TABLES READY" : "WAITING FOR VOTES"}</div>` : ""}</div><div class="table-status-grid">${m.rows.length ? m.rows.map((x) => `<article class="table-status ${x.ready ? "ready" : ""}"><div><b>${E(x.t.table_name)}</b><span>${x.people.length} joined</span></div><p>${x.people.length ? x.people.map((p) => `<span>${E(participantLabel(p))}</span>`).join("") : "<em>Waiting for players</em>"}</p>${x.key ? `<div class="vote-meter"><i style="width:${x.people.length ? Math.min(100, x.votes / x.people.length * 100) : 0}%"></i></div><small>${x.votes}/${x.people.length} voted</small>` : ""}</article>`).join("") : '<article class="table-status"><b>NO TABLES JOINED YET</b><p>Players will appear here as soon as they select a table.</p></article>'}</div></section>`;
+  let m=statusModel(),joined=d.players.filter(p=>p.seat_active!==false).length,ready=m.rows.filter(x=>x.ready&&!x.runoff).length,voting=m.rows.filter(x=>!x.ready&&!x.runoff).length,runoffs=m.rows.filter(x=>x.runoff).length;
+  return `<section class="facilitator-status">${runoffDiscussionHTML(s.phase,m.rows,choiceLabel)}<div class="facilitator-status-head"><strong>${m.rows.length} DESIGN TEAMS · ${joined}/40 SEATS</strong><span class="studio-status-summary">${ready} READY · ${voting} ${remainingSeconds(s)===0?'INCOMPLETE':'VOTING'} · ${runoffs} RUNOFF</span><small>${d.soloStats?.registered||0} INDEPENDENT REGISTERED · ${d.soloStats?.completed||0} REACHED A RESULT</small></div><div class="studio-toolbar">${clockHTML(s)}${s.studio_control?.timer?'<button data-studio="close">CLOSE VOTING</button><button data-studio="pause">PAUSE</button><button data-studio="resume">RESUME</button><button data-studio="extend">+30 SEC</button><button data-studio="reopen">REOPEN 30 SEC</button>':''}<button data-studio="${s.studio_control?.registrationOpen?'closeRegistration':'openRegistration'}">${s.studio_control?.registrationOpen?'CLOSE TEAM REGISTRATION':'OPEN TEAM REGISTRATION'}</button><button id="studio-manage-seats">MANAGE SEATS</button><button id="studio-export">EXPORT INSIGHTS</button>${!isPreview?'<button id="studio-backup-key">BACKUP FACILITATOR KEY</button><button id="studio-restore-key">RESTORE FACILITATOR KEY</button><input id="studio-key-file" type="file" accept=".txt,application/json" hidden>':''}</div><details class="studio-seat-details"><summary>TABLE DETAILS</summary><div class="table-status-grid">${m.rows.map(x=>`<article class="table-status"><b>${E(x.t.table_name)}</b><div>${x.people.length}/5 seats · ${x.runoff?'RUNOFF':x.ready?'READY':'VOTING'}</div><small>${x.votes}/${x.people.length} received</small></article>`).join('')}</div></details><p class="studio-error" id="studio-error" hidden></p></section>`;
 }
 function voteOptionsFor(row, p) {
   const b=ballot(row.t,p);if(b?.runoff)return b.options.map(id=>[id,choiceLabel(row.t,p,id),null]);
@@ -77,7 +81,7 @@ function voteOptionsFor(row, p) {
   return [];
 }
 function liveVoteBoard() {
-  let p = normalizePhase(s.phase), m = statusModel(), remaining = Math.max(0, Math.ceil((voteEndsAt - Date.now()) / 1e3)), title = p === "invest" ? "WHERE IS THE ROOM INVESTING?" : p === "design" ? "HOW IS EACH TABLE DESIGNING AROUND IT?" : p === "adapt" ? "GO DEEPER OR GO BROADER?" : p === "event" ? "WILL THE DESIGNS HOLD?" : "HOW WILL THE TABLES RESPOND?";
+  let p = normalizePhase(s.phase), m = statusModel(), remaining = remainingSeconds(s)||0, title = p === "invest" ? "WHERE IS THE ROOM INVESTING?" : p === "design" ? "HOW IS EACH TABLE DESIGNING AROUND IT?" : p === "adapt" ? "GO DEEPER OR GO BROADER?" : p === "event" ? "WILL THE DESIGNS HOLD?" : "HOW WILL THE TABLES RESPOND?";
   return `<section class="live-vote-room"><header><div><span>LIVE ROOM VIEW</span><h1>${title}</h1><p>Votes update in real time. Each table remains independent.</p></div><div class="vote-clock"><small>TIME TO VOTE</small><strong id="vote-clock">${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}</strong></div></header><div class="live-table-grid">${m.rows.filter((r) => r.people.length).map((r) => {
     let opts = voteOptionsFor(r, p);
     return `<article class="${r.applicable ? "" : "table-complete"}"><div class="table-head"><h2>${E(r.t.table_name)}</h2><b>${r.applicable ? `${r.votes}/${r.people.length} VOTED` : "PATH COMPLETE"}</b></div><div class="live-options">${opts.map(([id, title2, img]) => {
@@ -86,17 +90,7 @@ function liveVoteBoard() {
     }).join("")}</div></article>`;
   }).join("")}</div></section>`;
 }
-function startVoteClock() {
-  if (!voteEndsAt || voteEndsAt < Date.now()) voteEndsAt = Date.now() + 9e4;
-  clearInterval(voteTimer);
-  voteTimer = setInterval(() => {
-    let el = document.querySelector("#vote-clock");
-    if (!el) return;
-    let n = Math.max(0, Math.ceil((voteEndsAt - Date.now()) / 1e3));
-    el.textContent = `${String(Math.floor(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
-    if (!n) clearInterval(voteTimer);
-  }, 250);
-}
+function startVoteClock(){clearInterval(voteTimer);voteTimer=setInterval(()=>{const el=root.querySelector('#vote-clock'),n=remainingSeconds(s)||0;if(el)el.textContent=String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')},250)}
 let showAllTableResults=false;
 function roomResultsHTML(){
     let rows = d.teams.filter((t) => t.status!=="inactive"&&d.players.some((x2) => x2.team_id === t.id)).map((t) => ({ t, e: t.game_state?.evaluation || evaluate(t, "handoff_changed"), response: t.game_state?.responseId || "use" }));
@@ -112,14 +106,14 @@ function body() {
   const runoffs=p==='event'?[]:d.teams.filter(t=>ballot(t,p)?.runoff);
   if(runoffs.length)return `<section><span>TABLE VOTING</span><h1>RUNOFF IN PROGRESS</h1><p>No table is charged until this decision is resolved. If a runoff ties again, a random choice is recorded and disclosed.</p>${runoffs.map(t=>`<article><h2>${E(t.table_name)}</h2><p>${ballot(t,p).options.map(id=>E(choiceLabel(t,p,id))).join(' / ')}</p></article>`).join('')}</section>`;
   if(['result','finalReveal','principles'].includes(p))return phoneCueHTML();
-  if(p==='journey'&&d.teams.some(t=>t.game_state?.journey_complete))return completedJourneyHTML();
+  if(p==='journey'&&(s.studio_control?.completed||d.teams.some(t=>t.game_state?.journey_complete)))return completedJourneyHTML();
   if(p==='impact')return `<section><span>AFTER YOUR PREDICTION</span><h1>YOUR DESIGNS HAVE BEEN TESTED.</h1><p>Read your table’s impact on your phone. No player tap is needed. The facilitator opens the response choices when the room is ready.</p><div class="comparison-grid">${d.teams.filter(t=>t.status!=='inactive'&&d.players.some(p=>p.team_id===t.id)).map(t=>`<article><h2>${E(t.table_name)}</h2><p>PREDICTION · ${E(t.game_state?.prediction||'Not recorded')}</p><h2>${evaluate(t).outcome}</h2>${evaluationHTML(evaluate(t))}</article>`).join('')}</div></section>`;
   if (p === "meet") {
     let teams = (d.teams || []).map((t) => {
-      let n = (d.players || []).filter((x2) => x2.team_id === t.id).length;
+      let n = (d.players || []).filter((x2) => x2.team_id === t.id&&x2.seat_active!==false).length;
       return n ? `<span>${E(t.table_name)} \xB7 ${n} JOINED</span>` : "";
     }).join("");
-    return `<section class="xwelcome"><div class="xwelcome-kicker">ARTHUR: BY DESIGN \xB7 LIVE DESIGN STUDIO</div><div class="xwelcome-grid"><div><h1>WELCOME TO THE<br>DESIGN STUDIO.</h1><p class="xwelcome-lede">Today, your table becomes a design team.</p><div class="xwelcome-steps"><article><b>01</b><div><strong>SCAN THE QR CODE</strong><span>Open the invitation on your phone.</span></div></article><article><b>02</b><div><strong>ENTER YOUR INFO</strong><span>Join with email or continue anonymously.</span></div></article><article><b>03</b><div><strong>FIND YOUR TABLE</strong><span>Select the number displayed on your table.</span></div></article><article><b>04</b><div><strong>STAY WITH US</strong><span>Keep your phone open. We begin together.</span></div></article></div><p class="xwelcome-close">Same challenge. Different design teams.<br><b>What will your table make possible?</b></p></div><div class="xwelcome-join"><div class="xwelcome-qr">${qr(url())}</div><span>SCAN TO JOIN</span><h2>ROOM ${s.code}</h2><p>${d.players.length} ${d.players.length === 1 ? "PLAYER" : "PLAYERS"} JOINED</p><div class="xwelcome-teams"><b>DESIGN TEAMS FORMING</b>${teams || "<em>Waiting for the first table\u2026</em>"}</div></div></div></section>`;
+    return `<section class="xwelcome"><div class="xwelcome-kicker">ARTHUR: BY DESIGN \xB7 LIVE DESIGN STUDIO</div><div class="xwelcome-grid"><div><h1>WELCOME TO THE<br>DESIGN STUDIO.</h1><p class="xwelcome-lede">Today, your table becomes a design team.</p><div class="xwelcome-steps"><article><b>01</b><div><strong>SCAN THE QR CODE</strong><span>Open the invitation on your phone.</span></div></article><article><b>02</b><div><strong>ENTER YOUR INFO</strong><span>Join with email or continue anonymously.</span></div></article><article><b>03</b><div><strong>FIND YOUR TABLE</strong><span>Select the number displayed on your table.</span></div></article><article><b>04</b><div><strong>STAY WITH US</strong><span>Keep your phone open. We begin together.</span></div></article></div><p class="xwelcome-close">Same challenge. Different design teams.<br><b>What will your table make possible?</b></p></div><div class="xwelcome-join"><div class="xwelcome-qr">${qr(url())}</div><span>SCAN TO JOIN</span><h2>ROOM ${s.code}</h2><p>${d.players.filter(p=>p.seat_active!==false).length} ${d.players.filter(p=>p.seat_active!==false).length === 1 ? "PLAYER" : "PLAYERS"} JOINED</p><div class="xwelcome-teams"><b>DESIGN TEAMS FORMING</b>${teams || "<em>Waiting for the first table\u2026</em>"}</div></div></div></section>`;
   }
   if (p === "opening") return page("BEFORE WE BEGIN", "WHAT IS THE BIGGEST CHALLENGE ARTHUR FACES GETTING HOME SAFELY?", "On your phone, enter a few words. Skipping does not affect gameplay.", "arthur-leave-well.png");
   if (p === "reflection") {
@@ -159,27 +153,35 @@ function card(i, h, c2, a, q, k) {
 let refreshing=false,pendingRefresh=false,advancing=false,refreshPromise=null;
 function refresh(){pendingRefresh=true;if(refreshPromise)return refreshPromise;refreshPromise=(async()=>{refreshing=true;try{do{pendingRefresh=false;const next=await load(s.code),data=await all(next);if(Number(next.xplayer_revision||0)<Number(s.xplayer_revision||0))continue;s=next;d=data;render()}while(pendingRefresh)}catch(err){console.error('Room refresh failed',err.message)}finally{refreshing=false}})().finally(()=>{refreshPromise=null;if(pendingRefresh)return refresh()});return refreshPromise;}
 function review(){const box=document.createElement('dialog');box.className='flow-review';box.innerHTML=`<h1>YOUR TABLES’ PREVIOUS CHOICES</h1><p>This review does not rewind the room or spend resources.</p>${d.teams.map(t=>`<article><h2>${E(t.table_name)}</h2><p>◆${t.capital} Capital · ●${t.change_budget} Change</p>${Object.values(t.game_state?.applied_decisions||{}).map(v=>`<p>${E(v.key)} · ${E(v.choice)} · ${E(v.source)}</p>`).join('')}</article>`).join('')}<button>CLOSE REVIEW</button>`;document.body.appendChild(box);box.querySelector('button').onclick=()=>{box.close();box.remove()};box.showModal()}
-async function advance(force=false){if(advancing)return;advancing=true;try{render();const old=s.phase;if(old==='designReveal'&&d.teams.some(t=>(t.investments||[]).length>=2))s=await phase(s,'event');else s=await advanceRoom(s,{force});facilitatorView='story';await refresh()}catch(err){alert(err.message);await refresh()}finally{advancing=false;render()}}
+async function advance(force=false){if(advancing)return;advancing=true;try{render();const old=s.phase;if(old==='designReveal'&&d.teams.some(t=>(t.investments||[]).length>=2||t.game_state?.second_round_attempted))s=await phase(s,'event');else s=await advanceRoom(s,{force});facilitatorView='story';await refresh()}catch(err){alert(err.message);await refresh()}finally{advancing=false;render()}}
 function render() {
   root.innerHTML = `<main class="host"><header><b>ARTHUR: BY DESIGN</b><nav class="host-journey-map"><span class="active"><b>01</b> LEAVE WELL<small>${{ meet: "WELCOME", opening: "FIRST INSTINCT", reflection: "ROOM VIEW", journey: "JOURNEY", needs: "ARTHUR NEEDS", rules: "HOW TO PLAY", card: "READ A CARD", invest: "CHOOSE", activation: "REVEAL", design: "DESIGN", designReveal: "DESIGN REVEAL", adapt: "ADAPT", event: "DISRUPTION", respond: "RESPOND", impact:"IMPACT", finalReveal:"PHONE REVEAL", result: "RESULT", principles: "DEBRIEF" }[normalizePhase(s.phase)] || "PLAY"}</small></span><i></i><span><b>02</b> RECOVER WELL<small>UP NEXT</small></span><i></i><span><b>03</b> LIVE WELL<small>LATER</small></span></nav><span>ROOM ${s.code}</span></header><div class="stage">${body()}</div><aside>${qr(url())}<b>JOIN \xB7 ${s.code}</b><small>Players join on their phones.</small></aside>${facilitatorPanel()}<footer><button id="b">BACK</button><button id="r">REVEAL</button><button id="force" class="force-control" hidden>CONTINUE WITH VOTES RECEIVED</button><button id="n">NEXT</button></footer></main>`;
   const backButton = root.querySelector("#b"), revealButton = root.querySelector("#r"), forceButton = root.querySelector("#force"), nextButton = root.querySelector("#n");
   let current = statusModel();
-  forceButton.hidden = !current.decisionPhase || s.phase==='event';
-  revealButton.textContent = current.decisionPhase ? "LIVE TABLE VIEW" : "REVEAL";
+  forceButton.hidden=true;
+  revealButton.hidden=!current.decisionPhase;revealButton.textContent=facilitatorView==='live_vote'?"RETURN TO ARTHUR":"LIVE TABLE VIEW";
+  bindStudioControls();tickClock(root,s);
+  if(!hasHost(s)){nextButton.disabled=true;forceButton.disabled=true;}
   const compare=root.querySelector('#show-all-table-results');if(compare)compare.onclick=()=>{showAllTableResults=!showAllTableResults;render()};
   backButton.textContent='REVIEW CHOICES';backButton.onclick=review;
-  nextButton.disabled=advancing||(s.phase==='journey'&&d.teams.some(t=>t.game_state?.journey_complete));forceButton.disabled=advancing;
-  nextButton.textContent=s.phase==='impact'?'CONTINUE TO RESPONSE':s.phase==='result'?'CONTINUE TO DISCUSSION':s.phase==='finalReveal'?'CONTINUE TO DISCUSSION':s.phase==='principles'?'COMPLETE':'NEXT';
+  nextButton.disabled=!hasHost(s)||advancing||(s.phase==='journey'&&(s.studio_control?.completed||d.teams.some(t=>t.game_state?.journey_complete)));forceButton.disabled=!hasHost(s)||advancing;
+  nextButton.textContent=current.decisionPhase?(s.phase==='event'?'REVEAL IMPACT':'RESOLVE VOTES'):s.phase==='impact'?'CONTINUE TO RESPONSE':s.phase==='result'?'CONTINUE TO DISCUSSION':s.phase==='finalReveal'?'CONTINUE TO DISCUSSION':s.phase==='principles'?'COMPLETE':'NEXT';
   revealButton.onclick=()=>{if(statusModel().decisionPhase){facilitatorView=facilitatorView==='live_vote'?'story':'live_vote';if(facilitatorView==='live_vote')startVoteClock();render()}};
-  forceButton.onclick=()=>{if(confirm('Continue with valid votes received? Tables with no valid votes become inactive. Ties still require a runoff.'))advance(true)};
-  nextButton.onclick=()=>advance();
+  forceButton.onclick=()=>advance(true);
+  nextButton.onclick=()=>advance(true);
   const replay=root.querySelector('#replay-leave-well');if(replay)replay.onclick=async()=>{if(advancing)return;advancing=true;replay.disabled=true;try{const next=await createRoom();location.search=new URLSearchParams({mode:'host',room:next.code,...(isPreview?{preview:'1'}:{})}).toString()}catch(err){alert(err.message);advancing=false;replay.disabled=false}};
 
 
   if(isPreview)root.insertAdjacentHTML('afterbegin','<div class="flow-preview-badge">ISOLATED TEST ROOM · browser-only data · no live Supabase connection</div>');
 }
+async function performControl(action,extra={}){if(advancing)return;advancing=true;try{s=await controlRoom(s,action,extra);await refresh()}catch(err){const x=root.querySelector('#studio-error');if(x){x.hidden=false;x.textContent=err.message}}finally{advancing=false}}
+function bindStudioControls(){bindHostRecovery();root.querySelectorAll('[data-studio]').forEach(b=>{b.disabled=!hasHost(s)||(b.dataset.studio==='pause'&&(s.studio_control?.timer?.status!=='running'||remainingSeconds(s)<=0))||(b.dataset.studio==='extend'&&(remainingSeconds(s)<=0||s.studio_control?.timer?.status==='closed'))||(b.dataset.studio==='resume'&&s.studio_control?.timer?.status!=='paused')||(b.dataset.studio==='reopen'&&remainingSeconds(s)>0&&s.studio_control?.timer?.status!=='closed')||(b.dataset.studio==='openRegistration'&&(!['meet','opening','reflection','cloud','journey','needs','rules','card'].includes(s.phase)||s.studio_control?.completed));b.onclick=()=>performControl(b.dataset.studio)});const manage=root.querySelector('#studio-manage-seats'),exp=root.querySelector('#studio-export');manage.disabled=exp.disabled=!hasHost(s);manage.onclick=manageSeats;exp.onclick=async()=>{try{const data=await insights(s),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='Arthur-'+s.code+'-insights.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(err){const x=root.querySelector('#studio-error');x.hidden=false;x.textContent=err.message}}}
+function bindHostRecovery(){const backup=root.querySelector('#studio-backup-key'),restore=root.querySelector('#studio-restore-key'),input=root.querySelector('#studio-key-file');if(!backup)return;backup.disabled=!hasHost(s);backup.onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify({version:1,room:s.code,hostToken:hostSecret(s.code)})],{type:'text/plain'})),a=document.createElement('a');a.href=url;a.download='Arthur-'+s.code+'-PRIVATE-facilitator-key.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};restore.onclick=()=>{input.value='';input.click()};input.onchange=async()=>{const old=hostSecret(s.code);try{const file=input.files?.[0];if(!file||file.size>4096)throw Error('Select your facilitator key file.');const value=JSON.parse(await file.text());if(value.version!==1||value.room!==s.code||typeof value.hostToken!=='string'||value.hostToken.length<48||value.hostToken.length>256)throw Error('This key is not for the current room.');saveHostSecret(s.code,value.hostToken);await insights(s);await refresh()}catch(err){saveHostSecret(s.code,old);const x=root.querySelector('#studio-error');x.hidden=false;x.textContent=err.message}}}
+function manageSeats(){const box=document.createElement('dialog');box.className='studio-manager';box.innerHTML=`<h2>TEAM SEATS · ${s.code}</h2><p>Disconnected players keep their seats. Release only an abandoned seat. Moving tables is available before gameplay. Historical votes remain recorded.</p>${d.players.filter(p=>p.seat_active!==false).map(p=>`<article><b>${E(d.teams.find(t=>t.id===p.team_id)?.table_name)} · ${E(p.participant_alias||p.initials||'PLAYER')} · REF ${E(p.id.slice(0,8))}</b><select data-target="${p.id}">${Array.from({length:8},(_,i)=>`<option>Table ${i+1}</option>`).join('')}</select><button data-move="${p.id}">MOVE</button><button data-release="${p.id}">RELEASE SEAT</button></article>`).join('')}<button id="close-seat-manager">CLOSE</button>`;document.body.appendChild(box);box.querySelector('#close-seat-manager').onclick=()=>{box.close();box.remove()};box.querySelectorAll('[data-release]').forEach(b=>b.onclick=()=>{box.close();box.remove();performControl('releaseSeat',{playerId:b.dataset.release})});box.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{const table=box.querySelector('[data-target="'+b.dataset.move+'"]').value;box.close();box.remove();performControl('moveSeat',{playerId:b.dataset.move,table})});box.showModal()}
 async function start(m) {
   root = m;
+  setInterval(()=>{if(s)tickClock(root,s)},250);
+  setInterval(()=>{if(s&&!advancing)refresh()},10000);
   let code = new URLSearchParams(location.search).get("room");
   if (!code) {
     root.innerHTML = '<main><h1>HOST A ROOM</h1><button id="c">CREATE SESSION</button></main>';
