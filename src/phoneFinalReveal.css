@@ -3,3 +3,7 @@ main.phone.phone-story{padding-bottom:24px;overflow-wrap:anywhere}.story-meta{di
 /* A responsive text slate occupies the same story slot as the future film. */
 .phone-story .film-reveal-board{background:#083f42;color:#fff;border:1px solid #27656a;border-radius:12px;padding:18px;margin:16px 0;overflow-wrap:anywhere}
 .phone-story .film-reveal-board>small{color:#efb68b;font-size:10px;letter-spacing:.1em;font-weight:bold}.phone-story .film-reveal-board h2{font-size:26px;margin:10px 0 16px}.phone-story .film-reveal-board article{background:#ffffff0d;border-left:3px solid #efb68b;padding:12px;margin:10px 0}.phone-story .film-reveal-board article small{color:#c5dedd;font-size:10px}.phone-story .film-reveal-board article h3{font-size:17px;margin:7px 0}.phone-story .film-reveal-board article p{font-size:14px;line-height:1.4;margin:7px 0}.phone-story .film-reveal-board dl{margin:18px 0}.phone-story .film-reveal-board dt{color:#efb68b;font-size:10px;font-weight:bold;margin-top:14px}.phone-story .film-reveal-board dd{margin:4px 0 0;font-size:15px}.phone-story .film-selection-key{border-top:1px solid #ffffff30;padding-top:14px;font-size:12px;line-height:1.5}
+/* The light decision record needs its own foreground inside the dark reveal board. */
+.phone-story .film-reveal-board .studio-choice-record{background:#e5eee8;color:#123c3d}
+.phone-story .film-reveal-board .studio-choice-record :where(summary,li,p,b,small){color:#123c3d}
+.phone-story #story-close{display:block;width:100%;min-height:44px;margin-top:16px}

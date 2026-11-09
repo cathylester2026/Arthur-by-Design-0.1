@@ -1,3 +1,5 @@
+import {captureView,restoreView} from './studioViewState.js';
+import {applyArchitectureDetails} from './designDepth.js';
 import {navigateStudio,claimTransferredSeat} from './studioClient.js';
 import './studioControls.css';
 import {clockHTML,tickClock,decisionNoticeHTML} from './studioViews.js';
@@ -121,7 +123,7 @@ function renderScreen(forceReflection=false) {
     let c = CAPABILITIES[t.locked_capability];
     if (!c) return root.innerHTML = wait("WAITING FOR THE TABLE RESULT", "The investment vote is locking.");
     let k = decision("design", t), v = mine(k);
-    root.innerHTML = `<main class="phone"><h1>${c.question}</h1><div class="lens"><b>USEFUL</b><b>RESILIENT</b><b>HUMAN</b></div>${Object.entries(c.options).map(([id, o]) => `<article><img src="${asset(o[1])}"><h2>${o[0]}</h2><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><button data-c="${id}" class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : "CHOOSE"}</button></article>`).join("")}</main>`;
+    root.innerHTML = `<main class="phone"><h1>${c.question}</h1><div class="lens"><b>USEFUL</b><b>RESILIENT</b><b>HUMAN</b></div>${Object.entries(c.options).map(([id, o],index) => `<article data-design="${id}"><img src="${asset(o[1])}"><h2>${'ABC'[index]} · ${o[0]}</h2><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><button data-c="${id}" class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : "CHOOSE"}</button></article>`).join("")}</main>`;
     document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => cast(k, b.dataset.c));
     return;
   }
@@ -138,17 +140,27 @@ function renderScreen(forceReflection=false) {
   }
   if (f === "principles") return root.innerHTML = `<main class="phone principles-phone"><span>ARTHUR: BY DESIGN</span><h1>WHAT WILL ARTHUR BE ABLE TO RELY ON?</h1><p>Technology created possibilities. Your table\u2019s design, operating commitments and response determined what held.</p><div><b>UNDERSTAND</b><b>MOVE</b><b>CONNECT</b><b>TRUST</b></div></main>`;
 }
-let showReflection=false;
+let showReflection=false,completedStoryOpen=false,renderedViewKey=null;
 function render(){
+ const saved=captureView(root,renderedViewKey);
+ renderContent();
+ applyArchitectureDetails(root);
+ const key=JSON.stringify([s.id,t.id,p.id,s.phase,ballot(t,s.phase)?.key||t.investments?.length,showReflection,completedStoryOpen]);
+ restoreView(root,saved,key);renderedViewKey=key;
+}
+function renderContent(){
  if(t.game_state?.participation==='withdrawn'){root.innerHTML=`<main class="phone"><h1>YOUR TABLE WAS WITHDRAWN</h1><p>Your previous decisions remain saved. Other tables can continue.</p><button id="withdrawn-solo">EXPLORE ON MY OWN</button></main>`;root.querySelector('#withdrawn-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});return}
 
  if(p.seat_active===false){renderScreen();applyPhoneChrome();return}
- const f=normalizePhase(s.phase),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive';
+ const f=normalizePhase(s.phase),completed=f==='journey'&&(s.studio_control?.completed||t.game_state?.journey_complete),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive';
+ if(!completed)completedStoryOpen=false;
+ if(completed&&completedStoryOpen){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,readOnly:true,onClose:()=>{completedStoryOpen=false;render();root.ownerDocument?.defaultView?.scrollTo?.(0,0)}});applyPhoneChrome();return}
  if(finished&&!showReflection){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,onReflect:()=>{showReflection=true;render()}});applyPhoneChrome();return}
  if(!finished)showReflection=false;
  renderScreen(finished&&showReflection);applyPhoneChrome();const main=root.querySelector('main');if(main){main.insertAdjacentHTML('afterbegin',clockHTML(s)+decisionNoticeHTML(t));tickClock(root,s)}
  if(main){main.dataset.capability=t.locked_capability||t.investments?.at(-1)?.capabilityId||'';main.insertAdjacentHTML('beforeend',f==='impact'?`<aside class="perspective-prompt"><small>YOUR PERSPECTIVE · ${E(p.role_type||'Other')}</small><p>Consider what Arthur still needs. Follow the facilitator; no action is required on this screen.</p></aside>`:perspectiveHTML(p,f,d.votes,t));const save=root.querySelector('#save-perspective');if(save)save.onclick=()=>cast(save.dataset.key,root.querySelector('#perspective-thought').value.trim())}
  if(finished&&showReflection){const button=document.createElement('button');button.id='replay-table-reveal';button.textContent='BACK TO MY STORY';button.onclick=()=>{showReflection=false;render()};main?.appendChild(button)}
+ if(completed&&t.game_state?.evaluation){const b=document.createElement('button');b.id='review-leave-well';b.textContent='REVIEW MY LEAVE WELL STORY';b.onclick=()=>{completedStoryOpen=true;showReflection=false;render();root.ownerDocument?.defaultView?.scrollTo?.(0,0)};(main?.querySelector('.phone-journey-locked article.active')||main)?.appendChild(b)}
  root.querySelectorAll('[data-flow-choice]').forEach(b=>b.onclick=()=>cast(ballot(t,f).key,b.dataset.flowChoice));
  const source=t.game_state?.last_decision?.source;if(source==='random_after_runoff_tie'&&main){const n=document.createElement('p');n.className='flow-notice';n.textContent='A tied runoff was resolved by a disclosed random selection.';main.prepend(n)}
 }

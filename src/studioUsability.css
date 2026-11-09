@@ -1,0 +1,49 @@
+/* Compact projector overview. Arthur and the full design imagery remain available. */
+.host .facilitator-status{position:relative;z-index:3}
+.host .studio-session-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:5px}
+.host .studio-session-bar>button,.host .studio-session-bar>details>summary{background:#075b5d;color:#fff;border:0;border-radius:6px;padding:8px 10px;font:700 12px Arial;cursor:pointer;box-sizing:border-box}
+.host .studio-session-bar>button:disabled{opacity:.5}
+.host .studio-session-bar .studio-clock{padding:4px 9px;gap:8px}
+.host .studio-session-bar .studio-clock>span{font-size:22px}
+.host .studio-session-bar details{position:static}
+.host .studio-session-bar .studio-tools-panel,.host .studio-seat-details>.table-status-grid{position:absolute;bottom:calc(100% + 4px);right:12px;z-index:8;background:#edf4f0;border:2px solid #075b5d;border-radius:9px;padding:14px;box-shadow:0 8px 30px #123c3d33;max-height:65svh;overflow:auto;max-width:calc(100vw - 48px);box-sizing:border-box}
+.host .studio-tools-panel{width:650px}
+.host .studio-seat-details>.table-status-grid{width:760px;display:grid!important;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}
+.host .studio-session-bar details:not([open])>div{display:none!important}
+.host .studio-recovery-alert{margin:5px 0;background:#fff0dc;border-left:4px solid #ad532d;padding:8px;font-size:13px}
+.host .compact-vote-room{padding:12px!important;min-height:100%!important;overflow:visible}
+.host .compact-vote-room>header{display:flex!important;align-items:center!important;gap:14px;padding-bottom:10px!important;border-bottom-width:3px!important}
+.host .compact-vote-room .live-arthur{width:100px;height:76px;object-fit:contain;background:#e3e9e1;border-radius:8px;flex:0 0 100px}
+.host .compact-vote-room>header>div:not(.vote-clock){flex:1;min-width:0}
+.host .compact-vote-room>header span{font-size:12px;letter-spacing:.08em;color:#075b5d}
+.host .compact-vote-room h1{font-size:clamp(25px,2.45vw,38px)!important;line-height:1.04!important;margin:5px 0!important}
+.host .compact-vote-room>header p{font-size:15px;margin:4px 0}
+.host .compact-vote-room .vote-clock{min-width:105px!important;padding:8px 12px!important;flex:0 0 auto}
+.host .compact-vote-room .vote-clock strong{font-size:32px!important}
+.host .compact-vote-room .vote-clock small{font-size:11px;letter-spacing:.06em}
+.host .compact-vote-room .live-table-grid{grid-template-columns:repeat(var(--live-columns),minmax(0,1fr))!important;gap:10px!important;margin-top:10px!important}
+.host .compact-vote-room .live-table-grid>article{padding:9px 10px!important;border-top-width:4px!important;min-width:0}
+.host .compact-vote-room .table-head{gap:8px;align-items:baseline;margin-bottom:7px;flex-wrap:wrap}
+.host .compact-vote-room .table-head h2{font-size:22px;margin:0}
+.host .compact-vote-room .table-head>b{font-size:13px;white-space:nowrap}
+.host .compact-vote-room .live-options{display:flex!important;flex-direction:column;gap:4px!important}
+.host .compact-vote-room .live-option{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 8px;min-height:30px;box-sizing:border-box}
+.host .compact-vote-room .live-option span{padding:0;min-height:0;font-size:15px;line-height:1.15;font-weight:700;overflow-wrap:anywhere}
+.host .compact-vote-room .live-option>b{position:static;flex:0 0 25px;font-size:15px}
+.host .compact-vote-room .live-option.has-votes{outline:none;border-color:#b7462a;background:#f7e9db}
+.host .compact-vote-room .live-design-detail{margin-top:8px;font-size:12px}
+.host .compact-vote-room .live-design-detail summary{cursor:pointer;font-weight:700;color:#075b5d}
+.host .compact-vote-room .live-design-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-top:8px}
+.host .compact-vote-room .live-design-images figure{margin:0;min-width:0}
+.host .compact-vote-room .live-design-images img{width:100%;height:95px;object-fit:contain;background:#e4ebe4}
+.host .compact-vote-room .live-design-images figcaption{font-size:12px;margin-top:4px}
+@media(max-width:1100px){.host .compact-vote-room .live-table-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.host .compact-vote-room .live-arthur{display:none}}
+@media(max-width:750px){.host .compact-vote-room .live-table-grid{grid-template-columns:1fr!important}.host .compact-vote-room>header{flex-wrap:wrap}.host .compact-vote-room .table-head h2{font-size:20px}}
+/* Keep four-option ballots compact enough for two complete rows at 768px. */
+.host .compact-vote-room .live-table-grid>article{padding:7px 9px!important;border-top-width:3px!important}
+.host .compact-vote-room .table-head{margin-bottom:5px}
+.host .compact-vote-room .table-head h2{font-size:20px;line-height:1.15}
+.host .compact-vote-room .live-options{gap:3px!important}
+.host .compact-vote-room .live-option{min-height:25px;padding:2px 6px}
+.host .compact-vote-room .live-option>b{width:20px;height:20px;line-height:20px;flex-basis:20px;font-size:14px}
+.host .compact-vote-room .live-design-detail{margin-top:5px;line-height:1.2}
