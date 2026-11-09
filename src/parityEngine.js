@@ -9,7 +9,7 @@ async function rows(q){const r=await q;if(r.error)throw r.error;return r.data}
 export async function load(code){const sb=await backend();return rows(sb.from('sessions').select('*').eq('code',code.toUpperCase()).single())}
 export async function all(s){const sb=await backend(),[teams,players,votes]=await Promise.all(['teams','players','votes'].map(table=>rows(sb.from(table).select('*').eq('session_id',s.id))));return {teams,players,votes}}
 export function phase(s,p){return transition(s,[],p)}
-export function move(s,n){if(n<0)throw Error('Review does not rewind committed decisions.');if(isOnboarding(s.phase))return phase(s,nextOnboarding(s.phase));const i=Math.max(0,FLOW.indexOf(s.phase));return phase(s,FLOW[Math.min(FLOW.length-1,i+1)])}
+export function move(s,n){if(s.phase==='finalReveal')return phase(s,'principles');if(n<0)throw Error('Review does not rewind committed decisions.');if(isOnboarding(s.phase))return phase(s,nextOnboarding(s.phase));const i=Math.max(0,FLOW.indexOf(s.phase));return phase(s,FLOW[Math.min(FLOW.length-1,i+1)])}
 export async function reveal(s){return s}
 export async function join({session,table,email,alias,role,consent}){
  const sb=await backend();let team=await rows(sb.from('teams').select('*').eq('session_id',session.id).eq('table_name',table).maybeSingle());
@@ -55,3 +55,11 @@ export async function advanceRoom(session,{force=false,random=chooseRandom}={}){
  return transition(s,changes,nextDecisionPhase(p,teams));
 }
 export function evaluate(team,eventId='handoff_changed',response='use'){return evaluateTable(team,eventId,response)}
+
+// Attach opaque media tickets without rewinding the room or repeating paid decisions.
+export async function attachReveals(session,prepared){
+ const fresh=await load(session.code);if(!['result','finalReveal','principles'].includes(fresh.phase))throw Error('Reveal tickets can only be attached after results.');
+ const d=await all(fresh),changes=[];
+ for(const item of prepared){if(!/^[a-f0-9]{48}$/.test(item.ticket||''))throw Error('Invalid reveal ticket');const t=d.teams.find(t=>t.id===item.teamId);if(!t)throw Error('Reveal table does not belong to this room');const u=new URL(item.api);if(u.protocol!=='https:'&&!['localhost','127.0.0.1'].includes(u.hostname))throw Error('Reveal API must use HTTPS');changes.push({...t,game_state:{...t.game_state,reveal:{ticket:item.ticket,api:u.href.replace(/\/$/,''),durationSeconds:10}}})}
+ return transition(fresh,changes,fresh.phase);
+}
