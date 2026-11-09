@@ -1,0 +1,15 @@
+/* Final XPlayer phone-only sizing contract. Keep after existing phone styles. */
+main.phone{max-inline-size:640px;min-inline-size:0;margin-inline:auto;min-block-size:100svh;padding:14px 14px 28px;overflow-wrap:anywhere}
+main.phone :where(article,section,figure,div,details){min-inline-size:0;max-inline-size:100%;box-sizing:border-box}
+main.phone img,main.phone video{display:block;max-inline-size:100%!important;inline-size:100%!important;object-fit:contain!important;object-position:center!important;border-radius:9px}
+main.phone>img,main.phone .phone-hero-locked{height:clamp(124px,28vh,210px)!important;height:clamp(124px,28svh,210px)!important;max-height:210px!important;background:#e3e9e1}
+main.phone article>img,main.phone article img{height:clamp(108px,23vh,170px)!important;height:clamp(108px,23svh,170px)!important;max-height:170px!important;background:#e3e9e1}
+main.phone.phone-story .story-media img,main.phone.phone-story .story-media video{height:clamp(124px,29vh,210px)!important;height:clamp(124px,29svh,210px)!important;max-height:210px!important;background:#e3e9e1}
+main.phone .phone-journey-locked article>img{height:clamp(90px,19svh,140px)!important;max-height:140px!important}
+main.phone h1{font-size:clamp(26px,7.5vw,34px)!important;line-height:1.08!important;letter-spacing:-.02em;margin:12px 0!important}
+main.phone article h2{font-size:20px!important;line-height:1.15!important}
+main.phone>.journey-map{margin:-14px -14px 14px;padding:10px 12px;max-inline-size:none}
+main.phone .phone-budget,main.phone .story-resources{flex-wrap:wrap}
+main.phone button{min-height:44px}main.phone textarea,main.phone input,main.phone select{max-width:100%;min-width:0}
+main.phone :focus-visible{outline:3px solid #b36a45;outline-offset:3px}
+@media(max-height:620px){main.phone>img,main.phone .phone-hero-locked{height:140px!important}main.phone article>img,main.phone article img{height:126px!important}main.phone.phone-story .story-media img,main.phone.phone-story .story-media video{height:148px!important}main.phone h1{font-size:27px!important}}
