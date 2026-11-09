@@ -1,13 +1,13 @@
 // One pure flow contract, shared by phones, facilitator and regression tests.
-import { CAPABILITIES } from './leaveWellExperience.js';
+import { CAPABILITIES, RESPONSES } from './leaveWellExperience.js';
 import { canAfford, canStrengthen, responseEligibility } from './xplayerRules.js';
-export const DECISION_PHASES = ['invest','design','adapt','event','impact','respond'];
+export const DECISION_PHASES = ['invest','design','adapt','event','respond'];
 export function baseDecision(team, phase) {
   if (team.status === 'inactive') return null;
   const n = (team.investments || []).length + 1;
   if (phase === 'invest') return n <= 2 && (n === 1 || team.status === 'extend') ? `capability${n}` : null;
   if (phase === 'design') return n <= 2 && team.status === 'capability_locked' ? `design${n}` : null;
-  return {adapt:'strategy',event:'prediction',impact:'impact_ack',respond:'response'}[phase] || null;
+  return {adapt:'strategy',event:'prediction',respond:'response'}[phase] || null;
 }
 export function canExtend(team) {
   return (team.investments || []).length < 2 && Object.keys(CAPABILITIES).some(id => !(team.investments || []).some(i => i.capabilityId === id) && canAfford(team,id));
@@ -18,11 +18,11 @@ export function allowedChoices(team, phase) {
   if (phase === 'design') return Object.keys(CAPABILITIES[team.locked_capability]?.options || {});
   if (phase === 'adapt') return [canStrengthen(team) && 'strengthen', canExtend(team) && 'extend'].filter(Boolean);
   if (phase === 'event') return ['YES','NOT SURE','NO'];
-  if (phase === 'impact') return ['ready'];
   if (phase === 'respond') return Object.entries(responseEligibility(team)).filter(([,v])=>v.ok).map(([k])=>k);
   return [];
 }
 export function openRunoff(team, phase) {
+  if(phase==='event'||phase==='impact')return null;
   const r=team.game_state?.runoff;
   return r?.phase===phase && r.status==='open' ? r : null;
 }
@@ -41,5 +41,5 @@ export function nextDecisionPhase(phase,teams) {
   return {invest:'activation',design:'designReveal',adapt:teams.some(t=>t.status==='extend')?'invest':'event',event:'impact',impact:'respond',respond:'result'}[phase] || null;
 }
 export function choiceLabel(team,phase,id) {
-  return phase==='invest'?CAPABILITIES[id]?.title || id:phase==='design'?CAPABILITIES[team.locked_capability]?.options?.[id]?.[0] || id:phase==='adapt'?(id==='strengthen'?'STRENGTHEN':'EXTEND'):id;
+  return phase==='invest'?CAPABILITIES[id]?.title || id:phase==='design'?CAPABILITIES[team.locked_capability]?.options?.[id]?.[0] || id:phase==='adapt'?(id==='strengthen'?'STRENGTHEN':'EXTEND'):phase==='respond'?RESPONSES[id]?.[0]||id:id;
 }

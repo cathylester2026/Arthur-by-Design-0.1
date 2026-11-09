@@ -2,14 +2,19 @@ import {isOnboarding,nextOnboarding,prevOnboarding} from './onboardingRuntime.js
 import {FLOW} from './leaveWellExperience.js';
 import {spendCapability,canStrengthen,spendResponse,evaluateTable} from './xplayerRules.js';
 import {DECISION_PHASES,baseDecision,allowedChoices,ballot,tally,nextDecisionPhase} from './leaveWellXplayerFlow.js';
-import {backend,subscribe,create,transition} from './xplayerBackend.js';
+import {backend,subscribe,create,transition,isPreview} from './xplayerBackend.js';
 export const PLAYER='abd-parity-player',ROOM='abd-parity-room';
 export const createRoom=create,sub=subscribe;
 async function rows(q){const r=await q;if(r.error)throw r.error;return r.data}
 export async function load(code){const sb=await backend();return rows(sb.from('sessions').select('*').eq('code',code.toUpperCase()).single())}
-export async function all(s){const sb=await backend(),[teams,players,votes]=await Promise.all(['teams','players','votes'].map(table=>rows(sb.from(table).select('*').eq('session_id',s.id))));return {teams,players,votes}}
+export async function all(s){
+ const sb=await backend();
+ async function collect(table){if(isPreview)return rows(sb.from(table).select('*').eq('session_id',s.id));const result=[];for(let offset=0;;offset+=500){const page=await rows(sb.from(table).select('*').eq('session_id',s.id).order('id').range(offset,offset+499));result.push(...page);if(page.length<500)return result}}
+ const [teams,players,votes]=await Promise.all(['teams','players','votes'].map(collect));return {teams,players,votes};
+}
 export function phase(s,p){return transition(s,[],p)}
-export function move(s,n){if(s.phase==='finalReveal')return phase(s,'principles');if(n<0)throw Error('Review does not rewind committed decisions.');if(isOnboarding(s.phase))return phase(s,nextOnboarding(s.phase));const i=Math.max(0,FLOW.indexOf(s.phase));return phase(s,FLOW[Math.min(FLOW.length-1,i+1)])}
+export async function completeJourney(session){const fresh=await load(session.code);if(fresh.phase!==session.phase||Number(fresh.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('This host view is out of date.');if(fresh.phase!=='principles')throw Error('Finish the discussion before completing Leave Well.');const d=await all(fresh);return transition(fresh,d.teams.map(t=>({...t,game_state:{...t.game_state,journey_complete:true}})),'journey')}
+export function move(s,n){if(s.phase==='principles')return completeJourney(s);if(s.phase==='finalReveal')return phase(s,'principles');if(n<0)throw Error('Review does not rewind committed decisions.');if(isOnboarding(s.phase))return phase(s,nextOnboarding(s.phase));const i=Math.max(0,FLOW.indexOf(s.phase));return phase(s,FLOW[Math.min(FLOW.length-1,i+1)])}
 export async function reveal(s){return s}
 export async function join({session,table,email,alias,role,consent}){
  const sb=await backend();let team=await rows(sb.from('teams').select('*').eq('session_id',session.id).eq('table_name',table).maybeSingle());
@@ -43,6 +48,11 @@ export async function advanceRoom(session,{force=false,random=chooseRandom}={}){
  const s=await load(session.code);if(s.phase!==session.phase||Number(s.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('This host view is out of date. Wait for the room to refresh.');
  const d=await all(s),p=s.phase;
  if(!DECISION_PHASES.includes(p))return move(s,1);
+ // Prediction is an opinion poll: preserve every response, never resolve a winner or pause a table.
+ if(p==='event'){
+  const changes=d.teams.filter(t=>t.status!=='inactive').map(t=>{const poll=tally(t,p,d.players,d.votes),counts=poll.counts,leaders=poll.leaders,label=!poll.cast?'NOT RECORDED':leaders.length>1?'SPLIT · '+Object.entries(counts).map(([k,v])=>k+' '+v).join(' · '):leaders[0];return {...t,game_state:{...t.game_state,prediction:label,prediction_counts:counts,prediction_votes:poll.cast,runoff:null}}});
+  return transition(s,changes,'impact');
+ }
  const active=d.teams.filter(t=>baseDecision(t,p)&&d.players.some(x=>x.team_id===t.id));
  if(!active.length)throw Error('No active tables are ready for this step.');
  const ts=active.map(t=>tally(t,p,d.players,d.votes));

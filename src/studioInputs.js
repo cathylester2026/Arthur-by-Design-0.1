@@ -1,0 +1,2 @@
+// Keep each participant's input, including identical wording from different people.
+export function openingInputs(votes=[]){return votes.map((v,i)=>({v,i})).filter(({v})=>v.decision==='opening_challenge'&&v.choice&&v.choice!=='[SKIPPED]').sort((a,b)=>{const x=Date.parse(a.v.created_at||''),y=Date.parse(b.v.created_at||'');return Number.isFinite(x)&&Number.isFinite(y)?x-y||a.i-b.i:a.i-b.i}).map(({v})=>v)}
