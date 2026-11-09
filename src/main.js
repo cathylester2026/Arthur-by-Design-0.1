@@ -1,3 +1,4 @@
+import {optimizedAssetPath} from './optimizedAssets.js';
 import './styles.css'
 import './arthurKey.css'
 import './investmentCards.css'
@@ -28,7 +29,7 @@ import {LEAVE_WELL_PHASES} from './leaveWellRuntime.js'
 import {registrationHTML,readRegistration,bindIdentityChoice,validEmail,derivedInitials} from './participantCapture.js'
 
 const root=document.querySelector('#app'),qs=new URLSearchParams(location.search)
-const asset=name=>new URL(`./assets/${name}`,document.baseURI).href
+const asset=name=>new URL(optimizedAssetPath(name),document.baseURI).href
 let mode=qs.get('mode')||'start',session=null,teams=[],players=[],votes=[],team=null,me=null,expanded=null
 const phases=LEAVE_WELL_PHASES.filter(p=>!/^cap_talk/.test(p)&&!/^commit_talk/.test(p))
 const costs={ambient:[3,2],wayfinding:[2,2],meds:[3,3],command:[5,5]}

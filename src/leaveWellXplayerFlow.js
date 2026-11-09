@@ -3,6 +3,7 @@ import { CAPABILITIES, RESPONSES } from './leaveWellExperience.js';
 import { canAfford, canStrengthen, responseEligibility } from './xplayerRules.js';
 export const DECISION_PHASES = ['invest','design','adapt','event','respond'];
 export function baseDecision(team, phase) {
+  if(team.game_state?.participation==='withdrawn')return null;
   if(team.game_state?.ballot_pending?.phase===phase)return null;
   if (team.status === 'inactive') return null;
   const n = (team.investments || []).length + 1;
@@ -25,15 +26,16 @@ export function allowedChoices(team, phase) {
 export function openRunoff(team, phase) {
   if(phase==='event'||phase==='impact')return null;
   const r=team.game_state?.runoff;
-  return r?.phase===phase && r.status==='open' ? r : null;
+  const key=baseDecision(team,phase);return key&&r?.phase===phase&&(r.baseKey||r.key?.replace(/__runoff$/,''))===key&&r.status==='open'?r:null;
 }
 export function ballot(team, phase) {
   const key=baseDecision(team,phase), r=openRunoff(team,phase);
   return key ? {key:r?.key || key,baseKey:key,options:r?.options || allowedChoices(team,phase),runoff:!!r} : null;
 }
 export function tally(team, phase, players, votes) {
-  const b=ballot(team,phase), people=players.filter(p=>p.team_id===team.id&&p.seat_active!==false), ids=new Set(people.map(p=>p.id)), seen=new Map();
+  const b=ballot(team,phase), registered=players.filter(p=>p.team_id===team.id),ids=new Set(registered.map(p=>p.id)),seen=new Map();
   for(const v of votes) if(b && v.team_id===team.id && ids.has(v.player_id) && v.decision===b.key && b.options.includes(v.choice)) seen.set(v.player_id,v);
+  const people=registered.filter(p=>p.seat_active!==false||seen.has(p.id));
   const counts={}; for(const v of seen.values()) counts[v.choice]=(counts[v.choice]||0)+1;
   const max=Math.max(0,...Object.values(counts)), leaders=max?Object.keys(counts).filter(k=>counts[k]===max):[];
   return {team,ballot:b,people,counts,leaders,cast:seen.size,ready:!!b && people.length>0 && seen.size===people.length};

@@ -1,0 +1,3 @@
+export class StudioTimeout extends Error{constructor(label){super(label+' timed out. The server may have received it. Recover server state before retrying.');this.name='StudioTimeout';this.uncertain=true}}
+export function studioRequest(run,{timeoutMs=10000,label='Workshop request'}={}){const controller=new AbortController();let timer;return Promise.race([Promise.resolve().then(()=>run(controller.signal)),new Promise((_,reject)=>{timer=setTimeout(()=>{reject(new StudioTimeout(label));controller.abort()},timeoutMs)})]).finally(()=>clearTimeout(timer))}
+export function rpcRequest(client,name,args,options={}){return studioRequest(signal=>{const q=client.rpc(name,args);return typeof q?.abortSignal==='function'?q.abortSignal(signal):q},{label:name,...options})}

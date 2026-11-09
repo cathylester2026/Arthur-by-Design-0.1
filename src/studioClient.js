@@ -1,3 +1,4 @@
+import {rpcRequest} from './studioTransport.js';
 import {backend,isPreview} from './xplayerBackend.js';
 import {previewAdmit,previewControl,previewSoloEvent,previewInsights} from './studioPreview.js';
 const hostKey=code=>'abd-studio-host:'+code;
@@ -6,7 +7,7 @@ export function saveHostSecret(code,secret){localStorage.setItem(hostKey(code),s
 export function hostSecret(code){return localStorage.getItem(hostKey(code))||''}
 export function participantSecret(id){return localStorage.getItem(secretKey(id))||''}
 export function hasHost(session){return isPreview||!!hostSecret(session.code)}
-async function rpc(name,args){const sb=await backend(),r=await sb.rpc(name,args);if(r.error)throw r.error;return r.data}
+async function rpc(name,args){const sb=await backend(),r=await rpcRequest(sb,name,args);if(r.error)throw r.error;return r.data}
 export async function admit(session,mode,props={}){
  const k='abd-studio-device:'+session.code+':'+mode+(isPreview?':'+(props.alias||'manual'):'');let token=localStorage.getItem(k);if(!token){token=crypto.randomUUID()+crypto.randomUUID();localStorage.setItem(k,token)}
  const params={...props,mode,token};const result=isPreview?previewAdmit(session,params):await rpc('abd_admit_studio',{p_code:session.code,p_mode:mode,p_table:props.table||null,p_token:token,p_email:props.email||null,p_alias:props.alias||null,p_role:props.role||'Other',p_consent:!!props.consent});
@@ -18,3 +19,5 @@ export async function trackSoloEvent(session,participant,event){if(isPreview)ret
 export async function insights(session){if(isPreview)return previewInsights(session);return rpc('abd_studio_insights',{p_session:session.id,p_host_token:hostSecret(session.code)})}
 export async function managedRoomData(session){return rpc('abd_studio_room_data',{p_session:session.id})}
 export function navigateStudio(params){const u=new URL(location.href);u.search=new URLSearchParams({...params,...(isPreview?{preview:'1'}:{})}).toString();if(isPreview&&typeof window!=='undefined'&&window.frameElement&&parent.__arthurFrameDocument){window.frameElement.srcdoc=parent.__arthurFrameDocument(u.href)}else location.href=u.href}
+
+export async function claimTransferredSeat(session,token,expectedPlayer){const r=isPreview?previewAdmit(session,{mode:'facilitated',token}):await rpc('abd_admit_studio',{p_code:session.code,p_mode:'facilitated',p_table:null,p_token:token,p_email:null,p_alias:null,p_role:'Other',p_consent:false});if(!r.player||r.player.id!==expectedPlayer)throw Error('The transferred seat could not be verified.');localStorage.setItem('abd-studio-device:'+session.code+':facilitated',token);localStorage.setItem(secretKey(r.player.id),token);return r.player}

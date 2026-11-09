@@ -1,3 +1,4 @@
+import {rpcRequest} from './studioTransport.js';
 import {previewSnapshot} from './previewStore.js';
 import {admit,controlRoom,submitStudioVote,managedRoomData} from './studioClient.js';
 import {votingOpen} from './studioPolicy.js';
@@ -9,7 +10,7 @@ import {backend,subscribe,create,transition,isPreview} from './xplayerBackend.js
 export const PLAYER='abd-parity-player',ROOM='abd-parity-room';
 export const createRoom=create,sub=subscribe;
 async function rows(q){const r=await q;if(r.error)throw r.error;return r.data}
-export async function load(code){const sb=await backend();if(isPreview)return rows(sb.from('sessions').select('*').eq('code',code.toUpperCase()).single());const start=Date.now(),value=await rows(sb.rpc('abd_studio_session',{p_code:code}));value._clockOffset=Date.parse(value.studio_server_now)-(start+Date.now())/2;return value}
+export async function load(code){const sb=await backend();if(isPreview)return rows(sb.from('sessions').select('*').eq('code',code.toUpperCase()).single());const start=Date.now(),value=await rows(rpcRequest(sb,'abd_studio_session',{p_code:code}));value._clockOffset=Date.parse(value.studio_server_now)-(start+Date.now())/2;return value}
 export async function all(s){
  if(s.studio_managed&&!isPreview)return managedRoomData(s);
  const sb=await backend();
@@ -51,28 +52,28 @@ export async function advanceRoom(session,{force=false,random=chooseRandom}={}){
  // Prediction is an opinion poll: preserve every response, never resolve a winner or pause a table.
  if(p==='event'){
   if(s.studio_managed&&s.studio_control?.timer?.status!=='closed')return advanceRoom(await controlRoom(s,'close'),{force,random});
-  const changes=d.teams.filter(t=>t.status!=='inactive').map(t=>{const poll=tally(t,p,d.players,d.votes),counts=poll.counts,leaders=poll.leaders,label=!poll.cast?'NOT RECORDED':leaders.length>1?'SPLIT · '+Object.entries(counts).map(([k,v])=>k+' '+v).join(' · '):leaders[0];return {...t,game_state:{...t.game_state,prediction:label,prediction_counts:counts,prediction_votes:poll.cast,prediction_window:s.studio_control?.timer,runoff:null}}});
+  const changes=d.teams.filter(t=>t.status!=='inactive'&&t.game_state?.participation!=='withdrawn').map(t=>{const poll=tally(t,p,d.players,d.votes),counts=poll.counts,leaders=poll.leaders,label=!poll.cast?'NOT RECORDED':leaders.length>1?'SPLIT · '+Object.entries(counts).map(([k,v])=>k+' '+v).join(' · '):leaders[0];return {...t,game_state:{...t.game_state,prediction:label,prediction_counts:counts,prediction_votes:poll.cast,prediction_window:s.studio_control?.timer,runoff:null}}});
   return transition(s,changes,'impact');
  }
- const active=d.teams.filter(t=>(baseDecision(t,p)||t.game_state?.ballot_pending?.phase===p)&&(d.players.some(x=>x.team_id===t.id&&x.seat_active!==false)||(t.investments||[]).length));
+ const active=d.teams.filter(t=>t.game_state?.participation!=='withdrawn'&&(baseDecision(t,p)||t.game_state?.ballot_pending?.phase===p)&&(d.players.some(x=>x.team_id===t.id)||(t.investments||[]).length));
  if(!active.length)return transition(s,[],nextDecisionPhase(p,d.teams));
  const ts=active.map(t=>{const pending=t.game_state?.ballot_pending;if(pending?.phase===p)return {team:t,ballot:{baseKey:pending.key},people:[],ready:true,cast:pending.cast,counts:pending.counts,leaders:[pending.choice],pending:true};return tally(t,p,d.players,d.votes)});
  if(!force&&ts.some(t=>!t.ready))throw Error('Waiting for all joined players at active tables to vote.');
  // Closing is serialized with server ballots. No late vote can race a committed snapshot.
  if(s.studio_managed&&s.studio_control?.timer?.status!=='closed')return advanceRoom(await controlRoom(s,'close'),{force,random});
- const firstTies=ts.filter(t=>t.leaders.length>1&&!t.ballot.runoff&&!t.pending);
- if(firstTies.length){const changes=ts.map(r=>{if(r.pending||r.ballot.runoff)return r.team;const g={...r.team.game_state};if(r.leaders.length>1)g.runoff={phase:p,baseKey:r.ballot.baseKey,key:r.ballot.baseKey+'__runoff',options:r.leaders,status:'open',firstCounts:r.counts,firstCast:r.cast,eligible:r.people.length,firstWindow:s.studio_control?.timer};else {const pick=selectResult(r,p,random);g.ballot_pending={phase:p,key:r.ballot.baseKey,choice:pick.choice,source:pick.source,cast:r.cast,counts:r.counts,eligible:r.people.length,window:s.studio_control?.timer}}return {...r.team,game_state:g}});return transition(s,changes,p)}
+ const firstTies=ts.filter(t=>t.leaders.length>1&&!t.ballot.runoff&&!t.pending&&t.people.some(p=>p.seat_active!==false));
+ if(firstTies.length){const changes=ts.map(r=>{if(r.pending||r.ballot.runoff)return r.team;const g={...r.team.game_state};if(r.leaders.length>1&&r.people.some(p=>p.seat_active!==false))g.runoff={phase:p,baseKey:r.ballot.baseKey,key:r.ballot.baseKey+'__runoff',options:r.leaders,status:'open',firstCounts:r.counts,firstCast:r.cast,eligible:r.people.length,firstWindow:s.studio_control?.timer};else {const pick=selectResult(r,p,random);g.ballot_pending={phase:p,key:r.ballot.baseKey,choice:pick.choice,source:pick.source,cast:r.cast,counts:r.counts,eligible:r.people.length,window:s.studio_control?.timer}}return {...r.team,game_state:g}});return transition(s,changes,p)}
  const changes=ts.map(r=>{
   const pick=r.pending?r.team.game_state.ballot_pending:selectResult(r,p,random);
   if(!pick.choice){return {...r.team,status:'ready',game_state:{...r.team.game_state,second_round_attempted:p==='invest',last_decision:{key:r.ballot.baseKey,source:'default_no_legal_action',choice:'KEEP_EXISTING_DESIGN'}}}}
-  let t=applyChoice(r.team,p,pick.choice,r.ballot.baseKey,pick.source||'table_vote');const decision=t.game_state.applied_decisions[r.ballot.baseKey];Object.assign(decision,{counts:r.pending?pick.counts:r.counts,cast:r.pending?pick.cast:r.cast,eligible:r.pending?pick.eligible:r.people.length,window:r.pending?pick.window:s.studio_control?.timer,abstentions:Math.max(0,(r.pending?pick.eligible:r.people.length)-(r.pending?pick.cast:r.cast))});
+  let t=applyChoice(r.team,p,pick.choice,r.ballot.baseKey,pick.source||'table_vote');if(!['table_vote','runoff_vote'].includes(pick.source))t.game_state.assisted=true;const decision=t.game_state.applied_decisions[r.ballot.baseKey];Object.assign(decision,{counts:r.pending?pick.counts:r.counts,cast:r.pending?pick.cast:r.cast,eligible:r.pending?pick.eligible:r.people.length,window:r.pending?pick.window:s.studio_control?.timer,abstentions:Math.max(0,(r.pending?pick.eligible:r.people.length)-(r.pending?pick.cast:r.cast))});
   if(r.ballot.runoff){t.game_state.runoff={...t.game_state.runoff,status:'resolved',choice:pick.choice,source:pick.source};decision.firstWindow=t.game_state.runoff.firstWindow;decision.firstCounts=t.game_state.runoff.firstCounts||{};decision.runoffCounts=r.counts}
   return t;
  });
  return transition(s,changes,nextDecisionPhase(p,d.teams.map(t=>changes.find(x=>x.id===t.id)||t)));
 }
 function selectResult(r,p,random){
- if(r.cast){return {choice:r.leaders.length===1?r.leaders[0]:random(r.leaders),source:r.leaders.length>1?'random_after_runoff_tie':r.ballot.runoff?'runoff_vote':'table_vote'}}
+ if(r.cast){return {choice:r.leaders.length===1?r.leaders[0]:random(r.leaders),source:r.leaders.length>1?(r.people.some(p=>p.seat_active!==false)?'random_after_runoff_tie':'random_no_active_voters'):r.ballot.runoff?'runoff_vote':'table_vote'}}
  if(r.ballot.runoff){return {choice:random(r.ballot.options),source:'random_no_runoff_votes'}}
  const options=allowedChoices(r.team,p);if(p==='respond')return {choice:'use',source:'default_use_no_votes'};if(p==='adapt'&&options.includes('strengthen'))return {choice:'strengthen',source:'default_strengthen_no_votes'};
  return {choice:options.length?random(options):null,source:'default_random_no_votes'};

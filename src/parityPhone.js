@@ -1,4 +1,4 @@
-import {navigateStudio} from './studioClient.js';
+import {navigateStudio,claimTransferredSeat} from './studioClient.js';
 import './studioControls.css';
 import {clockHTML,tickClock,decisionNoticeHTML} from './studioViews.js';
 import {votingOpen} from './studioPolicy.js';
@@ -33,7 +33,7 @@ function tables(mode) {
   if (!role) return q("#err").textContent = "Select your perspective.";
   if (mode === "email" && !/^\S+@\S+\.\S+$/.test(email)) return q("#err").textContent = "Enter a valid email or continue anonymously.";
   let alias = mode === "anonymous" ? "ARTHUR-" + crypto.getRandomValues(new Uint32Array(1))[0].toString(36).slice(0, 5).toUpperCase() : null;
-  root.innerHTML = `<main class="phone"><h1>CHOOSE YOUR TABLE</h1>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1,2,3,4,5,6,7,8].map(i=>{const team=d.teams.find(t=>t.table_name==='Table '+i),count=d.players.filter(p=>p.team_id===team?.id&&p.seat_active!==false).length;return `<button data-t="Table ${i}" ${count>=5||s.studio_control?.registrationOpen===false?'disabled':''}>TABLE ${i} · ${count}/5</button>`}).join('')}</div><button id="join" disabled>JOIN TABLE</button><p id="err"></p><button id="instead-solo">EXPLORE ON MY OWN</button></main>`;
+  root.innerHTML = `<main class="phone"><h1>CHOOSE YOUR TABLE</h1>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1,2,3,4,5,6,7,8].map(i=>{const team=d.teams.find(t=>t.table_name==='Table '+i),count=d.players.filter(p=>p.team_id===team?.id&&p.seat_active!==false).length;return `<button data-t="Table ${i}" ${count>=5||team?.game_state?.participation==='withdrawn'||s.studio_control?.registrationOpen===false?'disabled':''}>TABLE ${i} · ${count}/5</button>`}).join('')}</div><button id="join" disabled>JOIN TABLE</button><p id="err"></p><button id="instead-solo">EXPLORE ON MY OWN</button></main>`;
   root.querySelector('#instead-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});
   let table;
   document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
@@ -140,6 +140,8 @@ function renderScreen(forceReflection=false) {
 }
 let showReflection=false;
 function render(){
+ if(t.game_state?.participation==='withdrawn'){root.innerHTML=`<main class="phone"><h1>YOUR TABLE WAS WITHDRAWN</h1><p>Your previous decisions remain saved. Other tables can continue.</p><button id="withdrawn-solo">EXPLORE ON MY OWN</button></main>`;root.querySelector('#withdrawn-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});return}
+
  if(p.seat_active===false){renderScreen();applyPhoneChrome();return}
  const f=normalizePhase(s.phase),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive';
  if(finished&&!showReflection){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,onReflect:()=>{showReflection=true;render()}});applyPhoneChrome();return}
@@ -220,7 +222,7 @@ async function refresh() {
         s = nextSession;
         d = nextData;
         if(root.querySelector('.studio-entry'))entry();
-        root.querySelectorAll('[data-t]').forEach(b=>{const team=d.teams.find(t=>t.table_name===b.dataset.t),count=d.players.filter(x=>x.team_id===team?.id&&x.seat_active!==false).length;b.textContent=b.dataset.t.toUpperCase()+' · '+count+'/5';b.disabled=count>=5||s.studio_control?.registrationOpen===false;if(b.classList.contains('on')&&b.disabled&&root.querySelector('#join'))root.querySelector('#join').disabled=true});
+        root.querySelectorAll('[data-t]').forEach(b=>{const team=d.teams.find(t=>t.table_name===b.dataset.t),count=d.players.filter(x=>x.team_id===team?.id&&x.seat_active!==false).length;b.textContent=b.dataset.t.toUpperCase()+' · '+count+'/5';b.disabled=count>=5||team?.game_state?.participation==='withdrawn'||s.studio_control?.registrationOpen===false;if(b.classList.contains('on')&&b.disabled&&root.querySelector('#join'))root.querySelector('#join').disabled=true});
         updateDiagnostic();
         continue;
       }
@@ -269,7 +271,9 @@ async function start(m) {
     q("#go").onclick = () => location.search = `?mode=join&room=${encodeURIComponent(q("#code").value.trim().toUpperCase())}${new URLSearchParams(location.search).get("preview")==="1"?"&preview=1":""}`;
     return;
   }
-  let initialSession = await load(code), initialData = await all(initialSession);
+  let initialSession=await load(code);
+  if(location.hash?.startsWith('#seat-recovery=')){const raw=location.hash.slice('#seat-recovery='.length);location.hash='';try{const key=JSON.parse(decodeURIComponent(raw));if(typeof key.token!=='string'||key.token.length<48||key.token.length>256||typeof key.playerId!=='string')throw Error('Invalid private seat key');const restored=await claimTransferredSeat(initialSession,key.token,key.playerId);bindPlayer(initialSession.code,restored.id)}catch(err){root.innerHTML='<main class="phone"><h1>SEAT TRANSFER COULD NOT BE VERIFIED</h1><p>Ask the facilitator for a fresh private seat key. No new seat has been created.</p></main>';return}}
+  let initialData=await all(initialSession);
   s = initialSession;
   d = initialData;
   cleanJoinUrl();
