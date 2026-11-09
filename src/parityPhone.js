@@ -1,3 +1,7 @@
+import {navigateStudio} from './studioClient.js';
+import './studioControls.css';
+import {clockHTML,tickClock,decisionNoticeHTML} from './studioViews.js';
+import {votingOpen} from './studioPolicy.js';
 import {operatingConditionsHTML} from './xplayerFlowViews.js';
 import {openingInputs} from './studioInputs.js';
 import {mountPhoneStory} from './phoneFinalReveal.js';
@@ -17,6 +21,8 @@ import { CAPABILITIES, RESPONSES, asset, decision } from "./leaveWellExperience.
 import './phoneMediaFit.css';
 let root, s, d, p, t, refreshing = false, refreshAgain = false;
 const q = (x) => document.querySelector(x), E = escapeHTML;
+function soloUrl(){const u=new URL(location.href);u.search=new URLSearchParams({mode:'studio-solo',room:s.code,...(new URLSearchParams(location.search).get('preview')==='1'?{preview:'1'}:{})}).toString();return u.href}
+function entry(){const reserved=d.players.filter(p=>p.seat_active!==false).length,open=s.studio_control?.registrationOpen!==false&&reserved<40;root.innerHTML=`<main class="phone studio-entry"><span>ARTHUR: BY DESIGN · DESIGN STUDIO</span><h1>HOW WILL YOU PLAY?</h1><p>Up to eight design teams, five players each. Independent players make their own choices.</p><div class="studio-entry-actions"><button id="choose-team" ${open?'':'disabled'}>JOIN YOUR DESIGN TEAM<small>${open?'I have a table number · '+(40-reserved)+' seats available':'Team places are full or registration is closed'}</small></button><button id="choose-independent">EXPLORE ON MY OWN<small>Independent choices · your own Arthur reveal</small></button></div><p>We record choices, your selected perspective and optional reflections for workshop insights. Anonymous participation is available.</p></main>`;root.querySelector('#choose-team').onclick=reg;root.querySelector('#choose-independent').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code})}
 function reg() {
   root.innerHTML = `<main class="phone registration studio-phone"><span>ARTHUR: BY DESIGN \xB7 LIVE DESIGN STUDIO</span><h1>WELCOME TO THE DESIGN STUDIO.</h1><p class="studio-phone-lede">You\u2019re joining a table design team.</p><div class="studio-phone-note"><b>ON YOUR PHONE</b><p>Join with your email or anonymously, then choose the table number displayed in front of you.</p><p>Add a few words, discuss choices with your table, and make decisions together.</p></div><label>YOUR PERSPECTIVE<select id="role"><option value="">Select your perspective</option><option>Architecture / Interior Design</option><option>Engineering</option><option>Clinical Care</option><option>Healthcare Operations</option><option>Digital / Technology / AI</option><option>Patient Experience</option><option>Strategy / Leadership</option><option>Research / Education</option><option>Other</option></select></label><label>EMAIL <small>Optional if you continue anonymously</small><input id="email" type="email" placeholder="you@company.com"></label><label class="consent-line"><input id="consent" type="checkbox"> <span><b>Send me the design imagery created from my decisions after the workshop.</b><small>Optional. This applies only if you join with an email.</small></span></label><button id="e">CONTINUE WITH EMAIL</button><button id="a" class="secondary">CONTINUE ANONYMOUSLY</button><p class="studio-phone-stay">Keep your phone open. We\u2019ll begin together.</p><p id="err"></p></main>`;
   q("#e").onclick = () => tables("email");
@@ -27,7 +33,8 @@ function tables(mode) {
   if (!role) return q("#err").textContent = "Select your perspective.";
   if (mode === "email" && !/^\S+@\S+\.\S+$/.test(email)) return q("#err").textContent = "Enter a valid email or continue anonymously.";
   let alias = mode === "anonymous" ? "ARTHUR-" + crypto.getRandomValues(new Uint32Array(1))[0].toString(36).slice(0, 5).toUpperCase() : null;
-  root.innerHTML = `<main class="phone"><h1>CHOOSE YOUR TABLE</h1>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1, 2, 3, 4, 5, 6, 7, 8].map((i) => `<button data-t="Table ${i}">TABLE ${i}</button>`).join("")}</div><button id="join" disabled>JOIN TABLE</button><p id="err"></p></main>`;
+  root.innerHTML = `<main class="phone"><h1>CHOOSE YOUR TABLE</h1>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1,2,3,4,5,6,7,8].map(i=>{const team=d.teams.find(t=>t.table_name==='Table '+i),count=d.players.filter(p=>p.team_id===team?.id&&p.seat_active!==false).length;return `<button data-t="Table ${i}" ${count>=5||s.studio_control?.registrationOpen===false?'disabled':''}>TABLE ${i} · ${count}/5</button>`}).join('')}</div><button id="join" disabled>JOIN TABLE</button><p id="err"></p><button id="instead-solo">EXPLORE ON MY OWN</button></main>`;
+  root.querySelector('#instead-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});
   let table;
   document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
     table = b.dataset.t;
@@ -62,8 +69,11 @@ function journeyMap() {
 function applyPhoneChrome() {
   let main = root?.querySelector?.("main.phone");
   if (main && !main.querySelector(":scope > .journey-map")) main.insertAdjacentHTML("afterbegin", journeyMap());
+  if(main&&p&&!main.querySelector('[data-player-reference]'))main.insertAdjacentHTML('beforeend',`<small data-player-reference>PLAYER REFERENCE · ${E(p.id.slice(0,8))}</small>`);
 }
 function renderScreen(forceReflection=false) {
+  if(p.seat_active===false)return root.innerHTML=`<main class="phone"><h1>YOUR TEAM SEAT WAS RELEASED</h1><p>Your previous votes remain in the record. You can play independently.</p><a href="${E(soloUrl())}">EXPLORE ON MY OWN</a></main>`;
+  if(t.game_state?.ballot_pending?.phase===s.phase)return root.innerHTML=wait("YOUR TABLE’S VOTE IS RECORDED","Other tables are discussing a runoff. Your received votes remain frozen until the facilitator reveals the decision.");
   if(t.status==="inactive"&&normalizePhase(s.phase)!=="journey")return root.innerHTML=wait("YOUR TABLE IS PAUSED","The facilitator continued without a vote from your table. Follow the room screen for the discussion.");
   let f = forceReflection?'principles':normalizePhase(s.phase);
   if(openRunoff(t,f))return root.innerHTML=runoffHTML(t,f,p,d.votes);
@@ -95,7 +105,7 @@ function renderScreen(forceReflection=false) {
   if (f === "card") return root.innerHTML = `<main class="phone card-phone-solo"><b class="instruction-pill">HOW TO PLAY</b><span>INSTRUCTION \xB7 SAMPLE CARD</span><h1>HOW TO READ AN<br>INVESTMENT CARD.</h1><p class="card-guide-thesis"><b>Technology creates the capability.</b> Design determines Arthur\u2019s experience.</p><article class="phone-sample-investment"><img src="${asset("capability-ambient.png")}"><div class="sample-meta"><b>SAMPLE CARD</b><strong>\u25C6 3 \xB7 \u25CF 2</strong></div><h2>SMART DISCHARGE</h2><p>AI turns the discharge conversation into a plan Arthur can take home.</p><p><small>WHAT IT DOES</small><br><b>Creates one take-home plan.</b></p><p><small>WHY ARTHUR CARES</small><br>Arthur knows what changed and what comes next.</p><p><small>TO MAKE IT WORK</small><br>Someone must confirm and own the plan.</p><div class="design-consideration"><small>DESIGN CONSIDERATION</small><b>Give Arthur privacy and a place to review the plan before leaving.</b></div><details class="learn-more"><summary>LEARN MORE</summary><p><b>Technology can</b><br>Turn the discharge conversation into a plan Arthur can take home.</p><p><b>Design must</b><br>Support privacy, participation, understanding and follow-through.</p></details></article></main>`;
   if (f === "invest") {
     let used = (t.investments || []).map((i) => i.capabilityId), round = used.length + 1;
-    if (used.length >= 1 && t.status !== "extend") return root.innerHTML = wait("YOUR TABLE CHOSE TO STRENGTHEN", "Your current design is being reinforced. Follow the room screen while other tables complete their path.");
+    if (used.length >= 1 && t.status !== "extend") return root.innerHTML = wait("YOUR TABLE’S RECORDED PATH: STRENGTHEN", "Your current design is being reinforced. Follow the room screen while other tables complete their path.");
     let k = decision("capability", t), v = mine(k);
     root.innerHTML = `<main class="phone investment-phone"><span>ROUND ${round} \xB7 YOUR TABLE</span><h1>${round === 1 ? "WHAT WILL YOU INVEST FIRST?" : "WHAT WILL YOU ADD NEXT?"}</h1><div class="phone-budget"><b>\u25C6 ${t.capital} CAPITAL</b><b>\u25CF ${t.change_budget} CHANGE</b></div><p class="investment-help">Choose an affordable AI-powered capability. Each card shows Arthur\u2019s gain, the design challenge and cost.</p>${Object.entries(CAPABILITIES).filter(([id]) => !used.includes(id)).map(([id, c]) => `<article><img src="${asset(c.image)}"><h2>${c.title}</h2><p>${c.line}</p><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>DESIGN CHALLENGE</b><br>${c.challenge}</p><b>\u25C6${c.cost[0]} \xB7 \u25CF${c.cost[1]}</b><p class="budget-consequence">${E(budgetConsequence(t,'invest',id))}</p><button data-c="${id}" ${!canAfford(t, id) ? "disabled" : ""} class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : canAfford(t, id) ? "INVEST" : `NEEDS ${c.cost[0]} \u25C6 \xB7 ${c.cost[1]} \u25CF`}</button></article>`).join("")}</main>`;
     document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => cast(k, b.dataset.c));
@@ -107,7 +117,7 @@ function renderScreen(forceReflection=false) {
     return c ? root.innerHTML = `<main class="phone table-reveal-phone capability-impact-phone"><span>${E(t.table_name)} \xB7 ROUND ${round} \xB7 YOUR TABLE CHOSE</span><img src="${asset(c.activated)}"><h1>${c.title}</h1><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>WHAT THIS MAKES POSSIBLE</b><br>${c.line}</p>${impact}<div class="reveal-next">Next, your table will decide how this capability changes the space, systems and delivery model.</div></main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your investment is being confirmed.");
   }
   if (f === "design") {
-    if (t.status === "ready") return root.innerHTML = wait("YOUR TABLE CHOSE TO STRENGTHEN", "Your design is locked and reinforced. Other tables are completing their second investment. Follow the room screen for the comparison.");
+    if (t.status === "ready") return root.innerHTML = wait("YOUR TABLE’S RECORDED PATH: STRENGTHEN", "Your design is locked and reinforced. Other tables are completing their second investment. Follow the room screen for the comparison.");
     let c = CAPABILITIES[t.locked_capability];
     if (!c) return root.innerHTML = wait("WAITING FOR THE TABLE RESULT", "The investment vote is locking.");
     let k = decision("design", t), v = mine(k);
@@ -130,10 +140,11 @@ function renderScreen(forceReflection=false) {
 }
 let showReflection=false;
 function render(){
+ if(p.seat_active===false){renderScreen();applyPhoneChrome();return}
  const f=normalizePhase(s.phase),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive';
  if(finished&&!showReflection){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,onReflect:()=>{showReflection=true;render()}});applyPhoneChrome();return}
  if(!finished)showReflection=false;
- renderScreen(finished&&showReflection);applyPhoneChrome();const main=root.querySelector('main');
+ renderScreen(finished&&showReflection);applyPhoneChrome();const main=root.querySelector('main');if(main){main.insertAdjacentHTML('afterbegin',clockHTML(s)+decisionNoticeHTML(t));tickClock(root,s)}
  if(main){main.dataset.capability=t.locked_capability||t.investments?.at(-1)?.capabilityId||'';main.insertAdjacentHTML('beforeend',f==='impact'?`<aside class="perspective-prompt"><small>YOUR PERSPECTIVE · ${E(p.role_type||'Other')}</small><p>Consider what Arthur still needs. Follow the facilitator; no action is required on this screen.</p></aside>`:perspectiveHTML(p,f,d.votes,t));const save=root.querySelector('#save-perspective');if(save)save.onclick=()=>cast(save.dataset.key,root.querySelector('#perspective-thought').value.trim())}
  if(finished&&showReflection){const button=document.createElement('button');button.id='replay-table-reveal';button.textContent='BACK TO MY STORY';button.onclick=()=>{showReflection=false;render()};main?.appendChild(button)}
  root.querySelectorAll('[data-flow-choice]').forEach(b=>b.onclick=()=>cast(ballot(t,f).key,b.dataset.flowChoice));
@@ -208,6 +219,8 @@ async function refresh() {
       if (!p) {
         s = nextSession;
         d = nextData;
+        if(root.querySelector('.studio-entry'))entry();
+        root.querySelectorAll('[data-t]').forEach(b=>{const team=d.teams.find(t=>t.table_name===b.dataset.t),count=d.players.filter(x=>x.team_id===team?.id&&x.seat_active!==false).length;b.textContent=b.dataset.t.toUpperCase()+' · '+count+'/5';b.disabled=count>=5||s.studio_control?.registrationOpen===false;if(b.classList.contains('on')&&b.disabled&&root.querySelector('#join'))root.querySelector('#join').disabled=true});
         updateDiagnostic();
         continue;
       }
@@ -245,6 +258,11 @@ async function refresh() {
 }
 async function start(m) {
   root = m;
+  setInterval(()=>{if(s)tickClock(root,s)},250);
+  // Recover from missed realtime notifications without rebuilding an active draft on every tick.
+  setInterval(async()=>{if(!s||refreshing||document.visibilityState==='hidden')return;try{const next=await load(s.code);if(!p||next.phase!==s.phase||Number(next.xplayer_revision||0)!==Number(s.xplayer_revision||0))await refresh();else s._clockOffset=next._clockOffset||0}catch{/* Keep the last valid screen and retry. */}},10000);
+  document.addEventListener('visibilitychange',()=>{if(s&&document.visibilityState!=='hidden')refresh()});
+  globalThis.addEventListener?.('online',()=>{if(s)refresh()});
   let code = new URLSearchParams(location.search).get("room");
   if (!code) {
     root.innerHTML = '<main class="phone"><h1>JOIN A ROOM</h1><input id="code"><button id="go">CONTINUE</button></main>';
@@ -271,7 +289,7 @@ async function start(m) {
     applyPhoneChrome();
   }, 300);
   if (!p) {
-    reg();
+    entry();
     updateDiagnostic();
     return;
   }
