@@ -1,4 +1,5 @@
 import './studioBrand.css';
+import './flowPolish.css';
 
 export function applyStudioBrand(root=document){
  if(document.documentElement&&!document.documentElement.classList.contains('arthur-studio-doc'))document.documentElement.classList.add('arthur-studio-doc');

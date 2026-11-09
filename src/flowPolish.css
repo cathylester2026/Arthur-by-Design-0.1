@@ -1,0 +1,63 @@
+/* Explicit foregrounds: the old registration header assumed a dark background. */
+main.phone.arthur-studio.registration :is(h1,.studio-phone-lede,.studio-phone-stay){color:#263735!important;max-width:100%!important}
+main.phone.arthur-studio.registration>span{color:#124c4e!important}
+main.phone.arthur-studio.registration .studio-phone-note{border-left-color:#a6b700;background:#fff;color:#263735}
+main.phone.arthur-studio.registration .studio-phone-note>b{color:#124c4e}
+main.phone.arthur-studio.registration .studio-phone-note p{font-size:16px;line-height:1.5}
+main.phone.arthur-studio.registration .studio-phone-lede{font-size:18px}
+/* Selection must stay readable before, after and during occupancy updates. */
+main.phone.arthur-studio .tablegrid button{background:#124c4e;color:#fff;border:2px solid transparent}
+main.phone.arthur-studio .tablegrid button.on,main.phone.arthur-studio .tablegrid button[aria-pressed="true"]{background:#c4d600!important;color:#213530!important;border-color:#526614!important;box-shadow:0 0 0 2px #dce7b3}
+main.phone.arthur-studio .tablegrid button:disabled{background:#e0e5df;color:#526259;border-color:#c4d0c8;box-shadow:none}
+main.phone.arthur-studio #table-selection-status{padding:12px;border-left:3px solid #8c9f24;background:#edf3e4;color:#263735;font-size:16px}
+main.phone.arthur-studio #join:not(:disabled){border:2px solid #124c4e;background:#124c4e;color:#fff}
+/* Three distinct design lenses, rather than one run-on label. */
+main.phone.arthur-studio .lens{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 18px}
+main.phone.arthur-studio .lens>b{display:inline-flex;padding:8px 10px;border:1px solid #cbd9ca;border-radius:6px;background:#edf3e7;color:#263735;font-size:13px;line-height:1.3;letter-spacing:.02em;white-space:nowrap}
+/* Keep portfolio titles and body text dark on the light cards inside the dark panel. */
+main.phone.arthur-studio .combined-portfolio{background:#124346;color:#fff;padding:18px;border-radius:10px}
+main.phone.arthur-studio .combined-portfolio>small{color:#d5e778;font-size:11px;line-height:1.4}
+main.phone.arthur-studio .combined-portfolio>h2{color:#fff!important;font-size:22px!important;line-height:1.2!important;margin:12px 0 16px!important}
+main.phone.arthur-studio .combined-portfolio>article{background:#fff!important;color:#263735!important;padding:16px!important;border:1px solid #d8e1da!important;border-left:4px solid #b4c52d!important;border-radius:8px;margin:14px 0!important}
+main.phone.arthur-studio .combined-portfolio>article>b{display:block;color:#124c4e!important;font-size:17px;line-height:1.4;margin-bottom:12px}
+main.phone.arthur-studio .combined-portfolio article p{font-size:15px!important;line-height:1.5!important;color:#263735!important;margin:10px 0!important}
+main.phone.arthur-studio .combined-portfolio article p b{color:#124c4e!important;font-size:13px;letter-spacing:.01em}
+main.phone.arthur-studio .combined-portfolio>p{color:#fff!important;font-size:15px!important;line-height:1.5!important;margin:16px 0 0}
+main.phone.arthur-studio .combined-portfolio>p>b{color:#d5e778}
+/* A visible, deliberate finish action; replay remains a separate choice. */
+main.phone.arthur-studio .phone-journey-locked #review-leave-well{margin-top:14px}
+main.phone.arthur-studio[data-story-step="reflection"] #story-next{background:#c4d600;color:#213530;border:2px solid #788927;font-size:15px}
+main.phone.arthur-studio #story-replay{margin-top:12px}
+main.host.arthur-studio>footer button.journey-complete-control{background:#c4d600;color:#213530;border:2px solid #788927;font-size:14px;min-height:44px}
+/* Presenter strategy explains the real choice, costs and response tradeoff. */
+main.host.arthur-studio .studio-strategy{padding:20px 24px;background:white;border:1px solid #d8e1da;border-radius:12px;min-height:100%}
+main.host.arthur-studio .studio-strategy h1,main.host.arthur-studio .studio-room-debrief h1{font-size:clamp(30px,3vw,46px)!important;line-height:1.1!important;margin:10px 0 12px;letter-spacing:-.025em}
+main.host.arthur-studio .studio-strategy>header>p{font-size:17px;line-height:1.4;color:#52655e;margin:0 0 18px}
+main.host.arthur-studio .studio-strategy-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+main.host.arthur-studio .studio-strategy-options>article{padding:18px;background:#f5f8f1;border:1px solid #d8e1da;border-top:4px solid #b7ca27;border-radius:9px;min-width:0}
+main.host.arthur-studio .strategy-direction{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#124c4e;font-weight:700}
+main.host.arthur-studio .studio-strategy-options h2{font-size:27px!important;line-height:1.15;margin:9px 0 13px}
+main.host.arthur-studio .strategy-cost{display:block;background:#124c4e;color:white;border-radius:6px;padding:10px 12px;font-size:17px;margin-bottom:12px}
+main.host.arthur-studio .studio-strategy-options p,main.host.arthur-studio .studio-strategy-options li{font-size:16px!important;line-height:1.45;color:#263735}
+main.host.arthur-studio .studio-strategy-options p{margin:10px 0}
+main.host.arthur-studio .studio-strategy-options ul{padding-left:20px;margin:10px 0}
+main.host.arthur-studio .studio-strategy-options li{margin:7px 0}
+main.host.arthur-studio .strategy-tradeoff{border-top:1px solid #d8e1da;padding-top:10px}
+main.host.arthur-studio .strategy-discussion{font-size:17px;color:#124c4e;line-height:1.4;margin:16px 0}
+main.host.arthur-studio .strategy-table-budgets{padding:12px 14px;border:1px solid #d8e1da;background:#f5f8f1;border-radius:7px;margin:12px 0}
+main.host.arthur-studio .strategy-table-budgets summary{font-size:15px;font-weight:bold;cursor:pointer}
+main.host.arthur-studio .strategy-table-budgets article{padding:10px;border-bottom:1px solid #d8e1da}
+main.host.arthur-studio .strategy-table-budgets h3{font-size:17px}
+main.host.arthur-studio .strategy-table-budgets p{font-size:15px;line-height:1.4}
+/* A debrief has a different purpose from the preceding phone-reveal cue. */
+main.host.arthur-studio .studio-room-debrief{padding:24px;background:white;border:1px solid #d8e1da;border-radius:12px;min-height:100%}
+main.host.arthur-studio .studio-room-debrief>p{font-size:18px;line-height:1.4;color:#52655e}
+main.host.arthur-studio .debrief-questions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+main.host.arthur-studio .debrief-questions article{border-top:4px solid #b7ca27;border-radius:8px;padding:16px;background:#f5f8f1}
+main.host.arthur-studio .debrief-questions span{color:#124c4e;font-size:20px;font-weight:700}
+main.host.arthur-studio .debrief-questions h2{font-size:23px;line-height:1.2;margin:10px 0}
+main.host.arthur-studio .debrief-questions p{font-size:17px;line-height:1.45;margin:0}
+main.host.arthur-studio .debrief-finish-note{padding:16px;background:#e9f1dd;border-left:4px solid #8fa22c;color:#263735!important;font-size:16px!important}
+main.host.arthur-studio .studio-room-debrief #show-all-table-results{padding:12px 18px;background:#124c4e;color:white;border:0;border-radius:7px;font-size:15px;font-weight:bold}
+@media(max-height:800px){main.host.arthur-studio .studio-strategy{padding:14px 18px}main.host.arthur-studio .studio-strategy h1{font-size:34px!important;margin:7px 0}main.host.arthur-studio .studio-strategy>header>p{font-size:15px;margin-bottom:12px}main.host.arthur-studio .studio-strategy-options>article{padding:13px}main.host.arthur-studio .studio-strategy-options h2{font-size:23px!important;margin:7px 0 10px}main.host.arthur-studio .studio-strategy-options p,main.host.arthur-studio .studio-strategy-options li{font-size:15px!important;line-height:1.4}main.host.arthur-studio .strategy-cost{font-size:16px;padding:8px 10px}main.host.arthur-studio .strategy-discussion{font-size:15px;margin:12px 0}}
+@media(max-width:1000px){main.host.arthur-studio .studio-strategy-options,main.host.arthur-studio .debrief-questions{grid-template-columns:1fr}}
