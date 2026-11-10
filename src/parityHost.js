@@ -86,7 +86,7 @@ function startVoteClock(){clearInterval(voteTimer);voteTimer=setInterval(()=>{co
 let showAllTableResults=false;
 function roomResultsHTML({hideButton=false}={}){
     const rows=portfolioTeams();
-    return `<section class="portfolio-presenter"><span>PERFORMANCE UNDER PRESSURE</span>${hideButton?'<button id="show-all-table-results" class="portfolio-back-cue">BACK TO PHONE REVEAL</button>':''}<h1>Same event. Different designs.</h1><p>Table · prediction · condition. Open “See why” for the movement, plan and ownership results.</p>${portfolioGrid(rows,rows.map(t=>tableOutcomeHTML(t,t.game_state?.evaluation||evaluate(t,"handoff_changed"),{final:true})).join(''))}</section>`;
+    return `<section class="portfolio-presenter"><span>PERFORMANCE UNDER PRESSURE</span>${hideButton?'<button id="show-all-table-results" class="portfolio-back-cue">BACK TO PHONE REVEAL</button>':''}<h1>Same event. Different designs.</h1><p>Design choices show what you funded. Outcome shows how it performed. Open “See why” for the explanation.</p>${portfolioGrid(rows,rows.map(t=>tableOutcomeHTML(t,t.game_state?.evaluation||evaluate(t,"handoff_changed"),{final:true})).join(''))}</section>`;
 }
 function phoneCueHTML(){
  if(showAllTableResults)return roomResultsHTML({hideButton:true});
