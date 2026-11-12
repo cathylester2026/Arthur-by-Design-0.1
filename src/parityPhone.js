@@ -1,3 +1,4 @@
+import {optionArtwork} from './leaveWellArtwork.js';
 import {mountPhoneReflection} from './roomReflections.js';
 import {recoveryRoom} from './recoverWell/recoveryRoomRules.js';
 import {mountRecoveryPhone} from './recoverWell/recoveryRoomViews.js';
@@ -147,7 +148,7 @@ function renderScreen(forceReflection=false) {
   if (f === "designReveal") {
     if(t.investments?.length===1&&t.investments[0].strengthened)return root.innerHTML=`<main class="phone">${strengthenImpact(t.investments[0],CAPABILITIES)}</main>`;
     let investments = t.investments || [], inv = investments.at(-1), c = inv && CAPABILITIES[inv.capabilityId], o = c?.options?.[inv.commitmentId], impact = inv ? designImpact(inv.capabilityId, inv.commitmentId) : "", combined = investments.length > 1 ? combinedImpact(investments, CAPABILITIES) : "";
-    return o ? root.innerHTML = `<main class="phone table-reveal-phone design-impact-phone"><span>${E(t.table_name)} \xB7 YOUR TABLE DESIGNED</span>${portfolioStackHTML(t)}<img src="${asset(o[1])}"><h1>${o[0]}</h1><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><p><b>WHY THIS MATTERS</b><br>${c.insight}</p>${impact}${combined}</main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your design decision is being confirmed.");
+    return o ? root.innerHTML = `<main class="phone table-reveal-phone design-impact-phone"><span>${E(t.table_name)} \xB7 YOUR TABLE DESIGNED</span>${portfolioStackHTML(t)}<img src="${asset(optionArtwork(inv.capabilityId,inv.commitmentId,{reveal:true})||o[1])}"><h1>${o[0]}</h1><p>${o[2]}</p><p><b>DESIGN CONSIDERATION</b><br>${o[3]}</p><p><b>WHY THIS MATTERS</b><br>${c.insight}</p>${impact}${combined}</main>` : root.innerHTML = wait("WAITING FOR YOUR TABLE", "Your design decision is being confirmed.");
   }
   if (f === "event") {
     let e = evaluate(t, "handoff_changed"), portfolio = (t.investments || []).map((i) => CAPABILITIES[i.capabilityId]?.title).filter(Boolean), k = "prediction", v = mine(k);
