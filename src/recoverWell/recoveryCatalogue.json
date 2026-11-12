@@ -1,0 +1,174 @@
+[
+  {
+    "id": "personalized",
+    "title": "Personalized Recovery",
+    "cost": {
+      "capital": 3,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "1A",
+        "title": "Recovery Companion",
+        "description": "A personal AI companion translates Arthur’s changing recovery plan into clear daily next steps through voice, visual, wearable or accessible interfaces.",
+        "space": "Existing home remains substantially unchanged.\nComfortable interaction from Arthur’s preferred chair, table or bedside.\nReadable viewing angles, normal residential acoustics and lighting, and multimodal controls.",
+        "engineering": "Convenient power and charging, reliable residential connectivity, secure identity and replaceable consumer interfaces.\nLocal processing for selected private interactions where appropriate.",
+        "operating": "The care team must define the authoritative plan, content governance, clinical limits, escalation triggers and ownership of conflicting instructions.",
+        "limit": "Accurate guidance may still be physically difficult or impossible to perform in the existing home.",
+        "mayShow": "Arthur in a recognizable home using discreet voice or visual guidance and a short daily plan.",
+        "mustNotShow": "Whole-home sensing, adapted rehab space, robotics, automatic diagnosis or clinicians automatically present."
+      },
+      {
+        "id": "1B",
+        "title": "Recovery-Supportive Home",
+        "description": "Arthur’s approved recovery plan becomes part of selected home routines and places, with contextual support appearing where activity occurs.",
+        "space": "Purposeful relationships among activity, rest, nutrition and medication routines.\nRecovery-supportive zones, accessible storage, comfortable rest locations, adjustable lighting and contextual information touchpoints.\nSelective, reversible adaptations rather than a total renovation.",
+        "engineering": "Reliable connectivity, local device communication, distributed power, maintainable pathways, household controls, manual fallback and privacy-conscious commissioning.",
+        "operating": "The home must know which plan is current, avoid reinforcing completed or outdated tasks, and maintain ordinary operation during outages.",
+        "limit": "The home can reinforce a plan but cannot determine whether a symptom is clinically significant or whether the plan should change.",
+        "mayShow": "A recognizable home with selective adaptations, contextual guidance, adjustable lighting and organized routine-support areas.",
+        "mustNotShow": "Medical equipment throughout the house, whole-home robotics, autonomous clinical decisions, ubiquitous screens or perfect accessibility."
+      },
+      {
+        "id": "1C",
+        "title": "Recovery Coach",
+        "description": "AI organizes recovery information while a consistent human coach helps Arthur interpret choices, adjust routines and remain engaged.",
+        "space": "A flexible, private interaction setting at Arthur’s preferred chair or table.\nGood lighting, glare control, acoustic clarity, shared viewing and optional caregiver participation.",
+        "engineering": "Reliable secure communications, accessible controls, current shared recovery information and alternative communication methods.",
+        "operating": "Coach availability, continuity, scope, manageable caseload, protected time and escalation access are required.",
+        "limit": "Human continuity, authority and capacity are finite; the coach cannot remove physical barriers or create clinical resources.",
+        "mayShow": "Arthur in a comfortable home setting with a consistent coach, shared information and optional caregiver participation.",
+        "mustNotShow": "Permanent clinician presence, instant 24-hour access, complete home adaptation, ambient monitoring or unlimited coach authority."
+      }
+    ]
+  },
+  {
+    "id": "rehab",
+    "title": "Adaptive Rehab",
+    "cost": {
+      "capital": 3,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "2A",
+        "title": "Guided Movement",
+        "description": "Wearables, spatial sensing and AI adjust clinically governed movement guidance while Arthur uses the existing home.",
+        "space": "Identify usable existing activity zones without implying comprehensive redesign.\nProvide lighting, sightlines, sensor positioning and feedback Arthur can receive while moving.",
+        "engineering": "Local sensing, connectivity, charging/storage, privacy controls, replaceable interfaces and safe fallback when sensing fails.",
+        "operating": "Clinical rehabilitation governance remains essential; movement observation does not establish medical safety.",
+        "limit": "The home’s stairs, thresholds, furniture and circulation barriers remain.",
+        "mayShow": "Arthur moving through the existing home with subtle wearable or spatial guidance.",
+        "mustNotShow": "Remodeled home, structural supports, robotics, whole-home sensing or automatic clinical clearance."
+      },
+      {
+        "id": "2B",
+        "title": "Recovery-Ready Home",
+        "description": "The home provides more support early and allows selected support to recede or be repurposed as Arthur regains independence.",
+        "space": "Comfortable circulation, rest points, adaptable furniture, thoughtful relationships among daily spaces and predictable engineered supports.\nAdjustable task lighting, glare control, low-force hardware, adaptable storage, bathroom/activity support and usable controls.",
+        "engineering": "Structural backing, distributed power/controls, maintainable actuators, manual overrides, replaceable components and fail-safe load paths.",
+        "operating": "The home cannot interpret concerning fatigue, prescribe rehabilitation progression or establish clinical safety.",
+        "limit": "Clinical change is not recognized automatically, and adaptation cannot make medically inappropriate activity safe.",
+        "mayShow": "Selective remodeling, adaptable fixtures, clear movement routes, rest locations and a familiar home.",
+        "mustNotShow": "Clinical assessment, autonomous exercise prescribing, robotics, comprehensive sensing or fully autonomous home."
+      },
+      {
+        "id": "2C",
+        "title": "Robotic Assistance",
+        "description": "One selected wearable or environmental robotic intervention temporarily extends Arthur’s ability to perform a defined everyday task.",
+        "space": "Robot-compatible movement paths, floor transitions, thresholds, safe interaction zones and furniture clearances appropriate to the selected device.",
+        "engineering": "Discreet charging/docking, communications, collision avoidance, maintenance/storage, accessible controls, predictable stopping and manual disengagement.",
+        "operating": "Reliability, training, maintenance, cost, trust, safe use and clinical appropriateness remain dependencies.",
+        "limit": "Device dependence, limited operating range, charging, maintenance and technology lifecycle.",
+        "mayShow": "A believable lightweight assistive device helping with one task, supported by targeted home adaptations.",
+        "mustNotShow": "Humanoid servants, autonomous living, unlimited assistance, whole-home transformation or clinical judgment."
+      }
+    ]
+  },
+  {
+    "id": "warning",
+    "title": "Early Warning",
+    "cost": {
+      "capital": 2,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "3A",
+        "title": "Wearable Signals",
+        "description": "Wearable and personal devices capture selected recovery indicators and identify changes that deserve attention or review.",
+        "space": "Existing home remains unchanged except for convenient device-use, charging, storage and measurement locations.\nAccessible notifications for changes in vision, hearing, dexterity and fatigue.",
+        "engineering": "Reliable connectivity, charging, offline behavior, device integration, data-quality provenance and replaceable wearables.",
+        "operating": "The system must distinguish missing data from reassuring data and define thresholds, alert ownership and fallback.",
+        "limit": "Missing, poor or ignored measurements; alert burden; one data stream lacks broader context.",
+        "mayShow": "Arthur in the existing home with one unobtrusive wearable and restrained recovery information.",
+        "mustNotShow": "Ambient home sensing, clinical monitoring station, diagnosis, automatic response or multiple devices covering Arthur."
+      },
+      {
+        "id": "3B",
+        "title": "Ambient Recovery",
+        "description": "Selected home areas observe recovery-relevant changes in function and routine with minimal active effort from Arthur.",
+        "space": "Deliberate sensing geography for selected transitions and activities, with explicit unsensed privacy zones.\nSensors integrated discreetly into appropriate ceilings, lighting, fixtures or furnishings.",
+        "engineering": "Power, networking, local/edge processing, secure controls, maintainable service locations and replaceable technology.\nHousehold consent, data retention/access governance and independent ordinary controls for lighting, doors and heating.",
+        "operating": "Environmental observations require interpretation; household privacy, consent, maintenance and false context remain critical.",
+        "limit": "A changed pattern may reflect weather, visitors, pain, fatigue or routine rather than clinical deterioration.",
+        "mayShow": "Almost invisible sensing at selected locations, Arthur living normally and subtle indication of activity change.",
+        "mustNotShow": "Cameras everywhere, holographic analytics, clinical monitoring room, diagnosis or automatic emergency intervention."
+      },
+      {
+        "id": "3C",
+        "title": "Recovery Forecast",
+        "description": "AI aggregates legitimate available information and identifies deviation from Arthur’s individualized expected recovery trajectory.",
+        "space": "Minimal home alteration; Arthur reviews forecasts privately in an ordinary comfortable location.\nInterfaces communicate concern, uncertainty and data gaps accessibly.",
+        "engineering": "Baseline inputs: clinical/discharge information, prescribed targets, Arthur-reported symptoms and follow-up data.\nEarned: longitudinal aggregation, individualized trajectory modeling, trend interpretation and explanation.\nWearable, ambient and instrumented rehab data require separate selected investments.",
+        "operating": "Data completeness, provenance, predictive validity, bias, model drift, false alarms and clinical interpretation remain dependencies.",
+        "limit": "Prediction may be incomplete, inaccurate or overconfident and remains neither diagnosis nor response.",
+        "mayShow": "Arthur in an almost unchanged home reviewing a restrained forecast with uncertainty and data gaps.",
+        "mustNotShow": "Omniscient digital twin, holographic Arthur, magical sensors, autonomous diagnosis, automatic response or guaranteed prediction."
+      }
+    ]
+  },
+  {
+    "id": "response",
+    "title": "Smart Response",
+    "cost": {
+      "capital": 3,
+      "change": 3
+    },
+    "choices": [
+      {
+        "id": "4A",
+        "title": "Right Help, Right Time",
+        "description": "AI uses available context to identify and initiate an appropriate response pathway without requiring Arthur to navigate the system alone.",
+        "space": "Accessible interaction from ordinary home locations, multimodal access, lighting, acoustic clarity and privacy suitable for a concern.",
+        "engineering": "Resilient communications, power, secure contextual exchange, fallback channels and a clearly distinct emergency route.",
+        "operating": "Closed-loop handoff required: recommendation, request, receipt and accepted responsibility. Routing is not completed care.",
+        "limit": "Correct routing does not create service availability, timeliness, capacity or interoperability.",
+        "mayShow": "Arthur connecting through a discreet interface with relevant context accompanying the request.",
+        "mustNotShow": "Instant clinician access, automatic treatment, complete interoperability, renovation or robotic intervention."
+      },
+      {
+        "id": "4B",
+        "title": "Care Comes Home",
+        "description": "For explicitly eligible episodes, Arthur’s existing home temporarily supports appropriate assessment or selected care and then returns to ordinary use.",
+        "space": "A defined temporary care zone with clear space, repositionable furniture, stable positions, assessment lighting, acoustic privacy, accessible routes and nearby hygiene.",
+        "engineering": "Rated power, secure connectivity, portable diagnostics, safe cabling, equipment positioning/removal, environmental suitability, sanitation and transfer fallback.",
+        "operating": "Clinical eligibility, available mobile workforce, equipment logistics, staff safety, infection prevention, supervision and transfer capability are required.",
+        "limit": "The home cannot support every intervention and home-care staff/equipment remain finite.",
+        "mayShow": "A believable home assessment with selected portable equipment, clinician participation and discreet temporary adaptation.",
+        "mustNotShow": "Permanent clinical room, ICU equipment, autonomous treatment, unlimited home care or guaranteed transfer avoidance."
+      },
+      {
+        "id": "4C",
+        "title": "Recovery Navigator",
+        "description": "One accountable person recognizes the unresolved need, connects Arthur to the next service, confirms receipt and follows through until responsibility is accepted.",
+        "space": "At home: private accessible interaction, reliable communication, shared restricted information and caregiver participation.\nAcross care: physical/virtual handoff points and distributed navigator work settings.",
+        "engineering": "Role-appropriate mobile information, cross-service communications, supported escalation and continuity mechanisms when the assigned navigator is unavailable.",
+        "operating": "Manageable workload, defined authority, cross-service relationships, current context, backup coverage and available resources.",
+        "limit": "The navigator cannot create capacity, clinical authority, transport, eligibility or unavailable services.",
+        "mayShow": "Arthur communicating with one recognizable navigator while appropriate services connect through discreet channels.",
+        "mustNotShow": "Omnipotent concierge, instant universal access, command center or autonomous cross-provider coordination."
+      }
+    ]
+  }
+]

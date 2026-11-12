@@ -1,3 +1,6 @@
+import {recoveryRoom} from './recoverWell/recoveryRoomRules.js';
+import {mountRecoveryPhone} from './recoverWell/recoveryRoomViews.js';
+import {continueRecovery,returnContext} from './journeyBridge.js';
 import {portfolioStackHTML} from './portfolioRevealViews.js';
 import {applyStudioBrand} from './studioBrand.js';
 import {captureView,restoreView} from './studioViewState.js';
@@ -11,7 +14,7 @@ import {openingInputs,openingWallHTML} from './studioInputs.js';
 import {mountPhoneStory} from './phoneFinalReveal.js';
 import './leaveWellXplayerFlow.css';
 import {ballot, openRunoff,choiceLabel} from './leaveWellXplayerFlow.js';
-import {runoffHTML,impactHTML,responseHTML,strategyHTML,resultHTML} from './xplayerFlowViews.js';
+import {runoffHTML,impactHTML,responseHTML,strategyHTML,resultHTML,budgetPreviewHTML} from './xplayerFlowViews.js';
 import {perspectiveHTML,escapeHTML} from './perspectivePrompts.js';
 import "./parityEvent.css";
 import "./parityPhoneVisual.css";
@@ -88,7 +91,7 @@ function applyPhoneChrome() {
   if (main && !main.querySelector(":scope > .journey-map")) main.insertAdjacentHTML("afterbegin", journeyMap());
   if(main&&p&&!main.querySelector('[data-player-reference]'))main.insertAdjacentHTML('beforeend',`<small data-player-reference>PLAYER REFERENCE · ${E(p.id.slice(0,8))}</small>`);
 }
-function phoneJourneyHTML(finished=false){return `<main class="phone journey-phone-locked"><span>ARTHUR: BY DESIGN</span><h1>A JOURNEY OF CARE.<br>A LIFETIME OF POSSIBILITY.</h1><p>${finished?"Your Leave Well story is complete. You can review it here. Recover Well and Live Well are coming next.":"Today we begin with Leave Well."}</p><div class="phone-journey-locked">${[["arthur-leave-well.png", "\u2197", "LEAVE WELL", "Hospital \u2192 Home"], ["arthur-recover-well.png", "\u2302", "RECOVER WELL", "At Home"], ["arthur-live-well.png", "\u25CE", "LIVE WELL", "In the Community"]].map((a, i) => `<article class="${i === 0 ? "active" : ""}"><img src="${asset(a[0])}"><div><i>${a[1]}</i><h2>${a[2]}</h2><p>${a[3]}</p></div></article>`).join("")}</div><div class="today-bar">${finished?"YOUR LEAVE WELL STORY IS SAVED":"TODAY: LEAVE WELL"}</div></main>`}
+function phoneJourneyHTML(finished=false){return `<main class="phone journey-phone-locked"><span>ARTHUR: BY DESIGN</span><h1>A JOURNEY OF CARE.<br>A LIFETIME OF POSSIBILITY.</h1><p>${finished?"Your Leave Well story is complete. Continue to Recover Well with your table’s starting record, or review the story here.":"Today we begin with Leave Well."}</p><div class="phone-journey-locked">${[["arthur-leave-well.png", "\u2197", "LEAVE WELL", "Hospital \u2192 Home"], ["arthur-recover-well.png", "\u2302", "RECOVER WELL", "At Home"], ["arthur-live-well.png", "\u25CE", "LIVE WELL", "In the Community"]].map((a, i) => `<article class="${i === 0 ? "active" : ""}"><img src="${asset(a[0])}"><div><i>${a[1]}</i><h2>${a[2]}</h2><p>${a[3]}</p></div></article>`).join("")}</div><div class="today-bar">${finished?"YOUR LEAVE WELL STORY IS SAVED":"TODAY: LEAVE WELL"}</div></main>`}
 function renderScreen(forceReflection=false) {
   if(p.seat_active===false)return root.innerHTML=`<main class="phone"><h1>YOUR TEAM SEAT WAS RELEASED</h1><p>Your previous votes remain in the record. You can play independently.</p><a href="${E(soloUrl())}">EXPLORE ON MY OWN</a></main>`;
   if(t.game_state?.ballot_pending?.phase===s.phase)return root.innerHTML=wait("YOUR TABLE’S VOTE IS RECORDED","Other tables are discussing a runoff. Your received votes remain frozen until the facilitator reveals the decision.");
@@ -122,7 +125,7 @@ function renderScreen(forceReflection=false) {
     let used = (t.investments || []).map((i) => i.capabilityId), round = used.length + 1;
     if (used.length >= 1 && t.status !== "extend") return root.innerHTML = wait("YOUR TABLE’S RECORDED PATH: STRENGTHEN", "Your current design is being reinforced. Follow the room screen while other tables complete their path.");
     let k = decision("capability", t), v = mine(k);
-    root.innerHTML = `<main class="phone investment-phone"><span>ROUND ${round} \xB7 YOUR TABLE</span><h1>${round === 1 ? "WHAT WILL YOU INVEST FIRST?" : "WHAT WILL YOU ADD NEXT?"}</h1><div class="phone-budget"><b>\u25C6 ${t.capital} CAPITAL</b><b>\u25CF ${t.change_budget} CHANGE</b></div><p class="investment-help">Choose an affordable AI-powered capability. Each card shows Arthur\u2019s gain, the design challenge and cost.</p>${Object.entries(CAPABILITIES).filter(([id]) => !used.includes(id)).map(([id, c]) => `<article><img src="${asset(c.image)}"><h2>${c.title}</h2><p>${c.line}</p><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>DESIGN CHALLENGE</b><br>${c.challenge}</p><b>\u25C6${c.cost[0]} \xB7 \u25CF${c.cost[1]}</b><p class="budget-consequence">${E(budgetConsequence(t,'invest',id))}</p><button data-c="${id}" ${!canAfford(t, id) ? "disabled" : ""} class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : canAfford(t, id) ? "INVEST" : `NEEDS ${c.cost[0]} \u25C6 \xB7 ${c.cost[1]} \u25CF`}</button></article>`).join("")}</main>`;
+    root.innerHTML = `<main class="phone investment-phone"><span>ROUND ${round} \xB7 YOUR TABLE</span><h1>${round === 1 ? "WHAT WILL YOU INVEST FIRST?" : "WHAT WILL YOU ADD NEXT?"}</h1><div class="phone-budget"><b>\u25C6 ${t.capital} CAPITAL</b><b>\u25CF ${t.change_budget} CHANGE</b></div><p class="investment-help">Choose an affordable AI-powered capability. Each card shows Arthur\u2019s gain, the design challenge and cost.</p>${Object.entries(CAPABILITIES).filter(([id]) => !used.includes(id)).map(([id, c]) => `<article><img src="${asset(c.image)}"><h2>${c.title}</h2><p>${c.line}</p><p><b>ARTHUR GAINS</b><br>${c.arthur}</p><p><b>DESIGN CHALLENGE</b><br>${c.challenge}</p><b>\u25C6${c.cost[0]} \xB7 \u25CF${c.cost[1]}</b>${budgetPreviewHTML(t,'invest',id)}<button data-c="${id}" ${!canAfford(t, id) ? "disabled" : ""} class="${v?.choice === id ? "selected-vote" : ""}">${v?.choice === id ? "VOTED" : canAfford(t, id) ? "INVEST" : `NEEDS ${c.cost[0]} \u25C6 \xB7 ${c.cost[1]} \u25CF`}</button></article>`).join("")}</main>`;
     document.querySelectorAll("[data-c]").forEach((b) => b.onclick = () => cast(k, b.dataset.c));
     return;
   }
@@ -158,6 +161,8 @@ function finishedStoryKey(){return 'abd-finished-story:'+s.id+':'+p.id}
 function hasFinishedStory(){try{return sessionStorage.getItem(finishedStoryKey())==='1'||finishedStories.has(finishedStoryKey())}catch{return finishedStories.has(finishedStoryKey())}}
 function finishPhoneStory(){const key=finishedStoryKey();finishedStories.add(key);try{sessionStorage.setItem(key,'1')}catch{}showReflection=false;completedStoryOpen=false;render();root.ownerDocument?.defaultView?.scrollTo?.(0,0)}
 function bindJourneyReview(){if(!t.game_state?.evaluation)return;const main=root.querySelector('main'),b=document.createElement('button');b.id='review-leave-well';b.textContent='REVIEW MY LEAVE WELL STORY';b.onclick=()=>{completedStoryOpen=true;showReflection=false;render();root.ownerDocument?.defaultView?.scrollTo?.(0,0)};(main.querySelector('.phone-journey-locked article.active')||main).appendChild(b)}
+function bindRecoveryContinuation(){if(!t.game_state?.evaluation)return;const message=document.createElement('p');message.id='continue-recover-well';message.textContent='Stay in this room. The facilitator will begin Recover Well for all tables.';const card=root.querySelectorAll('.phone-journey-locked article')[1];(card||root.querySelector('main')).appendChild(message);}
+
 let showReflection=false,completedStoryOpen=false,renderedViewKey=null;
 function render(){
  const saved=captureView(root,renderedViewKey);
@@ -168,13 +173,14 @@ function render(){
  restoreView(root,saved,key);renderedViewKey=key;
 }
 function renderContent(){
+ if(recoveryRoom(s)){mountRecoveryPhone(root,{session:s,team:t,player:p,data:d,onVote:cast});return;}
  if(t.game_state?.participation==='withdrawn'){root.innerHTML=`<main class="phone"><h1>YOUR TABLE WAS WITHDRAWN</h1><p>Your previous decisions remain saved. Other tables can continue.</p><button id="withdrawn-solo">EXPLORE ON MY OWN</button></main>`;root.querySelector('#withdrawn-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});return}
 
  if(p.seat_active===false){renderScreen();applyPhoneChrome();return}
  const f=normalizePhase(s.phase),finished=['result','finalReveal','principles'].includes(f)&&t.status!=='inactive',completed=f==='journey'&&(s.studio_control?.completed||t.game_state?.journey_complete)||finished&&hasFinishedStory();
  if(!completed)completedStoryOpen=false;
  if(completed&&completedStoryOpen){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,readOnly:true,onClose:()=>{completedStoryOpen=false;render();root.ownerDocument?.defaultView?.scrollTo?.(0,0)}});applyPhoneChrome();return}
- if(completed){root.innerHTML=phoneJourneyHTML(true);applyPhoneChrome();bindJourneyReview();return}
+ if(completed){root.innerHTML=phoneJourneyHTML(true);applyPhoneChrome();bindJourneyReview();bindRecoveryContinuation();return}
  if(finished&&!showReflection){mountPhoneStory(root,{team:t,player:p,session:s,votes:d.votes,onComplete:finishPhoneStory,onReflect:()=>{showReflection=true;render()}});applyPhoneChrome();return}
  if(!finished)showReflection=false;
  renderScreen(finished&&showReflection);applyPhoneChrome();const main=root.querySelector('main');if(main){main.insertAdjacentHTML('afterbegin',clockHTML(s)+decisionNoticeHTML(t));tickClock(root,s)}

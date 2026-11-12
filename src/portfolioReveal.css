@@ -110,3 +110,17 @@ main.arthur-studio .portfolio-mini{background:#f3f5f3}
 main.arthur-studio .implementation-label{font-size:10px;font-weight:400;color:#52645f}
 main.host.arthur-studio .portfolio-many .implementation-label{display:none}
 @media(min-width:1101px) and (max-height:850px){main.host.arthur-studio .portfolio-many .portfolio-mini .portfolio-strengthened{font-size:9px;padding:0;margin-top:2px;line-height:1.15}}
+
+/* Player budget guidance is plain information; optional explanation stays behind a disclosure. */
+main.arthur-studio .budget-preview{margin:12px 0 17px;background:transparent;border:0;padding:0}
+main.arthur-studio .budget-remaining{font-size:13px!important;line-height:1.5!important;color:#46625b;background:transparent;border:0;padding:0;margin:8px 0}
+main.arthur-studio .budget-help{background:transparent;border:0;padding:0;margin:4px 0}
+main.arthur-studio .budget-help>summary{font-size:12px;color:#124c4e;cursor:pointer;padding:4px 0}
+main.arthur-studio .budget-help>p{font-size:13px!important;line-height:1.5;margin:8px 0;color:#52645f}
+.portfolio-explanation .design-contributions{padding:8px 12px;background:#f0f5ea;border-left:3px solid #7e9638;margin:12px 9px}
+.portfolio-explanation .design-contributions article{padding:8px 0;border:0;background:transparent}
+.portfolio-explanation .design-contributions h4{font-size:14px;line-height:1.4;color:#124c4e;margin:8px 0}
+.portfolio-explanation .contribution-scope{color:#52645f;font-size:12px!important;line-height:1.5}
+.portfolio-explanation .pending-investment-requirements .impact-panel{box-shadow:none;background:transparent}
+.portfolio-explanation .demand-limit{color:#6a4c33}
+.portfolio-explanation .realized-support,.portfolio-explanation .remaining-support{padding-bottom:8px}
