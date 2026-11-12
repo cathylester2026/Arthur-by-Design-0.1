@@ -1,3 +1,4 @@
+import {recoveryRoom,roomBallot} from './recoverWell/recoveryRoomRules.js';
 import {rpcRequest} from './studioTransport.js';
 import {previewSnapshot} from './previewStore.js';
 import {admit,controlRoom,submitStudioVote,managedRoomData} from './studioClient.js';
@@ -25,6 +26,7 @@ export async function join({session,...props}){const result=await admit(session,
 export async function vote({session,team,player,key,choice}){
  const fresh=await load(session.code),d=await all(fresh),t=d.teams.find(t=>t.id===team.id),p=d.players.find(p=>p.id===player.id&&p.team_id===team.id);
  if(!t||!p||p.seat_active===false)throw Error('Player is not registered at this table.');
+ if(recoveryRoom(fresh)){const b=roomBallot(t,fresh.phase);if(!votingOpen(fresh)||!b||b.key!==key||!b.options.includes(choice))throw Error('Follow the facilitator: this recovery ballot is closed or changed.');if(fresh.studio_managed&&!isPreview){await submitStudioVote(fresh,p,key,choice);return}const sb=await backend();await rows(sb.from('votes').upsert({session_id:fresh.id,team_id:t.id,player_id:p.id,stage_id:'recover_well',decision:key,choice},{onConflict:'player_id,stage_id,decision'}));return;}
  if(key==='opening_challenge'){if(!votingOpen(fresh))throw Error('Voting is closed. Follow the facilitator.');if(fresh.phase!=='opening')throw Error('The opening question has closed.');if(typeof choice!=='string'||!choice.trim()||choice.length>500)throw Error('Enter up to 500 characters.')}
  else if(key.startsWith('reflection:')){if(typeof choice!=='string'||choice.length>500)throw Error('Enter up to 500 characters.')}
  else {if(!votingOpen(fresh))throw Error('Voting is closed. Follow the facilitator.');const b=ballot(t,fresh.phase);if(!b||b.key!==key||!b.options.includes(choice))throw Error('This choice is no longer available. Refresh and choose again.')}

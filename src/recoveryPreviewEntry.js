@@ -1,0 +1,11 @@
+import './journeyViews.css';
+import {standaloneHandoff} from './recoverWell/leaveWellHandoff.js';
+import {navigateJourney} from './journeyBridge.js';
+export async function start(root){
+ const q=new URLSearchParams((globalThis.__arthurLocation||location).search);
+ if(q.get('preview')!=='1'){root.innerHTML='<main class="connected-error"><h1>This starting story is for the preview.</h1><a href="./">Main menu</a></main>';return}
+ const preset=q.get('case');
+ if(!['supported','open'].includes(preset)){root.innerHTML=`<div class="connected-journey"><main><small>PREVIEW ONLY · START AT RECOVER WELL</small><h1>Play Recover Well.</h1><p>Skip the hospital chapter for this try-out. Choose an assumed starting story for Arthur; these are not decisions you have played.</p><div class="journey-table-list"><article><h2>A checked plan comes home.</h2><p>Assume Arthur’s latest care instructions were checked before he left hospital. Support that needs them can build on that start, once they are shared and checked for today.</p><a class="journey-primary" href="?mode=recover-preview&preview=1&case=supported&view=facilitator">Play with a checked plan →</a></article><article><h2>The changed instructions need checking.</h2><p>Assume a change to Arthur’s plan was not fully checked before he left. Support that needs it will need a care professional to check the plan or assess him again.</p><a class="journey-primary" href="?mode=recover-preview&preview=1&case=open&view=facilitator">Play with a plan to check →</a></article></div><p>The starting story can change which responses help. A home adjustment that does not need the discharge instructions can still work in either story.</p><a href="./?preview=1">Main menu</a></main></div>`;return}
+ const {start:play}=await import('./recoverWell/main.js');
+ play(root,{presentation:q.get('view')==='reading'?'reading':'facilitator',handoff:standaloneHandoff(preset),policy:'standalone',lineage:{experienceMode:'independent',participantId:null,sessionId:null,tableId:null},storageKey:'arthur-recover-assumed-preview-v1:'+preset,hubURL:'?mode=recover-preview&preview=1',homeURL:'./?preview=1',navigate:navigateJourney,assumptionLabel:preset==='supported'?'Preview assumption: Arthur brought home checked care instructions.':'Preview assumption: Arthur’s changed care instructions still need checking.'});
+}
