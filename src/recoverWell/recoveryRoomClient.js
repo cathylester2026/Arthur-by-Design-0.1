@@ -1,3 +1,4 @@
+import {activeReflection} from '../journeyReflections.js';
 import {load,all} from '../parityEngine.js';
 import {backend,isPreview} from '../xplayerBackend.js';
 import {rpcRequest} from '../studioTransport.js';
@@ -7,11 +8,11 @@ import {timerFor} from '../studioPolicy.js';
 import {recoveryRoom,activeTable,startRecoveryTables,resolveRecoveryRoom,decisionPhases,roomBallot,roomTally} from './recoveryRoomRules.js';
 const check=(old,s)=>{if(old.phase!==s.phase||old.xplayer_revision!==s.xplayer_revision)throw Error('The room changed. Refresh before continuing.');};
 async function rpc(name,args){const r=await rpcRequest(await backend(),name,args);if(r.error){if(r.error.code==='PGRST202')throw Error('Recover Well needs backend migration 005 before live room play. Leave Well is unchanged.');throw r.error}return r.data}
-export async function beginRecoveryRoom(old){const s=await load(old.code);check(old,s);const d=await all(s),scenarioId=['S1','S2','S3'][crypto.getRandomValues(new Uint32Array(1))[0]%3],changes=startRecoveryTables(s,d.teams,scenarioId);
+export async function beginRecoveryRoom(old){const s=await load(old.code);check(old,s);if(activeReflection(s))throw Error('Return from the reflection screen before continuing.');const d=await all(s),scenarioId=['S1','S2','S3'][crypto.getRandomValues(new Uint32Array(1))[0]%3],changes=startRecoveryTables(s,d.teams,scenarioId);
  if(!isPreview)return rpc('abd_begin_recovery_room',{p_session:s.id,p_revision:s.xplayer_revision,p_host_token:hostSecret(s.code),p_scenario:scenarioId,p_changes:changes.map(t=>({id:t.id,recovery:t.game_state.recovery}))});
  return mutatePreview(db=>{const current=db.sessions.find(x=>x.id===s.id);check(s,current);for(const t of changes)db.teams.find(x=>x.id===t.id).game_state.recovery=t.game_state.recovery;current.studio_control={...current.studio_control,currentRound:'recover_well',completed:false,registrationOpen:false,recoveryScenario:scenarioId,timer:null};current.xplayer_revision++;return current});
 }
-export async function advanceRecoveryRoom(old,{force=false,random}={}){let s=await load(old.code);check(old,s);if(!recoveryRoom(s))throw Error('This is not the recovery round.');const d=await all(s);
+export async function advanceRecoveryRoom(old,{force=false,random}={}){let s=await load(old.code);check(old,s);if(activeReflection(s))throw Error('Return from the reflection screen before continuing.');if(!recoveryRoom(s))throw Error('This is not the recovery round.');const d=await all(s);
  if(!force&&decisionPhases.includes(s.phase)&&s.phase!=='event'&&d.teams.some(t=>activeTable(t)&&roomBallot(t,s.phase)&&!roomTally(t,s.phase,d.players,d.votes).ready))throw Error('Waiting for all joined players at active tables to vote.');
  // A server-serialized close happens before the final ballot snapshot, including forced continuation.
  if(decisionPhases.includes(s.phase)&&s.studio_control.timer?.status!=='closed'){s=await controlRoom(s,'close');const closed=await all(s);return commitRecovery(s,closed,{force,random});}

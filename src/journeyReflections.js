@@ -1,0 +1,14 @@
+// Reflection responses are separate learning records, never ballots or scoring inputs.
+export const REFLECTIONS=Object.freeze({
+ human:{id:'human',chapter:'leave_well',title:'Make room for the human touch',question:'What part of the patient experience should become more human as AI becomes more capable?',probe:'What would the space or staff workflow need to support?'},
+ dependable:{id:'dependable',chapter:'bridge',title:'What follows Arthur home?',question:'What should Arthur always be able to count on, regardless of how advanced the technology becomes?',probe:'Who or what makes that promise possible?'},
+ measure:{id:'measure',chapter:'recover_well',title:'Recognize better care',question:'What would you measure to know your investment actually made care better?',probe:'What would Arthur notice—and what would staff notice?'}
+});
+export const escapeReflection=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+export function reflectionAnchor(s,teams=[]){const recovery=s.studio_control?.currentRound==='recover_well';if(!recovery&&s.phase==='designReveal'&&teams.some(t=>t.status!=='inactive'&&t.game_state?.participation!=='withdrawn'&&t.investments?.length===1)&&!teams.some(t=>t.investments?.length>1))return 'human';if(!recovery&&s.phase==='journey'&&s.studio_control?.completed)return 'dependable';if(recovery&&s.phase==='principles')return 'measure';return null}
+export const activeReflection=s=>['collect','wall'].includes(s.studio_control?.reflection?.status)?s.studio_control.reflection:null;
+export function validateReflectionText(text){if(typeof text!=='string'||text.trim().length===0||text.length>500)throw Error('Write one sentence, up to 500 characters, or skip.');return text.trim()}
+export function reflectionRows(rows=[],questionId){return rows.filter(r=>r.question_id===questionId&&typeof r.text==='string'&&r.text.trim()).slice().sort((a,b)=>String(a.created_at||'').localeCompare(String(b.created_at||''))||String(a.player_id).localeCompare(String(b.player_id)))}
+export function wallHTML(rows=[],questionId,selected=[]){const e=escapeReflection,all=reflectionRows(rows,questionId),visible=selected.length?all.filter(r=>selected.includes(r.player_id)).slice(0,5):all.slice(0,5);return `<div class="reflection-wall">${visible.map(r=>`<blockquote><p>“${e(r.text.length>220?r.text.slice(0,220)+'…':r.text)}”</p>${r.text.length>220?`<details><summary>Read full response</summary><p>${e(r.text)}</p></details>`:''}<small>${e(r.table_name||'Participant response')}</small></blockquote>`).join('')||'<p>No responses shared yet. You can continue without responses.</p>'}</div>`}
+
+export function publicReflectionData(s,db){const f=activeReflection(s),all=reflectionRows((db.reflections||[]).filter(r=>r.session_id===s.id),f?.questionId);return {reflectionCount:f?all.length:0,reflections:f?.status==='wall'?all.filter(r=>(f.shownIds||[]).includes(r.player_id)):[]}}

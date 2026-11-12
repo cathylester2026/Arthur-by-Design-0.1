@@ -1,3 +1,4 @@
+import {activeReflection,publicReflectionData} from './journeyReflections.js';
 import {recoveryRoom,roomBallot} from './recoverWell/recoveryRoomRules.js';
 import {rpcRequest} from './studioTransport.js';
 import {previewSnapshot} from './previewStore.js';
@@ -16,7 +17,7 @@ export async function all(s){
  if(s.studio_managed&&!isPreview)return managedRoomData(s);
  const sb=await backend();
  async function collect(table){if(isPreview)return rows(sb.from(table).select('*').eq('session_id',s.id));const result=[];for(let offset=0;;offset+=500){const page=await rows(sb.from(table).select('*').eq('session_id',s.id).order('id').range(offset,offset+499));result.push(...page);if(page.length<500)return result}}
- const [teams,players,votes]=await Promise.all(['teams','players','votes'].map(collect));const snapshot=isPreview?previewSnapshot():null;const solos=snapshot?.admissions?.filter(a=>a.session_id===s.id&&a.mode==='solo')||[],events=snapshot?.solo_events?.filter(e=>e.session_id===s.id)||[];return {teams,players,votes,soloStats:{registered:solos.length,started:new Set(events.filter(e=>e.type==='started').map(e=>e.participant_id)).size,completed:new Set(events.filter(e=>e.type==='completed').map(e=>e.participant_id)).size}};
+ const [teams,players,votes]=await Promise.all(['teams','players','votes'].map(collect));const snapshot=isPreview?previewSnapshot():null;const solos=snapshot?.admissions?.filter(a=>a.session_id===s.id&&a.mode==='solo')||[],events=snapshot?.solo_events?.filter(e=>e.session_id===s.id)||[];return {teams,players,votes,...(snapshot?publicReflectionData(s,snapshot):{}),soloStats:{registered:solos.length,started:new Set(events.filter(e=>e.type==='started').map(e=>e.participant_id)).size,completed:new Set(events.filter(e=>e.type==='completed').map(e=>e.participant_id)).size}};
 }
 export function phase(s,p){return transition(s,[],p)}
 export async function completeJourney(session){const fresh=await load(session.code);if(fresh.phase!==session.phase||Number(fresh.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('This host view is out of date.');if(fresh.phase!=='principles')throw Error('Finish the discussion before completing Leave Well.');const d=await all(fresh);return transition(fresh,d.teams.map(t=>({...t,game_state:{...t.game_state,journey_complete:true}})),'journey')}
@@ -24,7 +25,7 @@ export function move(s,n){if(s.phase==='designReveal'&&n>=0)return all(s).then(d
 export async function reveal(s){return s}
 export async function join({session,...props}){const result=await admit(session,'facilitated',props);return {player:result.player,team:result.team}}
 export async function vote({session,team,player,key,choice}){
- const fresh=await load(session.code),d=await all(fresh),t=d.teams.find(t=>t.id===team.id),p=d.players.find(p=>p.id===player.id&&p.team_id===team.id);
+ const fresh=await load(session.code);if(activeReflection(fresh))throw Error('Follow the facilitator. A reflection pause is open.');const d=await all(fresh),t=d.teams.find(t=>t.id===team.id),p=d.players.find(p=>p.id===player.id&&p.team_id===team.id);
  if(!t||!p||p.seat_active===false)throw Error('Player is not registered at this table.');
  if(recoveryRoom(fresh)){const b=roomBallot(t,fresh.phase);if(!votingOpen(fresh)||!b||b.key!==key||!b.options.includes(choice))throw Error('Follow the facilitator: this recovery ballot is closed or changed.');if(fresh.studio_managed&&!isPreview){await submitStudioVote(fresh,p,key,choice);return}const sb=await backend();await rows(sb.from('votes').upsert({session_id:fresh.id,team_id:t.id,player_id:p.id,stage_id:'recover_well',decision:key,choice},{onConflict:'player_id,stage_id,decision'}));return;}
  if(key==='opening_challenge'){if(!votingOpen(fresh))throw Error('Voting is closed. Follow the facilitator.');if(fresh.phase!=='opening')throw Error('The opening question has closed.');if(typeof choice!=='string'||!choice.trim()||choice.length>500)throw Error('Enter up to 500 characters.')}
@@ -48,7 +49,7 @@ export function applyChoice(team,phase,choice,key,source='table_vote'){
 }
 function chooseRandom(options){const n=crypto.getRandomValues(new Uint32Array(1))[0];return options[n%options.length]}
 export async function advanceRoom(session,{force=false,random=chooseRandom}={}){
- const s=await load(session.code);if(s.phase!==session.phase||Number(s.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('This host view is out of date. Wait for the room to refresh.');
+ const s=await load(session.code);if(activeReflection(s))throw Error('Return from the reflection screen before continuing.');if(s.phase!==session.phase||Number(s.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('This host view is out of date. Wait for the room to refresh.');
  const d=await all(s),p=s.phase;
  if(!DECISION_PHASES.includes(p))return move(s,1);
  // Prediction is an opinion poll: preserve every response, never resolve a winner or pause a table.
