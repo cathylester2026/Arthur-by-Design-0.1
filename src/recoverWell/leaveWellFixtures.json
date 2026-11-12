@@ -1,0 +1,1033 @@
+{
+  "supported": {
+    "schema": "rw.handoff.v1",
+    "adapter": "lw-causal-v2-to-rw-v1",
+    "source": {
+      "kind": "leave-well",
+      "runId": "lw-fixture-supported",
+      "sessionId": null,
+      "tableId": "fixture-supported",
+      "completed": true,
+      "completedAt": "2026-11-10T00:00:00.000Z",
+      "provenance": "Rehearsal fixture calculated with the current local Leave Well engine; not real participant play.",
+      "engineVersion": "causal-composite-readiness-v2",
+      "eventId": "handoff_changed",
+      "investments": [
+        {
+          "capabilityId": "ambient",
+          "commitmentId": "shared",
+          "strengthened": false
+        },
+        {
+          "capabilityId": "meds",
+          "commitmentId": "pharmacy",
+          "strengthened": false
+        }
+      ],
+      "responseId": "use",
+      "evaluation": {
+        "outcome": "STRAINED",
+        "score": 2.4,
+        "reasons": [
+          "Current plan: Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate.",
+          "Current plan: Arthur and a clinician or pharmacist establish and understand one authoritative medication plan."
+        ],
+        "exposures": [
+          "Movement and departure remains exposed: The funded design and response do not fully cover this demand.",
+          "Handoff ownership remains strained: The funded design and response do not fully cover this demand."
+        ],
+        "eventId": "handoff_changed",
+        "responseId": "use",
+        "details": [
+          {
+            "id": "route",
+            "label": "Movement and departure",
+            "outcome": "EXPOSED",
+            "readinessGaps": [],
+            "raw": 0.97,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "ROUTE CHANGED",
+              "pressure": [
+                "MOVE",
+                "TRUST"
+              ],
+              "realized": {
+                "alternateRouteAvailable": true,
+                "staffAvailable": false,
+                "capacityAvailable": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.1,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "The review setting helps Arthur understand a detour only after route information reaches the conversation.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The review setting helps Arthur understand a detour only after route information reaches the conversation. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+              },
+              {
+                "fit": 0,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "medication-check.review-together",
+                "causal": "Collaborative medication review does not create an alternate physical route.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "pharmacy",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Collaborative medication review does not create an alternate physical route. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "realizedReadiness": {
+              "alternateRouteAvailable": true,
+              "staffAvailable": false,
+              "capacityAvailable": true
+            },
+            "vulnerabilities": [
+              "MOVE"
+            ],
+            "causalSummary": [
+              "The review setting helps Arthur understand a detour only after route information reaches the conversation. The design could not provide a usable response in time, so Arthur absorbed the disruption.",
+              "Collaborative medication review does not create an alternate physical route. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+            ]
+          },
+          {
+            "id": "information",
+            "label": "Current plan",
+            "outcome": "ABSORBED",
+            "readinessGaps": [],
+            "raw": 3.94,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "PLAN CHANGED",
+              "pressure": [
+                "UNDERSTAND",
+                "CONNECT"
+              ],
+              "realized": {
+                "reviewerAvailable": true,
+                "planChangeConfirmed": false,
+                "downstreamParticipating": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 1.05,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate. The required conditions held well enough for Arthur to continue through the disruption."
+              },
+              {
+                "fit": 1.15,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "medication-check.review-together",
+                "causal": "Arthur and a clinician or pharmacist establish and understand one authoritative medication plan.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "pharmacy",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Arthur and a clinician or pharmacist establish and understand one authoritative medication plan. The required conditions held well enough for Arthur to continue through the disruption."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "realizedReadiness": {
+              "reviewerAvailable": true,
+              "planChangeConfirmed": false,
+              "downstreamParticipating": true
+            },
+            "vulnerabilities": [],
+            "causalSummary": [
+              "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate. The required conditions held well enough for Arthur to continue through the disruption.",
+              "Arthur and a clinician or pharmacist establish and understand one authoritative medication plan. The required conditions held well enough for Arthur to continue through the disruption."
+            ]
+          },
+          {
+            "id": "coordination",
+            "label": "Handoff ownership",
+            "outcome": "STRAINED",
+            "readinessGaps": [],
+            "raw": 2.29,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "HANDOFF CHANGED",
+              "pressure": [
+                "CONNECT",
+                "TRUST"
+              ],
+              "realized": {
+                "staffAvailable": true,
+                "capacityAvailable": false,
+                "downstreamParticipating": false
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.35,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "Shared review improves understanding, but does not create transition capacity or cross-service authority.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Shared review improves understanding, but does not create transition capacity or cross-service authority. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              },
+              {
+                "fit": 0.2,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "medication-check.review-together",
+                "causal": "The confirmed medication plan improves the handoff, while transport and receiving-team coordination remain separate.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "pharmacy",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The confirmed medication plan improves the handoff, while transport and receiving-team coordination remain separate. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "reviewerAvailable",
+              "protectedMedicationReview",
+              "authoritativeMedicationPlan"
+            ],
+            "realizedReadiness": {
+              "staffAvailable": true,
+              "capacityAvailable": false,
+              "downstreamParticipating": false
+            },
+            "vulnerabilities": [],
+            "causalSummary": [
+              "Shared review improves understanding, but does not create transition capacity or cross-service authority. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition.",
+              "The confirmed medication plan improves the handoff, while transport and receiving-team coordination remain separate. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+            ]
+          }
+        ],
+        "model": "causal-composite-readiness-v2"
+      },
+      "resolutionRecords": {}
+    },
+    "facts": {
+      "verifiedTransitionPlan": {
+        "state": "established",
+        "scope": [
+          "late-discharge-plan-change",
+          "clinical-context-at-transition"
+        ],
+        "reason": "The source model records the changed plan holding with no unresolved plan gate.",
+        "source": "lw-fixture-supported"
+      },
+      "portableMedicationContext": {
+        "state": "unknown",
+        "scope": [
+          "medication-context",
+          "participating-settings-at-transition"
+        ],
+        "reason": "No complete portable-medication claim is established by this record.",
+        "source": "lw-fixture-supported"
+      },
+      "hospitalMovement": {
+        "state": "open",
+        "scope": [
+          "hospital-departure-only"
+        ],
+        "reason": "Hospital movement does not imply an adapted home or approved rehab equipment.",
+        "source": "lw-fixture-supported"
+      },
+      "hospitalHandoff": {
+        "state": "open",
+        "scope": [
+          "departure-handoff-only"
+        ],
+        "reason": "Departure ownership is not ongoing home-care or clinical ownership.",
+        "source": "lw-fixture-supported"
+      },
+      "continuingHomeOwner": {
+        "state": "unknown",
+        "scope": [
+          "recovery-home-care"
+        ],
+        "reason": "Leave Well does not establish continuing recovery-service acceptance.",
+        "source": "lw-fixture-supported"
+      }
+    }
+  },
+  "open": {
+    "schema": "rw.handoff.v1",
+    "adapter": "lw-causal-v2-to-rw-v1",
+    "source": {
+      "kind": "leave-well",
+      "runId": "lw-fixture-open",
+      "sessionId": null,
+      "tableId": "fixture-open",
+      "completed": true,
+      "completedAt": "2026-11-10T00:00:00.000Z",
+      "provenance": "Rehearsal fixture calculated with the current local Leave Well engine; not real participant play.",
+      "engineVersion": "causal-composite-readiness-v2",
+      "eventId": "handoff_changed",
+      "investments": [
+        {
+          "capabilityId": "wayfinding",
+          "commitmentId": "layered",
+          "strengthened": false
+        },
+        {
+          "capabilityId": "meds",
+          "commitmentId": "nurse",
+          "strengthened": false
+        }
+      ],
+      "responseId": "use",
+      "evaluation": {
+        "outcome": "STRAINED",
+        "score": 1.96,
+        "reasons": [],
+        "exposures": [
+          "Movement and departure remains strained: The funded design and response do not fully cover this demand.",
+          "Current plan remains strained: The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan.",
+          "Handoff ownership remains strained: The funded design and response do not fully cover this demand."
+        ],
+        "eventId": "handoff_changed",
+        "responseId": "use",
+        "details": [
+          {
+            "id": "route",
+            "label": "Movement and departure",
+            "outcome": "STRAINED",
+            "readinessGaps": [],
+            "raw": 2.89,
+            "scores": {
+              "UNDERSTAND": 2,
+              "MOVE": 3,
+              "CONNECT": 1,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "ROUTE CHANGED",
+              "pressure": [
+                "MOVE",
+                "TRUST"
+              ],
+              "realized": {
+                "alternateRouteAvailable": true,
+                "staffAvailable": false,
+                "capacityAvailable": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 1.15,
+                "blocked": null,
+                "title": "LAYERED GUIDANCE",
+                "canonicalId": "smart-routes.layered-guidance",
+                "causal": "Stable landmarks, physical cues, and responsive information make the alternate route understandable.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "wayfinding",
+                  "commitmentId": "layered",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Stable landmarks, physical cues, and responsive information make the alternate route understandable. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              },
+              {
+                "fit": 0,
+                "blocked": null,
+                "title": "AI CHECK FIRST",
+                "canonicalId": "medication-check.ai-check-first",
+                "causal": "Medication intelligence does not resolve Arthur’s changed physical route.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "nurse",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Medication intelligence does not resolve Arthur’s changed physical route. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "designedReadiness": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "realizedReadiness": {
+              "alternateRouteAvailable": true,
+              "staffAvailable": false,
+              "capacityAvailable": true
+            },
+            "vulnerabilities": [],
+            "causalSummary": [
+              "Stable landmarks, physical cues, and responsive information make the alternate route understandable. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition.",
+              "Medication intelligence does not resolve Arthur’s changed physical route. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+            ]
+          },
+          {
+            "id": "information",
+            "label": "Current plan",
+            "outcome": "STRAINED",
+            "readinessGaps": [
+              "The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan."
+            ],
+            "raw": 1.57,
+            "scores": {
+              "UNDERSTAND": 2,
+              "MOVE": 3,
+              "CONNECT": 1,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "PLAN CHANGED",
+              "pressure": [
+                "UNDERSTAND",
+                "CONNECT"
+              ],
+              "realized": {
+                "reviewerAvailable": true,
+                "planChangeConfirmed": false,
+                "downstreamParticipating": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.05,
+                "blocked": null,
+                "title": "LAYERED GUIDANCE",
+                "canonicalId": "smart-routes.layered-guidance",
+                "causal": "Legible circulation helps Arthur move, but does not decide which version of the plan is correct.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "wayfinding",
+                  "commitmentId": "layered",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Legible circulation helps Arthur move, but does not decide which version of the plan is correct. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition. Remaining readiness: The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan."
+              },
+              {
+                "fit": 0.65,
+                "blocked": null,
+                "title": "AI CHECK FIRST",
+                "canonicalId": "medication-check.ai-check-first",
+                "causal": "The discrepancy becomes visible, but a qualified clinician must decide which medication plan is correct.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "nurse",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The discrepancy becomes visible, but a qualified clinician must decide which medication plan is correct. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition. Remaining readiness: The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "designedReadiness": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "realizedReadiness": {
+              "reviewerAvailable": true,
+              "planChangeConfirmed": false,
+              "downstreamParticipating": true
+            },
+            "vulnerabilities": [
+              "CONNECT"
+            ],
+            "causalSummary": [
+              "Legible circulation helps Arthur move, but does not decide which version of the plan is correct. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition. Remaining readiness: The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan.",
+              "The discrepancy becomes visible, but a qualified clinician must decide which medication plan is correct. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition. Remaining readiness: The changed plan has not been clinically resolved and confirmed. Detecting or forwarding a discrepancy does not establish one authoritative current plan."
+            ]
+          },
+          {
+            "id": "coordination",
+            "label": "Handoff ownership",
+            "outcome": "STRAINED",
+            "readinessGaps": [],
+            "raw": 1.41,
+            "scores": {
+              "UNDERSTAND": 2,
+              "MOVE": 3,
+              "CONNECT": 1,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "HANDOFF CHANGED",
+              "pressure": [
+                "CONNECT",
+                "TRUST"
+              ],
+              "realized": {
+                "staffAvailable": true,
+                "capacityAvailable": false,
+                "downstreamParticipating": false
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.15,
+                "blocked": null,
+                "title": "LAYERED GUIDANCE",
+                "canonicalId": "smart-routes.layered-guidance",
+                "causal": "The environment supports movement after a decision, but does not create cross-service authority or capacity.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "wayfinding",
+                  "commitmentId": "layered",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The environment supports movement after a decision, but does not create cross-service authority or capacity. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              },
+              {
+                "fit": 0.1,
+                "blocked": null,
+                "title": "AI CHECK FIRST",
+                "canonicalId": "medication-check.ai-check-first",
+                "causal": "Medication checking supports one part of the handoff, but does not coordinate the entire transition.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "nurse",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Medication checking supports one part of the handoff, but does not coordinate the entire transition. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0,
+              "why": "The funded design must hold without extra recovery capacity."
+            },
+            "dependencies": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "designedReadiness": [
+              "guidanceSynchronization",
+              "routeGovernance",
+              "clinicalResolver",
+              "alertOwnership"
+            ],
+            "realizedReadiness": {
+              "staffAvailable": true,
+              "capacityAvailable": false,
+              "downstreamParticipating": false
+            },
+            "vulnerabilities": [
+              "CONNECT"
+            ],
+            "causalSummary": [
+              "The environment supports movement after a decision, but does not create cross-service authority or capacity. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition.",
+              "Medication checking supports one part of the handoff, but does not coordinate the entire transition. Arthur may need delay, added effort, or human support; this result does not establish a fully reliable transition."
+            ]
+          }
+        ],
+        "model": "causal-composite-readiness-v2"
+      },
+      "resolutionRecords": {}
+    },
+    "facts": {
+      "verifiedTransitionPlan": {
+        "state": "open",
+        "scope": [
+          "late-discharge-plan-change",
+          "clinical-context-at-transition"
+        ],
+        "reason": "The source model records an unresolved clinical confirmation gate.",
+        "source": "lw-fixture-open"
+      },
+      "portableMedicationContext": {
+        "state": "unknown",
+        "scope": [
+          "medication-context",
+          "participating-settings-at-transition"
+        ],
+        "reason": "No complete portable-medication claim is established by this record.",
+        "source": "lw-fixture-open"
+      },
+      "hospitalMovement": {
+        "state": "open",
+        "scope": [
+          "hospital-departure-only"
+        ],
+        "reason": "Hospital movement does not imply an adapted home or approved rehab equipment.",
+        "source": "lw-fixture-open"
+      },
+      "hospitalHandoff": {
+        "state": "open",
+        "scope": [
+          "departure-handoff-only"
+        ],
+        "reason": "Departure ownership is not ongoing home-care or clinical ownership.",
+        "source": "lw-fixture-open"
+      },
+      "continuingHomeOwner": {
+        "state": "unknown",
+        "scope": [
+          "recovery-home-care"
+        ],
+        "reason": "Leave Well does not establish continuing recovery-service acceptance.",
+        "source": "lw-fixture-open"
+      }
+    }
+  },
+  "portable": {
+    "schema": "rw.handoff.v1",
+    "adapter": "lw-causal-v2-to-rw-v1",
+    "source": {
+      "kind": "leave-well",
+      "runId": "lw-fixture-portable",
+      "sessionId": null,
+      "tableId": "fixture-portable",
+      "completed": true,
+      "completedAt": "2026-11-10T00:00:00.000Z",
+      "provenance": "Rehearsal fixture calculated with the current local Leave Well engine; not real participant play.",
+      "engineVersion": "causal-composite-readiness-v2",
+      "eventId": "handoff_changed",
+      "investments": [
+        {
+          "capabilityId": "ambient",
+          "commitmentId": "shared",
+          "strengthened": false
+        },
+        {
+          "capabilityId": "meds",
+          "commitmentId": "huddle",
+          "strengthened": false
+        }
+      ],
+      "responseId": "escalate",
+      "evaluation": {
+        "outcome": "STRAINED",
+        "score": 2.78,
+        "reasons": [
+          "Current plan: Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate."
+        ],
+        "exposures": [
+          "Movement and departure remains exposed: The funded design and response do not fully cover this demand."
+        ],
+        "eventId": "handoff_changed",
+        "responseId": "escalate",
+        "details": [
+          {
+            "id": "route",
+            "label": "Movement and departure",
+            "outcome": "EXPOSED",
+            "readinessGaps": [],
+            "raw": 0.97,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "ROUTE CHANGED",
+              "pressure": [
+                "MOVE",
+                "TRUST"
+              ],
+              "realized": {
+                "alternateRouteAvailable": true,
+                "staffAvailable": false,
+                "capacityAvailable": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.1,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "The review setting helps Arthur understand a detour only after route information reaches the conversation.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The review setting helps Arthur understand a detour only after route information reaches the conversation. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+              },
+              {
+                "fit": 0,
+                "blocked": null,
+                "title": "PLAN FOLLOWS ARTHUR",
+                "canonicalId": "medication-check.plan-follows-arthur",
+                "causal": "Persistent medication information does not make the hospital route easier to navigate.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "huddle",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Persistent medication information does not make the hospital route easier to navigate. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+              }
+            ],
+            "response": {
+              "eligible": false,
+              "boost": 0,
+              "why": "Escalation is unavailable because no accountable navigation or route owner was designed."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess"
+            ],
+            "realizedReadiness": {
+              "alternateRouteAvailable": true,
+              "staffAvailable": false,
+              "capacityAvailable": true
+            },
+            "vulnerabilities": [
+              "MOVE"
+            ],
+            "causalSummary": [
+              "The review setting helps Arthur understand a detour only after route information reaches the conversation. The design could not provide a usable response in time, so Arthur absorbed the disruption.",
+              "Persistent medication information does not make the hospital route easier to navigate. The design could not provide a usable response in time, so Arthur absorbed the disruption."
+            ]
+          },
+          {
+            "id": "information",
+            "label": "Current plan",
+            "outcome": "ABSORBED",
+            "readinessGaps": [],
+            "raw": 3.89,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "PLAN CHANGED",
+              "pressure": [
+                "UNDERSTAND",
+                "CONNECT"
+              ],
+              "realized": {
+                "reviewerAvailable": true,
+                "planChangeConfirmed": false,
+                "downstreamParticipating": true
+              }
+            },
+            "effects": [
+              {
+                "fit": 1.05,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate. The required conditions held well enough for Arthur to continue through the disruption."
+              },
+              {
+                "fit": 0.35000000000000003,
+                "blocked": null,
+                "title": "PLAN FOLLOWS ARTHUR",
+                "canonicalId": "medication-check.plan-follows-arthur",
+                "causal": "The design can carry a confirmed plan forward, but connectivity cannot decide which conflicting record is correct.",
+                "realizedReasons": [
+                  "The discharge plan was confirmed, but the late change has not yet been clinically confirmed."
+                ],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "huddle",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The design can carry a confirmed plan forward, but connectivity cannot decide which conflicting record is correct. The required conditions held well enough for Arthur to continue through the disruption. Remaining constraint: The discharge plan was confirmed, but the late change has not yet been clinically confirmed."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0.75,
+              "why": "Escalation can call on the person accountable for Arthur’s transition plan and the person accountable for the current medication plan. Success still depends on available capacity."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess",
+              "authoritativeMedicationPlan"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess"
+            ],
+            "realizedReadiness": {
+              "reviewerAvailable": true,
+              "planChangeConfirmed": false,
+              "downstreamParticipating": true
+            },
+            "vulnerabilities": [],
+            "causalSummary": [
+              "Arthur and the care team can review and confirm the changed plan together; downstream continuity remains separate. The required conditions held well enough for Arthur to continue through the disruption.",
+              "The design can carry a confirmed plan forward, but connectivity cannot decide which conflicting record is correct. The required conditions held well enough for Arthur to continue through the disruption. Remaining constraint: The discharge plan was confirmed, but the late change has not yet been clinically confirmed."
+            ]
+          },
+          {
+            "id": "coordination",
+            "label": "Handoff ownership",
+            "outcome": "ABSORBED",
+            "readinessGaps": [],
+            "raw": 3.49,
+            "scores": {
+              "UNDERSTAND": 3,
+              "MOVE": 0,
+              "CONNECT": 3,
+              "TRUST": 3
+            },
+            "event": {
+              "label": "HANDOFF CHANGED",
+              "pressure": [
+                "CONNECT",
+                "TRUST"
+              ],
+              "realized": {
+                "staffAvailable": true,
+                "capacityAvailable": false,
+                "downstreamParticipating": false
+              }
+            },
+            "effects": [
+              {
+                "fit": 0.35,
+                "blocked": null,
+                "title": "REVIEW TOGETHER",
+                "canonicalId": "smart-discharge.review-together",
+                "causal": "Shared review improves understanding, but does not create transition capacity or cross-service authority.",
+                "realizedReasons": [],
+                "activation": {
+                  "capabilityId": "ambient",
+                  "commitmentId": "shared",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "Shared review improves understanding, but does not create transition capacity or cross-service authority. The required conditions held well enough for Arthur to continue through the disruption."
+              },
+              {
+                "fit": 0.65,
+                "blocked": null,
+                "title": "PLAN FOLLOWS ARTHUR",
+                "canonicalId": "medication-check.plan-follows-arthur",
+                "causal": "The authoritative medication plan remains available across participating settings; availability still does not guarantee action.",
+                "realizedReasons": [
+                  "A downstream setting is not participating in the shared plan."
+                ],
+                "activation": {
+                  "capabilityId": "meds",
+                  "commitmentId": "huddle",
+                  "strengthened": false
+                },
+                "outcomeNarrative": "The authoritative medication plan remains available across participating settings; availability still does not guarantee action. The required conditions held well enough for Arthur to continue through the disruption. Remaining constraint: A downstream setting is not participating in the shared plan."
+              }
+            ],
+            "response": {
+              "eligible": true,
+              "boost": 0.75,
+              "why": "Escalation can call on the person accountable for the current medication plan. Success still depends on available capacity."
+            },
+            "dependencies": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess"
+            ],
+            "designedReadiness": [
+              "protectedConversationTime",
+              "reviewParticipants",
+              "confirmedPlanAtDischarge",
+              "medicationContinuityInfrastructure",
+              "resilientPlanAccess"
+            ],
+            "realizedReadiness": {
+              "staffAvailable": true,
+              "capacityAvailable": false,
+              "downstreamParticipating": false
+            },
+            "vulnerabilities": [],
+            "causalSummary": [
+              "Shared review improves understanding, but does not create transition capacity or cross-service authority. The required conditions held well enough for Arthur to continue through the disruption.",
+              "The authoritative medication plan remains available across participating settings; availability still does not guarantee action. The required conditions held well enough for Arthur to continue through the disruption. Remaining constraint: A downstream setting is not participating in the shared plan."
+            ]
+          }
+        ],
+        "model": "causal-composite-readiness-v2"
+      },
+      "resolutionRecords": {}
+    },
+    "facts": {
+      "verifiedTransitionPlan": {
+        "state": "established",
+        "scope": [
+          "late-discharge-plan-change",
+          "clinical-context-at-transition"
+        ],
+        "reason": "The source model records the changed plan holding with no unresolved plan gate.",
+        "source": "lw-fixture-portable"
+      },
+      "portableMedicationContext": {
+        "state": "established",
+        "scope": [
+          "medication-context",
+          "participating-settings-at-transition"
+        ],
+        "reason": "Confirmed medication context travels only across the participating scope.",
+        "source": "lw-fixture-portable"
+      },
+      "hospitalMovement": {
+        "state": "open",
+        "scope": [
+          "hospital-departure-only"
+        ],
+        "reason": "Hospital movement does not imply an adapted home or approved rehab equipment.",
+        "source": "lw-fixture-portable"
+      },
+      "hospitalHandoff": {
+        "state": "established",
+        "scope": [
+          "departure-handoff-only"
+        ],
+        "reason": "Departure ownership is not ongoing home-care or clinical ownership.",
+        "source": "lw-fixture-portable"
+      },
+      "continuingHomeOwner": {
+        "state": "unknown",
+        "scope": [
+          "recovery-home-care"
+        ],
+        "reason": "Leave Well does not establish continuing recovery-service acceptance.",
+        "source": "lw-fixture-portable"
+      }
+    }
+  }
+}
