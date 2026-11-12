@@ -1,3 +1,4 @@
+import {queueRecoveryReport,syncRecoveryReports} from '../recoveryReportSync.js';
 import {mountSoloReflection,reflectionDone,reflectionPending,syncSoloReflections,soloReflectionRecords} from '../soloReflections.js';
 import './recoveryFacilitator.css';
 import {visualHTML,disruptionVisualFor} from './recoveryVisuals.js';
@@ -27,8 +28,10 @@ let disruptionSeen=false,restoreFailed=false;
 let run=null,notice='',source='imported',scenarioId=Object.keys(SCENARIOS)[Math.floor(Math.random()*Object.keys(SCENARIOS).length)],customFacts={},imported=context.handoff,compare=false,entry=true;
 try{const saved=localStorage.getItem(storageKey);if(saved){run=restoreRun(saved);entry=false}}catch(err){restoreFailed=true;notice='The saved run could not be restored: '+err.message+' It has been left in storage. Start a new rehearsal explicitly or import a valid handoff.';entry=true}
 function download(name,data){const url=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function persist(){try{localStorage.setItem(storageKey,serializeRun(run));if(run.result){const key=storageKey+'-completed';let archive;try{archive=JSON.parse(localStorage.getItem(key)||'{}')}catch{throw Error('Archive needs recovery')}archive[run.runId]=JSON.parse(serializeRun(run));localStorage.setItem(key,JSON.stringify(archive))}return true}catch{notice='Browser storage is unavailable. Your current session still works; export the run before closing.';return false}}
+function persist(){queueRecoveryReport(storageKey,context.reflectionIdentity,run);try{localStorage.setItem(storageKey,serializeRun(run));if(run.result){const key=storageKey+'-completed';let archive;try{archive=JSON.parse(localStorage.getItem(key)||'{}')}catch{throw Error('Archive needs recovery')}archive[run.runId]=JSON.parse(serializeRun(run));localStorage.setItem(key,JSON.stringify(archive))}return true}catch{notice='Browser storage is unavailable. Your current session still works; export the run before closing.';return false}}
 const reflectionScope=context.reflectionScope||storageKey;
+if(run)queueRecoveryReport(storageKey,context.reflectionIdentity,run);
+globalThis.addEventListener?.('online',()=>syncRecoveryReports(storageKey,context.reflectionIdentity));
 function askMeasure(){mountSoloReflection(root,{scope:reflectionScope,id:'measure',identity:context.reflectionIdentity,onDone:()=>act('next')})}
 function act(type,values={}){if(type==='next'&&run?.phase==='result'&&!reflectionDone(reflectionScope,'measure')){askMeasure();return}try{run=applyRecoveryAction(run,{id:uuid(),type,...values});if(type==='invest')run=applyRecoveryAction(run,{id:uuid(),type:'next'});notice='';const saved=persist();if(saved&&run.phase==='journey'&&type==='next'){context.navigate(context.hubURL);return}render();scrollTo(0,0)}catch(err){notice=err.message;render()}}
 function begin(){try{const h=source==='imported'?imported:source==='authored'?standaloneHandoff('supported'):fixtures[source];run=createRecoveryRun({runId:uuid(),handoff:h,policy:context.policy||'aimedx',lineage:context.lineage,scenarioId,facts:customFacts});entry=false;notice='';persist();render();scrollTo(0,0)}catch(err){notice=err.message;render()}}
