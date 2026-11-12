@@ -274,7 +274,7 @@ function soloDesign(){let affordable=S().capabilities.some(k=>!soloState.activat
 const leaveWellEvents=[
  {id:'route',label:'ROUTE CHANGED',headline:'ARTHUR’S PLANNED PATH HOME NO LONGER WORKS.',story:'The east elevator closes. Transportation is waiting, and Arthur has the original route.',pressure:['MOVE','TRUST']},
  {id:'information',label:'PLAN CHANGED',headline:'ARTHUR’S PLAN CHANGES JUST BEFORE DEPARTURE.',story:'A medication changes and the follow-up appointment moves. Arthur now has two versions of the plan.',pressure:['UNDERSTAND','CONNECT']},
- {id:'coordination',label:'HANDOFF CHANGED',headline:'ARTHUR’S HANDOFF STARTS TO BREAK.',story:'Transportation arrives early, the family contact is unavailable, and the receiving team has the original plan.',pressure:['CONNECT','TRUST']}
+ {id:'coordination',label:'HANDOFF CHANGED',headline:'ARTHUR’S HANDOFF STARTS TO BREAK.',story:'Transportation arrives 2 hours late, the family contact is unavailable, and the receiving team has the original plan.',pressure:['CONNECT','TRUST']}
 ];
 function currentLeaveWellEvent(){const forced=qs.get('event');if(['route','information','coordination'].includes(forced)&&soloState.eventId!==forced){soloState.eventId=forced;soloState.eventSeed=leaveWellEvents.findIndex(x=>x.id===forced);saveSolo()}let e=leaveWellEvents.find(x=>x.id===soloState.eventId);if(!e){let seed=soloState.eventSeed??Math.floor(Math.random()*leaveWellEvents.length);soloState.eventSeed=seed;e=leaveWellEvents[seed%leaveWellEvents.length];soloState.eventId=e.id;saveSolo()}return e}
 const universalResponses=[

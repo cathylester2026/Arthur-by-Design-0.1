@@ -7,3 +7,5 @@ main.phone.phone-story{padding-bottom:24px;overflow-wrap:anywhere}.story-meta{di
 .phone-story .film-reveal-board .studio-choice-record{background:#e5eee8;color:#123c3d}
 .phone-story .film-reveal-board .studio-choice-record :where(summary,li,p,b,small){color:#123c3d}
 .phone-story #story-close{display:block;width:100%;min-height:44px;margin-top:16px}
+
+.story-final-artwork{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}.story-final-artwork figure{margin:0}.story-final-artwork img{display:block;width:100%;max-height:240px;object-fit:contain;border-radius:10px}.story-final-artwork figcaption{font-weight:700;font-size:14px;margin-top:6px}.story-final-details{margin:16px 0}
