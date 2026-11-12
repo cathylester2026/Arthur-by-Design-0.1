@@ -1,3 +1,5 @@
+import {activeReflection} from './journeyReflections.js';
+import {controlReflection,mountHostReflection,reflectionLaunch} from './roomReflections.js';
 import {recoveryRoom} from './recoverWell/recoveryRoomRules.js';
 import {beginRecoveryRoom,advanceRecoveryRoom,recordRecoverySharing} from './recoverWell/recoveryRoomClient.js';
 import {mountRecoveryHost} from './recoverWell/recoveryRoomViews.js';
@@ -154,7 +156,8 @@ let renderedViewKey=null;
 async function advanceRecovery(force=false){if(advancing||needsRecovery)return;advancing=true;try{render();s=await advanceRecoveryRoom(s,{force});await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message;if(!needsRecovery)await refresh()}finally{advancing=false;render()}}
 async function exportRecoveryInsights(){try{const data=await insights(s),u=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=u;a.download='Arthur-'+s.code+'-connected-room.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}catch(err){recoveryMessage=err.message;render()}}
 function render() {
- if(recoveryRoom(s)){mountRecoveryHost(root,{session:s,data:d,onAdvance:advanceRecovery,onControl:performControl,onExport:exportRecoveryInsights,onSharing:async(id,value)=>{if(advancing||needsRecovery)return;advancing=true;try{s=await recordRecoverySharing(s,id,value);await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message}finally{advancing=false;render()}},onRecover:recoverServerState,onManage:manageSeats,canControl:hasHost(s)&&!needsRecovery,busy:advancing,error:recoveryMessage});return;}
+ if(mountHostReflection(root,{session:s,data:d,onControl:performReflection,onRecover:recoverServerState,canControl:hasHost(s)&&!needsRecovery,error:recoveryMessage,busy:advancing}))return;
+ if(recoveryRoom(s)){mountRecoveryHost(root,{session:s,data:d,onAdvance:advanceRecovery,onControl:performControl,onExport:exportRecoveryInsights,onSharing:async(id,value)=>{if(advancing||needsRecovery)return;advancing=true;try{s=await recordRecoverySharing(s,id,value);await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message}finally{advancing=false;render()}},onRecover:recoverServerState,onManage:manageSeats,canControl:hasHost(s)&&!needsRecovery,busy:advancing,error:recoveryMessage});reflectionLaunch(root,{session:s,data:d,onControl:performReflection});return;}
 
   const saved=captureView(root,renderedViewKey),viewKey=JSON.stringify([s.id,s.phase,facilitatorView]);
   root.innerHTML = `<main class="host ${facilitatorView==='live_vote'&&statusModel().decisionPhase?'host-live':''}"><header><b>ARTHUR: BY DESIGN</b><nav class="host-journey-map"><span class="active"><b>01</b> LEAVE WELL<small>${{ meet: "WELCOME", opening: "FIRST INSTINCT", reflection: "ROOM VIEW", journey: "JOURNEY", needs: "ARTHUR NEEDS", rules: "HOW TO PLAY", card: "READ A CARD", invest: "CHOOSE", activation: "REVEAL", design: "DESIGN", designReveal: "DESIGN REVEAL", adapt: "ADAPT", event: "DISRUPTION", respond: "RESPOND", impact:"IMPACT", finalReveal:"PHONE REVEAL", result: "RESULT", principles: "DEBRIEF" }[normalizePhase(s.phase)] || "PLAY"}</small></span><i></i><span><b>02</b> RECOVER WELL<small>UP NEXT</small></span><i></i><span><b>03</b> LIVE WELL<small>LATER</small></span></nav><span>ROOM ${s.code}</span></header><div class="stage">${body()}</div><aside>${qr(url())}<b>JOIN \xB7 ${s.code}</b><small>Players join on their phones.</small></aside>${facilitatorPanel()}<footer><button id="b">BACK</button><button id="r">REVEAL</button><button id="force" class="force-control" hidden>CONTINUE WITH VOTES RECEIVED</button><button id="n">NEXT</button></footer></main>`;
@@ -178,8 +181,10 @@ const recoveryButton=root.querySelector('#continue-recover');if(recoveryButton)r
 
 
   if(isPreview)root.insertAdjacentHTML('afterbegin','<div class="flow-preview-badge">ISOLATED TEST ROOM · browser-only data · no live Supabase connection</div>');
+  reflectionLaunch(root,{session:s,data:d,onControl:performReflection});
   applyStudioBrand(root);restoreView(root,saved,viewKey);renderedViewKey=viewKey;
 }
+async function performReflection(action,questionId,shownIds){if(advancing||needsRecovery)return;advancing=true;try{s=await controlReflection(s,action,questionId,shownIds);recoveryMessage='';await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message;await refresh()}finally{advancing=false;render()}}
 async function performControl(action,extra={}){if(advancing||needsRecovery)return false;advancing=true;let ok=false;try{s=await controlRoom(s,action,extra);await refresh();ok=true;recoveryMessage=''}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message}finally{advancing=false;render()}return ok}
 async function recoverServerState(){if(advancing)return;advancing=true;try{const next=await load(s.code),data=await all(next);s=next;d=data;needsRecovery=false;recoveryMessage='Server state recovered. Continue from the displayed phase.'}catch(err){needsRecovery=true;recoveryMessage=err.message}finally{advancing=false;render()}}
 function bindStudioControls(){root.querySelector('#studio-recover').onclick=recoverServerState;bindHostRecovery();root.querySelectorAll('[data-studio]').forEach(b=>{b.disabled=needsRecovery||advancing||!hasHost(s)||(b.dataset.studio==='pause'&&(s.studio_control?.timer?.status!=='running'||remainingSeconds(s)<=0))||(b.dataset.studio==='extend'&&(remainingSeconds(s)<=0||s.studio_control?.timer?.status==='closed'))||(b.dataset.studio==='resume'&&s.studio_control?.timer?.status!=='paused')||(b.dataset.studio==='reopen'&&remainingSeconds(s)>0&&s.studio_control?.timer?.status!=='closed')||(b.dataset.studio==='openRegistration'&&(!['meet','opening','reflection','cloud','journey','needs','rules','card'].includes(s.phase)||s.studio_control?.completed));b.onclick=()=>performControl(b.dataset.studio)});const manage=root.querySelector('#studio-manage-seats'),exp=root.querySelector('#studio-export');manage.disabled=needsRecovery||advancing||!hasHost(s);exp.disabled=advancing||!hasHost(s);manage.onclick=manageSeats;exp.onclick=async()=>{try{const data=await insights(s),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='Arthur-'+s.code+'-insights.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}catch(err){const x=root.querySelector('#studio-error');x.hidden=false;x.textContent=err.message}}}
@@ -188,6 +193,7 @@ function manageSeats(){const box=document.createElement('dialog');box.className=
 async function start(m) {
   root = m;
   setInterval(()=>{if(s)tickClock(root,s)},250);
+  setInterval(()=>{if(s&&activeReflection(s)&&!advancing)refresh()},2000);
   setInterval(()=>{if(s&&!advancing)refresh()},10000);
   let code = new URLSearchParams(location.search).get("room");
   if (!code) {

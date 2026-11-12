@@ -1,3 +1,4 @@
+import {mountPhoneReflection} from './roomReflections.js';
 import {recoveryRoom} from './recoverWell/recoveryRoomRules.js';
 import {mountRecoveryPhone} from './recoverWell/recoveryRoomViews.js';
 import {continueRecovery,returnContext} from './journeyBridge.js';
@@ -173,6 +174,7 @@ function render(){
  restoreView(root,saved,key);renderedViewKey=key;
 }
 function renderContent(){
+ if(mountPhoneReflection(root,{session:s,team:t,player:p,data:d}))return;
  if(recoveryRoom(s)){mountRecoveryPhone(root,{session:s,team:t,player:p,data:d,onVote:cast});return;}
  if(t.game_state?.participation==='withdrawn'){root.innerHTML=`<main class="phone"><h1>YOUR TABLE WAS WITHDRAWN</h1><p>Your previous decisions remain saved. Other tables can continue.</p><button id="withdrawn-solo">EXPLORE ON MY OWN</button></main>`;root.querySelector('#withdrawn-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});return}
 

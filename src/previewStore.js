@@ -1,3 +1,4 @@
+import {activeReflection} from './journeyReflections.js';
 import {timerFor,votingOpen} from './studioPolicy.js';
 // Isolated test backend. No Supabase requests; records stay in this browser.
 const KEY='arthur-xplayer-preview-v1';
@@ -21,6 +22,7 @@ else if(operation==='update'){rows=db[table].filter(match);rows.forEach(r=>Objec
 else {if(table==='votes'&&!value.decision.startsWith('reflection:')&&!votingOpen(db.sessions.find(s=>s.id===value.session_id)))throw Error('Voting is closed. Follow the facilitator.');const old=db[table].find(r=>r.player_id===value.player_id&&r.stage_id===value.stage_id&&r.decision===value.decision);if(old)Object.assign(old,copy(value));else db[table].push({...copy(value),id:crypto.randomUUID()});rows=[];save(db)}
 return Promise.resolve({data:copy(single?rows[0]||null:rows),error:null}).then(resolve,reject)}catch(error){return Promise.resolve({data:null,error}).then(resolve,reject)}}};return q}
 export function transitionPreview(session,changes,next){const db=read(),s=db.sessions.find(s=>s.id===session.id);if(!s||s.phase!==session.phase||Number(s.xplayer_revision||0)!==Number(session.xplayer_revision||0))throw Error('The room changed in another window. Refresh and try again.');
+if(activeReflection(s))throw Error('Return from the reflection screen before continuing.');
 for(const change of changes){const t=db.teams.find(t=>t.id===change.id&&t.session_id===s.id);if(!t)throw Error('Table does not belong to this room');if(change.capital<0||change.change_budget<0)throw Error('Budget cannot be negative')}
 for(const change of changes)Object.assign(db.teams.find(t=>t.id===change.id),copy(change));const previous=s.phase;s.phase=next;s.reveal_step=0;s.studio_control||={registrationOpen:true};s.studio_control.timer=timerFor(next,previous===next&&changes.some(t=>t.game_state?.runoff?.status==='open')?'runoff':'decision');if(next==='invest')s.studio_control.registrationOpen=false;if(previous==='principles'&&next==='journey')s.studio_control.completed=true;s.xplayer_revision=Number(s.xplayer_revision||0)+1;save(db);return copy(s)}
 
