@@ -37,13 +37,14 @@ function reg() {
   q("#e").onclick = () => tables("email");
   q("#a").onclick = () => tables("anonymous");
 }
+let joiningTable=false;
 function updateTableOption(button){
  const team=d.teams.find(x=>x.table_name===button.dataset.t),count=d.players.filter(x=>x.team_id===team?.id&&x.seat_active!==false).length;
  const unavailable=count>=5||team?.game_state?.participation==='withdrawn'||s.studio_control?.registrationOpen===false;
  const selected=button.classList.contains('on')&&!unavailable;
- button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected));button.disabled=unavailable;
+ button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected));button.disabled=unavailable||joiningTable;
  button.textContent=(selected?'✓ ':'')+button.dataset.t.toUpperCase()+' · '+count+'/5'+(selected?' · SELECTED':'');
- if(unavailable&&button.getAttribute('data-was-selected')==='true'){const join=root.querySelector('#join');if(join){join.disabled=true;join.textContent='JOIN TABLE'}const status=root.querySelector('#table-selection-status');if(status)status.textContent='That table is no longer available. Choose another table.'}
+ if(unavailable&&button.getAttribute('data-was-selected')==='true'){const status=root.querySelector('#table-selection-status');if(status)status.textContent='That table is no longer available. Choose another table.'}
  button.dataset.wasSelected=String(selected);
 }
 function tables(mode) {
@@ -51,29 +52,22 @@ function tables(mode) {
   if (!role) return q("#err").textContent = "Select your perspective.";
   if (mode === "email" && !/^\S+@\S+\.\S+$/.test(email)) return q("#err").textContent = "Enter a valid email or continue anonymously.";
   let alias = mode === "anonymous" ? "ARTHUR-" + crypto.getRandomValues(new Uint32Array(1))[0].toString(36).slice(0, 5).toUpperCase() : null;
-  root.innerHTML = `<main class="phone table-selection"><h1>Choose your table</h1><p id="table-selection-status" role="status">Select your table, then confirm below.</p>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1,2,3,4,5,6,7,8].map(i=>{const team=d.teams.find(t=>t.table_name==='Table '+i),count=d.players.filter(p=>p.team_id===team?.id&&p.seat_active!==false).length;return `<button data-t="Table ${i}" aria-pressed="false" ${count>=5||team?.game_state?.participation==='withdrawn'||s.studio_control?.registrationOpen===false?'disabled':''}>TABLE ${i} · ${count}/5</button>`}).join('')}</div><button id="join" disabled>JOIN TABLE</button><p id="err"></p><button id="instead-solo">EXPLORE ON MY OWN</button></main>`;
+  root.innerHTML = `<main class="phone table-selection"><h1>Choose your table</h1><p id="table-selection-status" role="status">Tap your table to join it.</p>${alias ? `<p>You are <b>${alias}</b></p>` : ""}<div class="tablegrid">${[1,2,3,4,5,6,7,8].map(i=>{const team=d.teams.find(t=>t.table_name==='Table '+i),count=d.players.filter(p=>p.team_id===team?.id&&p.seat_active!==false).length;return `<button data-t="Table ${i}" aria-pressed="false" ${count>=5||team?.game_state?.participation==='withdrawn'||s.studio_control?.registrationOpen===false?'disabled':''}>TABLE ${i} · ${count}/5</button>`}).join('')}</div><p id="err"></p><button id="instead-solo">EXPLORE ON MY OWN</button></main>`;
   root.querySelector('#instead-solo').onclick=()=>navigateStudio({mode:'studio-solo',room:s.code});
-  let table;
-  document.querySelectorAll("[data-t]").forEach((b) => b.onclick = () => {
-    table = b.dataset.t;
-    document.querySelectorAll("[data-t]").forEach((x) => x.classList.toggle("on", x === b));
-    document.querySelectorAll('[data-t]').forEach(x=>{x.setAttribute('aria-pressed',String(x===b));updateTableOption(x)});
-    q('#table-selection-status').textContent='Selected: '+table;
-    q('#join').textContent='JOIN '+table.toUpperCase();
-    q("#join").disabled = false;
+  let joined=false;
+  root.querySelectorAll('[data-t]').forEach(b=>b.onclick=async()=>{
+    if(joiningTable||joined||b.disabled)return;
+    const table=b.dataset.t;joiningTable=true;root.querySelector('#instead-solo').disabled=true;
+    root.querySelectorAll('[data-t]').forEach(x=>{x.classList.toggle('on',x===b);updateTableOption(x)});
+    q('#table-selection-status').textContent='Joining '+table+'…';q('#err').textContent='';
+    try{
+      const x=await join({session:s,table,email:mode==='email'?email:null,alias,role,consent:mode==='email'&&consent});
+      joined=true;p=x.player;t=x.team;bindPlayer(s.code,p.id);cleanJoinUrl();await refresh();
+    }catch(err){
+      if(q('#err'))q('#err').textContent=err.message;
+      if(q('#table-selection-status'))q('#table-selection-status').textContent=joined?'Your seat is saved. Refresh to reconnect.':'Could not join that table. Choose an available table or try again.';
+    }finally{joiningTable=false;root.querySelectorAll('[data-t]').forEach(updateTableOption);const alternative=root.querySelector('#instead-solo');if(alternative)alternative.disabled=joined}
   });
-  q("#join").onclick = async () => {
-    try {
-      let x = await join({ session: s, table, email: mode === "email" ? email : null, alias, role, consent: mode === "email" && consent });
-      p = x.player;
-      t = x.team;
-      bindPlayer(s.code, p.id);
-      cleanJoinUrl();
-      await refresh();
-    } catch (e) {
-      q("#err").textContent = e.message;
-    }
-  };
 }
 function mine(k) {
   return d.votes.find((v) => v.player_id === p.id && v.decision === k);

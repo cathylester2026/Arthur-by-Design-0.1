@@ -1,3 +1,4 @@
+import {bindFinalRevealZoom} from './facilitatorImageZoom.js';
 import {openSessionReport} from './sessionReportView.js';
 import {activeReflection} from './journeyReflections.js';
 import {controlReflection,mountHostReflection,reflectionLaunch} from './roomReflections.js';
@@ -93,7 +94,7 @@ function startVoteClock(){clearInterval(voteTimer);voteTimer=setInterval(()=>{co
 let showAllTableResults=false;
 function roomResultsHTML({hideButton=false}={}){
     const rows=portfolioTeams();
-    return `<section class="portfolio-presenter"><span>PERFORMANCE UNDER PRESSURE</span>${hideButton?'<button id="show-all-table-results" class="portfolio-back-cue">BACK TO PHONE REVEAL</button>':''}<h1>Same event. Different designs.</h1><p>Design choices show what you funded. Outcome shows how it performed. Open “See why” for the explanation.</p>${portfolioGrid(rows,rows.map(t=>tableOutcomeHTML(t,t.game_state?.evaluation||evaluate(t,"handoff_changed"),{final:true})).join(''))}</section>`;
+    return `<section class="portfolio-presenter"><span>PERFORMANCE UNDER PRESSURE</span>${hideButton?'<button id="show-all-table-results" class="portfolio-back-cue">BACK TO PHONE REVEAL</button>':''}<h1>Same event. Different designs.</h1><p>Design choices show what you funded. Outcome shows how it performed. Open “See why” for the explanation.</p>${portfolioGrid(rows,rows.map(t=>tableOutcomeHTML(t,t.game_state?.evaluation||evaluate(t,"handoff_changed"),{final:true,zoom:['result','finalReveal'].includes(s.phase)})).join(''))}</section>`;
 }
 function phoneCueHTML(){
  if(showAllTableResults)return roomResultsHTML({hideButton:true});
@@ -157,6 +158,7 @@ let renderedViewKey=null;
 async function advanceRecovery(force=false){if(advancing||needsRecovery)return;advancing=true;try{render();s=await advanceRecoveryRoom(s,{force});await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message;if(!needsRecovery)await refresh()}finally{advancing=false;render()}}
 async function exportRecoveryInsights(){await openSessionReport(s)}
 function render() {
+ if(!['result','finalReveal'].includes(s?.phase))bindFinalRevealZoom(root,{enabled:false});
  if(mountHostReflection(root,{session:s,data:d,onControl:performReflection,onRecover:recoverServerState,canControl:hasHost(s)&&!needsRecovery,error:recoveryMessage,busy:advancing}))return;
  if(recoveryRoom(s)){mountRecoveryHost(root,{session:s,data:d,onAdvance:advanceRecovery,onControl:performControl,onExport:exportRecoveryInsights,onSharing:async(id,value)=>{if(advancing||needsRecovery)return;advancing=true;try{s=await recordRecoverySharing(s,id,value);await refresh()}catch(err){needsRecovery=!!err.uncertain;recoveryMessage=err.message}finally{advancing=false;render()}},onRecover:recoverServerState,onManage:manageSeats,canControl:hasHost(s)&&!needsRecovery,busy:advancing,error:recoveryMessage});reflectionLaunch(root,{session:s,data:d,onControl:performReflection});return;}
 
@@ -166,7 +168,7 @@ function render() {
   let current = statusModel();
   forceButton.hidden=true;
   revealButton.hidden=!current.decisionPhase;revealButton.textContent=facilitatorView==='live_vote'?"RETURN TO ARTHUR":"LIVE TABLE VIEW";
-  bindStudioControls();tickClock(root,s);
+  bindStudioControls();tickClock(root,s);bindFinalRevealZoom(root,{enabled:['result','finalReveal'].includes(s.phase)});
   if(recoveryMessage){const err=root.querySelector('#studio-error');if(err){err.hidden=false;err.textContent=recoveryMessage}}
   if(!hasHost(s)){nextButton.disabled=true;forceButton.disabled=true;}
   const compare=root.querySelector('#show-all-table-results');if(compare)compare.onclick=()=>{showAllTableResults=!showAllTableResults;render()};
