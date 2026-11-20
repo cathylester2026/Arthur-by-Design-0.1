@@ -107,8 +107,10 @@ try {
  const phone375=await smaller.newPage();
  await playRecovery(phone375,{caseName:'open',choice:'3C',strategy:'extend',second:'1A',label:'phone-375-extend',scenario:'S1'});
  await smaller.close();
- const facilitatedPage=await desktop.newPage();
+ const facilitatorContext=await browser.newContext({viewport:{width:1440,height:900}});
+ const facilitatedPage=await facilitatorContext.newPage();
  await playRecovery(facilitatedPage,{caseName:'supported',choice:'1A',label:'facilitator-close',scenario:'S2',facilitated:true});
+ await facilitatorContext.close();
  const linked=await desktop.newPage();
  await linked.goto(base);
  const journeyId=await linked.evaluate(async()=>{
