@@ -1,12 +1,18 @@
 import {makeLiveStart,validatePortfolio,responseOptions,evaluateLiveWell,DESIGNS,CAPABILITIES} from './liveResolver.js';
 import {selectPlayProfile} from './liveBalance.js';
+import {SCENARIOS} from './liveResolver.js';
 export const RUN_SCHEMA='live.run.v1';
 const phases=['intro','family','design','strategy','secondFamily','secondDesign','event','response','outcome','futures','finale'];
 const freeze=x=>Object.freeze(x);
 const copy=x=>structuredClone(x);
 const family=id=>CAPABILITIES.find(f=>f.id===id);
-export function createLiveRun({runId,start=makeLiveStart(),scenarioId='S1',lineage={}}){
+export function createLiveRun({runId,start=makeLiveStart(),scenarioId=null,lineage={}}){
  if(typeof runId!=='string'||!runId||runId.length>200)throw Error('Valid run ID required.');
+ if(scenarioId===null){
+  const ids=Object.keys(SCENARIOS);
+  const hash=Array.from(runId).reduce((acc,c)=>Math.imul(acc^c.charCodeAt(0),16777619)>>>0,2166136261);
+  scenarioId=ids[hash%ids.length];
+ }
  const profile=selectPlayProfile(scenarioId,runId);
  return freeze({schema:RUN_SCHEMA,runId,source:start,scenarioId,profileId:profile.id,
   phase:'intro',pendingFamily:null,investments:[],strategy:null,response:null,prediction:null,
