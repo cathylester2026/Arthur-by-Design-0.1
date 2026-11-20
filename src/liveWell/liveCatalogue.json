@@ -1,0 +1,126 @@
+[
+  {
+    "id": "mobility",
+    "title": "Smart Community Mobility",
+    "cost": {
+      "capital": 3,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "1A",
+        "title": "AI Journey Guide",
+        "enables": "Accessible route alternatives from verified information.",
+        "strengthen": "Verified obstruction updates and offline accessible guidance.",
+        "limits": "Does not create a physically accessible route."
+      },
+      {
+        "id": "1B",
+        "title": "Connected Streetscape",
+        "enables": "Accessible route, crossings and rest points within an improved area.",
+        "strengthen": "An inspected alternate accessible route and physical signage.",
+        "limits": "Cannot guarantee the route remains unobstructed."
+      },
+      {
+        "id": "1C",
+        "title": "Mobility Network",
+        "enables": "Request for accessible transport and pickup assistance.",
+        "strengthen": "Confirmed booking, usable pickup and true backup arrangements.",
+        "limits": "Cannot invent accessible vehicles or drivers."
+      }
+    ]
+  },
+  {
+    "id": "care",
+    "title": "Care Without Walls",
+    "cost": {
+      "capital": 3,
+      "change": 3
+    },
+    "choices": [
+      {
+        "id": "2A",
+        "title": "Community Care Pod",
+        "enables": "Accessible private consultation point and selected supported measurements.",
+        "strengthen": "Verified equipment, privacy, staffed connection and care fallback.",
+        "limits": "Pod access never guarantees qualified clinical acceptance."
+      },
+      {
+        "id": "2B",
+        "title": "Distributed Care Network",
+        "enables": "Identification and referral to nearby participating qualified care.",
+        "strengthen": "Verified information, accepted referral and contingency pathway.",
+        "limits": "Cannot create clinician capacity or eligibility."
+      },
+      {
+        "id": "2C",
+        "title": "Mobile Care Services",
+        "enables": "Request appropriate mobile assessment at Arthur's location.",
+        "strengthen": "Confirmed service, clinician/equipment match and transfer alternative.",
+        "limits": "Cannot manufacture a staffed mobile care service."
+      }
+    ]
+  },
+  {
+    "id": "wellness",
+    "title": "Adaptive Wellness & Independence",
+    "cost": {
+      "capital": 2,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "3A",
+        "title": "Adaptive Walking Coach",
+        "enables": "Personalized encouragement and pacing within approved activity limits.",
+        "strengthen": "Verified goals, rest/stop cues and offline approved guidance.",
+        "limits": "Cannot diagnose new symptoms or prescribe a different activity plan."
+      },
+      {
+        "id": "3B",
+        "title": "Personal Health Companion",
+        "enables": "Arthur's reported concerns, preferences and verified plan organized for review.",
+        "strengthen": "Source checking, uncertainty warning and accepted qualified-advice route.",
+        "limits": "Cannot infer new clinical authority from an earlier chapter."
+      },
+      {
+        "id": "3C",
+        "title": "Connected Participation",
+        "enables": "Accessible participation channels where a community activity offers them.",
+        "strengthen": "Confirmed alternative arrangements and tested access.",
+        "limits": "Remote participation is not always equivalent to Arthur's desired visit."
+      }
+    ]
+  },
+  {
+    "id": "services",
+    "title": "Intelligent Community Services",
+    "cost": {
+      "capital": 3,
+      "change": 2
+    },
+    "choices": [
+      {
+        "id": "4A",
+        "title": "Flexible Participation Support",
+        "enables": "Staffed, accessible rest and flexible on-site participation arrangements help Arthur adjust the length, intensity or format of a community activity while retaining choice.",
+        "strengthen": "A verified accessible rest/participation zone, trained staff, agreed participation adaptations and tested backup coverage when the setting changes.",
+        "limits": "Cannot diagnose symptoms, provide clinical clearance, create an inaccessible route, or promise staff or an event that is not actually available."
+      },
+      {
+        "id": "4B",
+        "title": "Connected Community Hub",
+        "enables": "Accessible venue with up-to-date activity information.",
+        "strengthen": "Verified alternative staffed accessible venue and relocation plan.",
+        "limits": "Cannot create an alternate booked venue."
+      },
+      {
+        "id": "4C",
+        "title": "Community Concierge",
+        "enables": "Human/AI support that requests and coordinates services.",
+        "strengthen": "Assigned ownership, accepted requests and backup coverage.",
+        "limits": "Cannot create transport, venue or clinical capacity."
+      }
+    ]
+  }
+]
