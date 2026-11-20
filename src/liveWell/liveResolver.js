@@ -147,7 +147,9 @@ export function responseOptions({investments,strategy,scenarioId,budget=null}){
 function classify({scenarioId,path,options,facts}){
  const qualified=facts.assessmentAccepted&&facts.assessmentQualified&&facts.assessmentWithinWindow;
  const safe=scenarioId!=='S2'||(facts.safeRestAvailable&&qualified);
- const participated=!!path.participation&&safe;
+ // Accepted qualified assessment and permission/opportunity to resume community activity are separate facts.
+ const participated=!!path.participation&&safe&&(scenarioId!=='S2'||facts.communityReturnPossible);
+
  const agency=path.agency;
  const burden=path.burden+(options.response==='coordinate'?1:0);
  const outcome=!safe?'EXPOSED':participated?'HOLDS':'STRAINED';
