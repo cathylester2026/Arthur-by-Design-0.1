@@ -1,0 +1,62 @@
+/* Phone-first delivery: one decision at a time, readable action and budget.
+   Never shrink type to force content into the viewport. Long explanations remain expandable. */
+.mobile-choice-pager[hidden]{display:none!important}
+.mobile-choice-pager{display:none}
+.chapter-transition-summary{padding:20px 22px;border:1px solid #cbd8d2;border-left:5px solid #124c4e;background:#fff;border-radius:10px;margin:16px 0 26px}
+.chapter-transition-summary h2{margin:6px 0 12px}
+.chapter-transition-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.chapter-transition-cards article{border-top:3px solid #a4b836;padding:12px;background:#f5f7f1}
+.chapter-transition-cards ul{margin:8px 0;padding-left:18px}
+.chapter-transition-cards li{line-height:1.4;margin:7px 0}
+.facilitator-chapter-pause{background:#f5f7f1;border:1px solid #a5baaa;padding:12px 16px;border-radius:8px}
+.facilitator-chapter-pause summary{min-height:44px;display:flex;align-items:center}
+.leave-bridge-recap{background:#f0f4e8;padding:15px;border-left:4px solid #124c4e;border-radius:7px;margin:12px 0}
+.leave-bridge-recap ul{padding-left:22px;margin:10px 0}
+.leave-bridge-recap li{margin:7px 0}
+.solo-fixed-header{position:sticky;top:0;z-index:12;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f5f7f1;border-bottom:2px solid #124c4e;padding:10px 7px;font-size:12px;color:#124c4e}
+.solo-fixed-header span{font-weight:bold;white-space:nowrap}
+@media(max-width:700px){
+ .mobile-choice-pager:not([hidden]){display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;bottom:0;z-index:10;padding:8px 10px;background:#f5f7f1;border-top:1px solid #cbd8d2;margin:0 -10px}
+ .mobile-choice-pager button{min-height:44px;margin:0;padding:8px 11px;font-size:13px}
+ .mobile-choice-pager span{font-size:12px;font-weight:700;white-space:nowrap}
+ .mobile-paged-choices{display:block!important}
+ .mobile-paged-choices > article[hidden]{display:none!important}
+ .mobile-paged-choices > article:not([hidden]){display:flex;flex-direction:column;align-items:stretch;width:100%;padding:12px!important}
+ .mobile-paged-choices > article:not([hidden]) > button{width:100%;min-height:46px}
+ .mobile-paged-choices > article h2{font-size:21px!important;margin:7px 0!important}
+ .mobile-paged-choices > article p{font-size:14px!important;line-height:1.38!important;margin:5px 0!important}
+ .mobile-paged-choices > article img{max-height:145px;object-fit:cover}
+ .mobile-paged-choices .recovery-art{max-height:145px;aspect-ratio:2/1!important}
+ .mobile-paged-choices details:not([open]){margin:5px 0;padding:4px 7px}
+ .solo-choice-stack>article{margin:0}
+ .solo-fixed-header{font-size:11px}
+ .chapter-transition-summary{padding:12px;margin:10px 0 18px}
+ .chapter-transition-cards{grid-template-columns:1fr;gap:8px}
+ .chapter-transition-cards article{padding:10px}
+ .chapter-transition-summary h2{font-size:20px}
+ .recovery-reminder .arthur-needs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:10px 0}
+ .recovery-reminder .arthur-needs article{padding:9px}
+ .recovery-reminder .arthur-needs h2{font-size:17px;margin:5px 0}
+ .recovery-reminder .arthur-needs p{font-size:12px;line-height:1.3;margin:0}
+ .recovery-reminder h1{font-size:27px}
+ .recovery-reminder .handoff{padding:11px;margin:9px 0}
+ .recovery-reminder .handoff h2{font-size:18px}
+ .recovery-reminder .handoff p{font-size:13px;margin:6px 0}
+ .recovery-reminder .chapter-entry-bridge{padding:7px;margin:8px 0}
+ .recovery-chapter-close .recovery-close-hero img{height:125px}
+ .recovery-chapter-close .recovery-close-hero h1{font-size:26px;margin:5px 0}
+ .recovery-investment-status{margin:9px 0}
+ .recovery-chapter-close .recovery-close-grid{gap:9px;margin:9px 0}
+ .recovery-chapter-close .recovery-close-next{padding:11px}
+ .recovery-chapter-close .recovery-close-next h2{font-size:19px}
+ .recovery-chapter-close .recovery-close-next p{font-size:14px}
+ /* Keep the journey and budget in the visible top bar without stacking two headers. */
+ .top{position:sticky!important;top:0!important;display:grid!important;grid-template-columns:1fr auto;gap:5px!important;padding:7px 12px!important;background:#fff}
+ .top>a{font-size:11px!important}
+ .top nav{grid-column:1/-1;order:unset!important;width:auto!important;display:flex;gap:5px!important;font-size:10px!important}
+ .top .budget{grid-column:1;grid-row:2;font-size:11px!important;padding:4px 6px!important;width:max-content}
+ .top .view-toggle{grid-column:2;grid-row:2;font-size:11px;padding:6px 8px;min-height:34px;margin:0}
+ .solo-review-navigation{padding:7px!important;margin:0 auto!important;gap:8px!important}
+ .solo-review-navigation button{min-height:42px}
+}
+@media(max-width:375px){.mobile-choice-pager button{font-size:12px;padding:7px 8px}.solo-fixed-header{font-size:10px}}
