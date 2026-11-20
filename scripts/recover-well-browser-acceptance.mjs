@@ -16,7 +16,17 @@ async function checkWidth(page,label){
  const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
  assert.ok(dims.scroll<=dims.client+3,label+' horizontal overflow '+JSON.stringify(dims));
 }
-async function playRecovery(page,{caseName='supported',connected=false,choice='4A',strategy='strengthen',second=null,view='reading',label='standalone',sourceJourney=null,scenario='S2'}={}){
+async function clickPaged(page,selector){
+ const button=page.locator(selector);
+ for(let i=0;i<8;i++){
+  if(await button.isVisible()){await button.click();return;}
+  const next=page.locator('.mobile-choice-pager:not([hidden]) button').last();
+  if(!await next.isVisible()||await next.isDisabled())break;
+  await next.click();
+ }
+ throw Error('Choice inaccessible on phone: '+selector);
+}
+async function playRecovery(page,{caseName='supported',connected=false,choice='4A',strategy='strengthen',second=null,view='reading',label='standalone',sourceJourney=null,scenario='S2',facilitated=false}={}){
  const check=monitor(page,label);
  const scenarioRandom={S1:0.05,S2:0.4,S3:0.8}[scenario];
  await page.addInitScript(value=>{Math.random=()=>value;},scenarioRandom);
@@ -29,23 +39,28 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
   if(await page.locator('#reflection-skip').count())await page.locator('#reflection-skip').click();
  }
  await page.locator('[data-recovery-phase="brief"]',{}).waitFor();
+ if(facilitated){await page.locator('#recovery-view').click();await page.locator('.recovery-facilitator').waitFor();}
  await page.locator('[data-next]').click();
+ if(page.viewportSize()?.width<=700){
+  assert.equal(await page.locator('.investment-cards > article:visible').count(),1,label+': investment cards are not paged');
+  assert.ok(await page.locator('.mobile-choice-pager:not([hidden])').count()>0,label+': phone pager is missing');
+ }
  const family={'1':'personalized','2':'rehab','3':'warning','4':'response'};
  async function invest(id){
-  await page.locator('button[data-invest="'+family[id[0]]+'"]').click();
-  await page.locator('button[data-design="'+id+'"]').click();
+  await clickPaged(page,'button[data-invest="'+family[id[0]]+'"]');
+  await clickPaged(page,'button[data-design="'+id+'"]');
   await page.locator('[data-recovery-phase="designReveal"]').waitFor();
   await page.locator('[data-next]').click();
  }
  await invest(choice);
- if(strategy==='strengthen')await page.locator('button[data-strategy="strengthen"]').click();
- else {await page.locator('button[data-strategy="extend"]').click();await invest(second);}
+ if(strategy==='strengthen')await clickPaged(page,'button[data-strategy="strengthen"]');
+ else {await clickPaged(page,'button[data-strategy="extend"]');await invest(second);}
  await page.locator('[data-disruption="'+scenario+'"] #meet-change').waitFor();
  if(await page.locator('#meet-change').count())await page.locator('#meet-change').click();
  await page.locator('button[data-prediction="NOT SURE"]').click();
  await page.locator('#reveal-impact').click();
  await page.locator('button[data-next]').click();
- await page.locator('button[data-response="ordinary"]').click();
+ await clickPaged(page,'button[data-response="ordinary"]');
  await page.locator('[data-recovery-phase="result"]').waitFor();
  const outcome=await page.locator('section.result h1').first().textContent();
  assert.ok(['HOLDS','STRAINED','EXPOSED'].includes(outcome.trim()),label+': missing status');
@@ -54,11 +69,20 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
  await page.locator('[data-recovery-phase="chapterClose"]').waitFor();
  assert.ok(await page.locator('.recovery-investment-status-grid article').count()=== (strategy==='extend'?2:1));
  await page.getByRole('heading',{name:'Arthur’s recovery continues.'}).waitFor();
+ if(facilitated)assert.ok(await page.locator('.facilitator-chapter-pause summary').count()>0,'Missing facilitator chapter discussion');
  const image=await page.locator('.recovery-close-hero img').evaluate(x=>({ok:x.complete&&x.naturalWidth>0,src:x.getAttribute('src')}));
  assert.ok(image.ok,label+': original Arthur image failed: '+image.src);
  assert.ok(image.src.includes('recover-arthur-final.webp'),label+': Arthur image changed');
  await checkWidth(page,label+' closing');
- await page.screenshot({path:artifacts+'/'+label+'-closing.png',fullPage:true});
+ await page.screenshot({path:artifacts+'/'+label+'-closing-outcome.png',fullPage:true});
+ await page.locator('button[data-page-next="1"]').click();
+ await page.locator('.chapter-page[data-chapter-page="1"]:visible').waitFor();
+ await checkWidth(page,label+' investment recap');
+ await page.screenshot({path:artifacts+'/'+label+'-closing-investments.png',fullPage:true});
+ await page.locator('button[data-page-next="2"]').click();
+ await page.locator('.chapter-page[data-chapter-page="2"]:visible').waitFor();
+ await checkWidth(page,label+' chapter handoff');
+ await page.screenshot({path:artifacts+'/'+label+'-closing-handoff.png',fullPage:true});
  await page.locator('.recovery-chapter-close button[data-next]').click();
  if(connected){
   await page.locator('.journey-chapters').waitFor();
@@ -87,6 +111,14 @@ try {
  await mobile.goto(base);
  await checkWidth(mobile,'landing mobile');
  await playRecovery(mobile,{caseName:'supported',choice:'2C',label:'mobile-robot',scenario:'S3'});
+ const smaller=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true,deviceScaleFactor:1});
+ const phone375=await smaller.newPage();
+ await playRecovery(phone375,{caseName:'open',choice:'3C',strategy:'extend',second:'1A',label:'phone-375-extend',scenario:'S1'});
+ await smaller.close();
+ const facilitatorContext=await browser.newContext({viewport:{width:1440,height:900}});
+ const facilitatedPage=await facilitatorContext.newPage();
+ await playRecovery(facilitatedPage,{caseName:'supported',choice:'1A',label:'facilitator-close',scenario:'S2',facilitated:true});
+ await facilitatorContext.close();
  const linked=await desktop.newPage();
  await linked.goto(base);
  const journeyId=await linked.evaluate(async()=>{
@@ -100,5 +132,5 @@ try {
  });
  await playRecovery(linked,{connected:true,sourceJourney:journeyId,choice:'4A',label:'connected-leave-to-recover',scenario:'S2'});
  await narrow.close();await desktop.close();
- console.log('BROWSER_ACCEPTANCE '+JSON.stringify({passed,scenarios:['landing','desktop checked plan','desktop open plan','mobile robot outage path','connected Leave Well → Recover Well'],artifacts}));
+ console.log('BROWSER_ACCEPTANCE '+JSON.stringify({passed,scenarios:['landing','desktop checked plan','desktop open plan','mobile robot outage path','375px mobile open plan','facilitator recap','connected Leave Well → Recover Well'],artifacts}));
 } finally {await browser.close();}
