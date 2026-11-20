@@ -78,10 +78,12 @@ test('Caring for Arthur can succeed while participation appropriately does not',
  assert.equal(result.metrics.participation,false);
  assert.equal(result.metrics.outcome,'STRAINED');
 });
-test('Autonomous delivery is not allowed to complete an outing or be treated as clinical care',()=>{
+test('Flexible Participation Support earns bounded wins only where participation staffing is accepted',()=>{
+ const expected=new Set(['S2-pod-accepted','S2-network-accepted','S3-event-confirmed']);
  for(const p of BALANCE_PROFILES){
   const result=evaluateLiveWell({start,strategy:'strengthen',investments:[{designId:'4A',strengthened:true}],scenarioId:p.scenarioId,facts:p.facts,response:'use'});
-  assert.notEqual(result.metrics.outcome,'HOLDS',p.id);
+  assert.equal(result.metrics.outcome==='HOLDS',expected.has(p.id),p.id);
+  if(result.metrics.outcome==='HOLDS')assert.equal(result.route.contributedStrength,true,p.id);
  }
 });
 test('Every card is credited in its intended domain, not generically across all disruptions',()=>{
@@ -89,7 +91,7 @@ test('Every card is credited in its intended domain, not generically across all 
   '1A':['S1','S3'],'1B':['S1','S3'],'1C':['S1','S2','S3'],
   '2A':['S2'],'2B':['S2'],'2C':['S2'],
   '3A':['S1','S2'],'3B':['S2'],'3C':['S2','S3'],
-  '4A':['S2'],'4B':['S3'],'4C':['S1','S2','S3']
+  '4A':['S2','S3'],'4B':['S3'],'4C':['S1','S2','S3']
  };
  for(const row of rows.filter(x=>x.design)){
   assert.ok(scope[row.design]?.includes(row.scenario),row.design+' unexpectedly credited for '+row.scenario);
@@ -111,7 +113,7 @@ test('Strengthen reduces verified effort or improves genuine contingency versus 
   ['1A','2A','S1-detour-confirmed'],['1B','2A','S1-detour-confirmed'],['1C','2A','S1-ride-accepted'],
   ['2A','1A','S2-pod-accepted'],['2B','1A','S2-network-accepted'],['2C','1A','S2-mobile-accepted'],
   ['3A','1A','S2-network-accepted'],['3B','1A','S2-pod-accepted'],['3C','1A','S3-remote-participation'],
-  ['4A','1A','S2-participation-not-advised'],['4B','2A','S3-event-confirmed'],['4C','2A','S3-concierge-confirmed']
+  ['4A','1A','S2-pod-accepted'],['4B','2A','S3-event-confirmed'],['4C','2A','S3-concierge-confirmed']
  ];
  for(const [id,other,pid] of fixtures){
   const p=balanceProfile(pid);
