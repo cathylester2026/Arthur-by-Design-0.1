@@ -1,3 +1,4 @@
+import '../mobileJourney.css';
 import {mountMobileChoicePager} from '../mobileChoicePager.js';
 import {queueRecoveryReport,syncRecoveryReports} from '../recoveryReportSync.js';
 import {mountSoloReflection,reflectionDone,reflectionPending,syncSoloReflections,soloReflectionRecords} from '../soloReflections.js';
