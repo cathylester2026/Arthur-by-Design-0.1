@@ -146,3 +146,11 @@ test('Autonomous delivery reduces effort only for real orders and cannot substit
  const no=run('4A','S2',{deliveryServiceAvailable:false,agreedPlanForReturningHome:true});
  assert.notEqual(no.route.id,'delivery-preserves-energy');
 });
+
+test('Clinical assessment may succeed while Arthur appropriately does not resume the gathering',()=>{
+ const v=run('2A','S2',{podClinicianAccepted:true,communityReturnPossible:false});
+ assert.equal(v.metrics.safetyEstablished,true);
+ assert.equal(v.metrics.participation,false);
+ assert.equal(v.metrics.outcome,'STRAINED');
+ assert.notEqual(v.metrics.future,'ADAPTABLE_ACCOUNTABLE');
+});
