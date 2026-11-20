@@ -63,7 +63,7 @@ export function start(root,context={}){
  const established=prior.established||{},gaps=prior.dependencies?.unresolved||[];
  return '<div class="lw-panel lw-history"><h2>What carries into Live Well?</h2><div class="lw-history-grid">'+
  '<div><b>Information foundation</b><p>'+(established.priorClinicalContextUsable||established.contextReconciledInRecovery?'Recovery established usable or reconciled clinical context. Current acceptance must still be confirmed.':'Current clinical context is not established by the recovery record.')+'</p></div>'+
- '<div><b>Recovery outcome</b><p>'+esc(established.outcome)+'. Earlier outcomes remain part of Arthur’s history, not an automatic community result.</p></div>'+
+ '<div><b>Recover Well outcome</b><p>'+esc(established.outcome)+'. Earlier outcomes remain part of Arthur’s history, not an automatic community result.</p></div>'+
  '<div><b>Remaining dependencies</b><p>'+esc(gaps.length?gaps.join('; '):'No specific unresolved recovery gap recorded.')+'</p></div>'+
  '</div><p class="lw-muted">Community clinicians, transport, activity clearance, staffing and participation remain unconfirmed until this chapter tests them.</p></div>';
  }
