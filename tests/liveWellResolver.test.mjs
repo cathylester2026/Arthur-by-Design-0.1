@@ -175,3 +175,16 @@ test('Adapt and Coordinate produce a real new path only when the relevant altern
  assert.equal(evaluateLiveWell({...event,response:'coordinate',facts:{coordinatedRelocationAccepted:true}}).metrics.outcome,'HOLDS');
  assert.notEqual(evaluateLiveWell({...event,response:'coordinate',facts:{coordinatedRelocationAccepted:true,alternateVenueConfirmed:false}}).metrics.outcome,'HOLDS');
 });
+
+test('General companions, care referral networks and inaccessible services cannot masquerade as transport or event arrangements',()=>{
+ for(const id of ['3B','4B','4C']){
+  const result=run(id,'S1',{transportRequestAccepted:false,assistanceAccepted:true,alternativeRouteVerified:true,currentRouteData:true});
+  assert.notEqual(result.metrics.outcome,'HOLDS',id+' cannot automatically establish an accessible route or booked ride');
+ }
+ assert.notEqual(run('1C','S3',{updatedEventKnown:true,changedTransportAccepted:false}).metrics.outcome,'HOLDS');
+ assert.notEqual(run('2B','S3',{eventOrganizerConfirmed:true,updatedEventKnown:true}).metrics.outcome,'HOLDS');
+ assert.notEqual(run('3C','S2',{remoteAdviceAccepted:true,remoteParticipationAccepted:false}).metrics.outcome,'HOLDS');
+ assert.notEqual(run('4C','S2',{communityConciergeAccepted:false,ordinaryContactAvailable:true}).metrics.outcome,'HOLDS');
+ assert.equal(run('4C','S2',{communityConciergeAccepted:true}).metrics.outcome,'HOLDS');
+ assert.equal(run('1C','S3',{updatedEventKnown:true,changedTransportAccepted:true}).metrics.outcome,'HOLDS');
+});
