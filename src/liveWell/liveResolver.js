@@ -9,21 +9,21 @@ export const SCENARIOS=Object.freeze({
  S1:{id:'S1',name:'The accessible route closes',task:'Reach the community gathering with a usable route and reasonable effort.',required:'Physical access or accepted accessible transportation',facts:{
   plannedRouteClosed:true,alternativeRouteExists:true,alternativeRouteAccessible:true,alternativeRouteVerified:false,routeFitsArthur:true,physicalWayfindingAvailable:true,
   currentRouteData:false,offlineGuideUsable:false,accessibleTransportAvailable:true,transportRequestAccepted:false,pickupAccessible:true,backupTransportAvailable:false,
-  safeRestAvailable:true,assistanceAccepted:false,connectionAvailable:true}},
+  safeRestAvailable:true,assistanceAccepted:false,adaptedDetourVerified:false,coordinatedTransportAccepted:false,connectionAvailable:true}},
  S2:{id:'S2',name:'Arthur feels unusually fatigued',task:'Pause safely and get appropriate qualified advice if needed, preserving his choice.',required:'Safe pause and an actually accepted assessment route',facts:{
   safeRestAvailable:true,newConcerningChange:true,approvedActivityEnvelope:true,currentApprovedGoals:true,walkingFeedbackValid:true,ordinaryContactAvailable:true,
   assessmentAccepted:true,assessmentQualified:true,assessmentWithinWindow:true,clinicalContextCurrent:true,
   podAccessible:true,podOperational:true,podClinicianAccepted:false,podEquipmentReady:true,
   referralAccepted:false,referralCapacity:false,mobileServiceAccepted:false,mobileServiceCapacity:false,
   remoteAdviceAccepted:false,communityReturnPossible:true,deliveryServiceAvailable:true,deliveryAccepted:true,
-  agreedPlanForReturningHome:false,transportRequestAccepted:false,transportCapacity:false}},
+  agreedPlanForReturningHome:false,transportRequestAccepted:false,transportCapacity:false,approvedLocalAdjustmentAvailable:false,coordinatedAssessmentConfirmed:false}},
  S3:{id:'S3',name:'The gathering changes venues',task:'Confirm where the event is and participate in a usable way.',required:'Confirmed viable venue and accessible route or accepted participation alternative',facts:{
   venueChanged:true,updatedEventKnown:false,alternateVenueConfirmed:true,alternateVenueAccessible:true,
   routeToNewVenueAccessible:true,usableTravelAvailable:true,officialUpdateVerified:false,
   alternateVenueStaffed:true,alternateParticipationOffered:true,remoteParticipationAccepted:false,
   conciergeAvailable:true,conciergeAccepted:false,backupConciergeAvailable:false,
   eventOrganizerConfirmed:false,communityHubActive:true,communityHubConfirmed:false,
-  deliveryServiceAvailable:true}}
+  deliveryServiceAvailable:true,adaptedParticipationAccepted:false,coordinatedRelocationAccepted:false}}
 });
 const cloned=x=>JSON.parse(JSON.stringify(x));
 const checkObject=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -167,10 +167,22 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  const facts=eventFacts(scenarioId,overrides),capital=budget.remaining.capital-responseOption.cost.capital,change=budget.remaining.change-responseOption.cost.change;
  const base=ordinaryPath(scenarioId,facts);
  const paths=investments.map(i=>capabilityEffect(i.designId,scenarioId,facts,strategy==='strengthen',response)).filter(Boolean);
+ // Repairs and coordination are earned routes, not a generic score bonus. Extra capacity must be confirmed by scenario facts.
+ const ids=new Set(investments.map(i=>i.designId));
+ if(response==='adapt'&&scenarioId==='S1'&&facts.adaptedDetourVerified&&facts.alternativeRouteExists&&facts.alternativeRouteAccessible&&facts.routeFitsArthur&&['1A','1B','3A'].some(id=>ids.has(id)))
+  paths.push({designId:investments.find(i=>['1A','1B','3A'].includes(i.designId)).designId,kind:'verified-local-detour',participation:true,agency:'high',burden:1,reason:'An actual alternate route was verified and adapted for Arthur.',strengthenedUsed:false});
+ if(response==='adapt'&&scenarioId==='S3'&&facts.adaptedParticipationAccepted&&facts.alternateParticipationOffered&&['3C','4B'].some(id=>ids.has(id)))
+  paths.push({designId:investments.find(i=>['3C','4B'].includes(i.designId)).designId,kind:'confirmed-participation-alternative',participation:true,agency:'high',burden:1,reason:'Arthur accepts an actually supported alternative way to join.',strengthenedUsed:false});
+ if(response==='coordinate'&&scenarioId==='S1'&&facts.coordinatedTransportAccepted&&facts.accessibleTransportAvailable&&facts.pickupAccessible&&['1C','4C'].some(id=>ids.has(id)))
+  paths.push({designId:investments.find(i=>['1C','4C'].includes(i.designId)).designId,kind:'coordinated-accepted-ride',participation:true,agency:'high',burden:1,reason:'Accessible transport formally accepts the new route and pickup.',strengthenedUsed:false});
+ if(response==='coordinate'&&scenarioId==='S2'&&facts.coordinatedAssessmentConfirmed&&facts.safeRestAvailable&&facts.assessmentAccepted&&facts.assessmentQualified&&facts.assessmentWithinWindow&&['2B','3B','4C'].some(id=>ids.has(id)))
+  paths.push({designId:investments.find(i=>['2B','3B','4C'].includes(i.designId)).designId,kind:'coordinated-qualified-advice',participation:true,agency:'high',burden:1,reason:'A qualified service actually accepts the assessment and agrees an appropriate next step.',strengthenedUsed:false});
+ if(response==='coordinate'&&scenarioId==='S3'&&facts.coordinatedRelocationAccepted&&facts.alternateVenueConfirmed&&facts.alternateVenueAccessible&&facts.usableTravelAvailable&&['1C','4B','4C'].some(id=>ids.has(id)))
+  paths.push({designId:investments.find(i=>['1C','4B','4C'].includes(i.designId)).designId,kind:'coordinated-venue-transfer',participation:true,agency:'high',burden:1,reason:'The venue and usable travel are confirmed by an accepted community coordinator.',strengthenedUsed:false});
  const usable=response==='ordinary'?[]:paths;
  let selected=usable.sort((a,b)=>Number(b.participation)-Number(a.participation)||a.burden-b.burden)[0]||base;
  // Adapt means an actual repair route. It cannot make unverified capacity or clinical acceptance appear.
- if(response==='adapt'&&selected.designId&&selected.burden>0)selected={...selected,burden:Math.max(0,selected.burden-1),reason:selected.reason+' Arthur uses an available local adjustment.'};
+ if(response==='adapt'&&scenarioId==='S2'&&facts.approvedLocalAdjustmentAvailable&&selected.designId&&selected.burden>0)selected={...selected,burden:Math.max(0,selected.burden-1),reason:selected.reason+' An approved local adjustment reduces effort.'};
  // Coordinate adds coordination burden unless a real accepted service actually participates.
  if(response==='coordinate'&&selected.designId===null)selected={...base,reason:base.reason+' Coordination was requested but no usable service was established.'};
  const selectedInvestment=investments.find(i=>i.designId===selected.designId);
