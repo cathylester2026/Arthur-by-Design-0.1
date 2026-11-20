@@ -48,6 +48,10 @@ function play(c,i){
  act('respond',{choice:c.response});
  const resulting=r.result.outcome,notes={name:c.name,LeaveWell:team.game_state.evaluation.outcome,plan:entry.handoff.facts.verifiedTransitionPlan.state,RecoverWell:resulting,response:c.response,route:r.result.path.id,strengthening:r.result.strengthUses.length,capital:r.capital,change:r.change};
  assert.equal(r.phase,'result');
+ storage.setItem('arthur-recover-connected-r6:'+entry.id,serializeRun(r));
+ const stored=recoveryProgress(entry,{storage});
+ assert.equal(stored.error,null,c.name+': connected resume error');
+ assert.equal(stored.run?.result?.outcome,resulting,c.name+': connected resume result mismatch');
  const back=restoreRun(serializeRun(r));
  assert.equal(back.result.outcome,resulting);
  const passport=recoveryExitPassport(r);
