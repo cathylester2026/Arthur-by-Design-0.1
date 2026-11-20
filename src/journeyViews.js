@@ -1,3 +1,4 @@
+import './mobileJourney.css';
 import {mountSoloReflection,reflectionDone,reflectionPending,soloReflectionRecords,syncSoloReflections} from './soloReflections.js';
 import {startingPoint} from './recoverWell/recoveryStartingPoint.js';
 import './journeyViews.css';
