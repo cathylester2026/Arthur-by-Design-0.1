@@ -53,8 +53,8 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
   await page.locator('[data-next]').click();
  }
  await invest(choice);
- if(strategy==='strengthen')await page.locator('button[data-strategy="strengthen"]').click();
- else {await page.locator('button[data-strategy="extend"]').click();await invest(second);}
+ if(strategy==='strengthen')await clickPaged(page,'button[data-strategy="strengthen"]');
+ else {await clickPaged(page,'button[data-strategy="extend"]');await invest(second);}
  await page.locator('[data-disruption="'+scenario+'"] #meet-change').waitFor();
  if(await page.locator('#meet-change').count())await page.locator('#meet-change').click();
  await page.locator('button[data-prediction="NOT SURE"]').click();
@@ -105,7 +105,7 @@ try {
  await playRecovery(mobile,{caseName:'supported',choice:'2C',label:'mobile-robot',scenario:'S3'});
  const smaller=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  const phone375=await smaller.newPage();
- await playRecovery(phone375,{caseName:'open',choice:'3C',label:'phone-375-open',scenario:'S1'});
+ await playRecovery(phone375,{caseName:'open',choice:'3C',strategy:'extend',second:'1A',label:'phone-375-extend',scenario:'S1'});
  await smaller.close();
  const facilitatedPage=await desktop.newPage();
  await playRecovery(facilitatedPage,{caseName:'supported',choice:'1A',label:'facilitator-close',scenario:'S2',facilitated:true});
