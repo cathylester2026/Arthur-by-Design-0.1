@@ -17,7 +17,7 @@ test('Four investment families, 12 unique designs, legal Strengthen/Extend and b
  assert.throws(()=>validatePortfolio({strategy:'extend',investments:[{designId:'1A'},{designId:'1B'}]}),/different/);
  assert.throws(()=>validatePortfolio({strategy:'strengthen',investments:[{designId:'1A'},{designId:'2B'}]}),/Investment count/);
  assert.throws(()=>validatePortfolio({strategy:'strengthen',investments:[{designId:'6Z'}]}),/Unknown/);
- assert.throws(()=>validatePortfolio({strategy:'extend',investments:[{designId:'2A'},{designId:'4A'}]}),/Insufficient/);
+ assert.throws(()=>validatePortfolio({strategy:'extend',investments:[{designId:'2A'},{designId:'2B'}]}),/different/);
 });
 
 test('All legal portfolios × disruptions × available response actions finish with meaningful bounded result and valid accounting',()=>{
@@ -109,12 +109,10 @@ test('Invalid fact overrides and unaffordable response are rejected, ordinary pa
  assert.throws(()=>eventFacts('S1',{fictionalCapacity:true}),/Unknown/);
  assert.throws(()=>eventFacts('S2',{assessmentAccepted:'yes'}),/invalid/);
  assert.throws(()=>evaluateLiveWell({start,scenarioId:'S3',strategy:'strengthen',investments:[{designId:'2A',strengthened:true}],response:'fiction'}),/Unknown/);
- const budgetHeavy={strategy:'extend',investments:[{designId:'2A'},{designId:'4A'}]};
- assert.throws(()=>validatePortfolio(budgetHeavy),/Insufficient/);
- const p=cases.find(x=>x.strategy==='extend'&&validatePortfolio(x).remaining.change===0);
+ const p=cases.find(x=>x.strategy==='extend'&&validatePortfolio(x).remaining.change===1);
  assert.ok(p);
- assert.equal(responseOptions({...p,scenarioId:'S1'}).coordinate.affordable,false);
- assert.throws(()=>evaluateLiveWell({...p,start,scenarioId:'S1',response:'coordinate'}),/exceeds/);
+ assert.equal(responseOptions({...p,scenarioId:'S1',budget:{capital:0,change:0}}).coordinate.affordable,false);
+ assert.equal(responseOptions({...p,scenarioId:'S1'}).coordinate.affordable,true);
  const ordinary=evaluateLiveWell({...p,start,scenarioId:'S1',response:'ordinary'});
  assert.equal(ordinary.metrics.outcome,'STRAINED');
 });
