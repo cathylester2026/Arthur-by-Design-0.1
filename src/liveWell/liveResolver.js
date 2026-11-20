@@ -188,7 +188,7 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  const selectedInvestment=investments.find(i=>i.designId===selected.designId);
  const unstrengthened=selectedInvestment&&strategy==='strengthen'
   ?capabilityEffect(selected.designId,scenarioId,facts,false,response):null;
- const realizedStrength=strategy==='strengthen'&&!!selected.designId&&!!selected.strengthenedUsed&&
+ const realizedStrength=strategy==='strengthen'&&!!selected.designId&&
   (!unstrengthened||!unstrengthened.participation&&selected.participation||unstrengthened.burden>selected.burden);
  const metrics=classify({scenarioId,path:selected,options:{response},facts});
  return {schema:LIVE_WELL_VERSION,scenarioId,response,strategy,investments:cloned(investments),startSource:start.source,
