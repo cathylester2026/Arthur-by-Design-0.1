@@ -74,7 +74,15 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
  assert.ok(image.ok,label+': original Arthur image failed: '+image.src);
  assert.ok(image.src.includes('recover-arthur-final.webp'),label+': Arthur image changed');
  await checkWidth(page,label+' closing');
- await page.screenshot({path:artifacts+'/'+label+'-closing.png',fullPage:true});
+ await page.screenshot({path:artifacts+'/'+label+'-closing-outcome.png',fullPage:true});
+ await page.locator('button[data-page-next="1"]').click();
+ await page.locator('.chapter-page[data-chapter-page="1"]:visible').waitFor();
+ await checkWidth(page,label+' investment recap');
+ await page.screenshot({path:artifacts+'/'+label+'-closing-investments.png',fullPage:true});
+ await page.locator('button[data-page-next="2"]').click();
+ await page.locator('.chapter-page[data-chapter-page="2"]:visible').waitFor();
+ await checkWidth(page,label+' chapter handoff');
+ await page.screenshot({path:artifacts+'/'+label+'-closing-handoff.png',fullPage:true});
  await page.locator('.recovery-chapter-close button[data-next]').click();
  if(connected){
   await page.locator('.journey-chapters').waitFor();
