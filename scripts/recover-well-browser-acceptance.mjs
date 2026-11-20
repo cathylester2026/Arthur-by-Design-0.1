@@ -75,7 +75,7 @@ try {
  await home.goto(base);
  await home.getByRole('link',{name:/Play Recover Well/}).first().waitFor();
  await checkWidth(home,'landing desktop');
- const imgs=await home.locator('.opening img').evaluateAll(nodes=>nodes.map(x=>({src:x.getAttribute('src'),ok:x.complete&&x.naturalWidth>0})));
+ const imgs=await home.locator('.opening img').evaluateAll(nodes=>Promise.all(nodes.map(async x=>{try{await x.decode();return {src:x.getAttribute('src'),ok:x.naturalWidth>0}}catch{return {src:x.getAttribute('src'),ok:false}}})));
  assert.ok(imgs.every(x=>x.ok),'Landing Arthur imagery must load: '+JSON.stringify(imgs));
  homeCheck();passed++;
  const checked=await desktop.newPage();
