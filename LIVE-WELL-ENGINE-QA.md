@@ -11,7 +11,7 @@ Four families, 12 A/B/C design commitments in `src/liveWell/liveCatalogue.json`:
 - Smart Community Mobility: AI Journey Guide, Connected Streetscape, Mobility Network — **3 Capital, 2 Change**.
 - Care Without Walls: Community Care Pod, Distributed Care Network, Mobile Care Services — **3 Capital, 3 Change**.
 - Adaptive Wellness & Independence: Adaptive Walking Coach, Personal Health Companion, Connected Participation — **2 Capital, 2 Change**.
-- Intelligent Community Services: Autonomous Delivery, Connected Community Hub, Community Concierge — **3 Capital, 2 Change**.
+- Intelligent Community Services: Flexible Participation Support, Connected Community Hub, Community Concierge — **3 Capital, 2 Change**.
 
 Fresh Live Well chapter allocation: **7 Capital + 6 Change**. Strengthen costs **1 Capital + 1 Change**, or Extend adds one different family. The original chapter budgets are retained as historical evidence, not quietly rolled forward.
 
@@ -26,7 +26,7 @@ Fresh Live Well chapter allocation: **7 Capital + 6 Change**. Strengthen costs *
 - **Coordinate:** 1/1, helps only when transport, clinical assessment or venue coordination is actually accepted and capacity exists.
 - **Ordinary:** 0/0, preserves a reachable, explainable alternative even when no purchased design succeeds.
 
-The engine never infers that AI creates accessible sidewalks, staffed transport, clinicians, event arrangements or clinical authority. The autonomous delivery card can reduce errands but never substitutes for clinical assessment or automatically completes Arthur's social goal.
+The engine never infers that AI creates accessible sidewalks, staffed transport, clinicians, event arrangements or clinical authority. The flexible participation card can support a shorter or adapted event only when a real accessible setting and accepted staff support exist; it cannot replace clinical assessment or automatically clear Arthur to continue.
 
 ## Three Futures
 These are **event-scoped** outcomes, not a rating for the whole community:
@@ -52,3 +52,6 @@ Not yet delivered:
 - Balance targets for the mix of Three Futures within realistic scenario variants.
 
 Keep Live Well separate from production until those are built and accepted.
+
+## Investment catalogue update — 4A
+Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. Earlier matrix totals in this document predate the replacement and should not be treated as current; see the latest workflow balance report.
