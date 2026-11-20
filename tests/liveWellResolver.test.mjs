@@ -137,14 +137,26 @@ test('Valid completed Recover Well exit passport is carried as evidence, never a
  assert.throws(()=>evaluateLiveWell({start:altered,scenarioId:'S1',strategy:'strengthen',investments:[{designId:'1B',strengthened:true}]}),/Prior chapter resources/);
 });
 
-test('Autonomous delivery reduces effort only for real orders and cannot substitute for clinical assessment',()=>{
+test('Flexible Participation Support is earned through staffed accessible service, not a technology purchase alone',()=>{
  assert.equal(run('4A','S1').metrics.participation,false);
+ assert.equal(run('4A','S2').metrics.participation,false);
  assert.equal(run('4A','S3').metrics.participation,false);
- const yes=run('4A','S2',{agreedPlanForReturningHome:true});
- assert.equal(yes.metrics.participation,false);
- assert.equal(yes.route.id,'delivery-preserves-energy');
- const no=run('4A','S2',{deliveryServiceAvailable:false,agreedPlanForReturningHome:true});
- assert.notEqual(no.route.id,'delivery-preserves-energy');
+ const help=run('4A','S2',{participationSupportAccepted:true,participationStaffAvailable:true,participationBackupReady:true});
+ assert.equal(help.metrics.outcome,'HOLDS');
+ assert.equal(help.route.id,'supported-activity-return');
+ assert.equal(help.route.contributedStrength,true);
+ assert.equal(help.metrics.burden,1);
+ const noStaff=run('4A','S2',{participationSupportAccepted:true,participationStaffAvailable:false,participationBackupReady:true});
+ assert.notEqual(noStaff.metrics.outcome,'HOLDS');
+ const unqualified=run('4A','S2',{participationSupportAccepted:true,participationStaffAvailable:true,assessmentAccepted:false});
+ assert.equal(unqualified.metrics.outcome,'EXPOSED');
+ const paused=run('4A','S2',{participationSupportAccepted:true,participationStaffAvailable:true,communityReturnPossible:false});
+ assert.equal(paused.metrics.participation,false);
+ const venue=run('4A','S3',{eventParticipationSupportAccepted:true,eventParticipationStaffAvailable:true,eventParticipationBackupReady:true});
+ assert.equal(venue.metrics.outcome,'HOLDS');
+ assert.equal(venue.route.id,'adapted-in-person-gathering');
+ const noVenue=run('4A','S3',{eventParticipationSupportAccepted:true,eventParticipationStaffAvailable:true,alternateVenueConfirmed:false});
+ assert.notEqual(noVenue.metrics.outcome,'HOLDS');
 });
 
 test('Clinical assessment may succeed while Arthur appropriately does not resume the gathering',()=>{
