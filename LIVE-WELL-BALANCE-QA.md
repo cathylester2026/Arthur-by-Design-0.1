@@ -20,9 +20,12 @@
 ## What the findings mean
 - A random irrelevant portfolio should not automatically succeed, even when a service exists. A credible favorable condition is an opportunity, **not a promise of success**.
 - Each routine profile is *attainable by at least one legal portfolio*. Three stress-only cases are not and must never be rolled into ordinary random play without explicit warning.
-- **Autonomous Delivery (4A) is supporting**, not a guaranteed way to attend the gathering: it can remove a necessary errand/effort when an actual delivery and appropriate plan are established, but it does not resolve unfamiliar clinical symptoms, inaccessible streets or missing venue acceptance. This limitation must be visible on the card; later story design may add a dedicated essentials/delivery activity where it becomes a primary solution.
+- **Flexible Participation Support (4A) is supporting**, not a guaranteed way to attend the gathering: it can remove a necessary errand/effort when an actual delivery and appropriate plan are established, but it does not resolve unfamiliar clinical symptoms, inaccessible streets or missing venue acceptance. This limitation must be visible on the card; later story design may add a dedicated essentials/delivery activity where it becomes a primary solution.
 - No card is universally optimal. Results still depend on physical infrastructure, accepted qualified services, accessible participation and accountable human operations.
 - The stress matrix is deliberately weighted toward irrelevant investments and the ordinary response, so it is **not** an estimate of audience enjoyment. Next stage should evaluate meaningful player strategy selection and scenario readability on phone devices.
 
 ## Outstanding before release
 Live Well remains **an engine, not a playable chapter**. Build player run state, save/restore and connected journey route; mobile-first card screens, scenario/facilitator reveals, accessible imagery using the same Arthur; then run actual 375/390 px browser and multi-device workshop rehearsals. Do not merge this development branch into the live game until that acceptance is complete.
+
+## Investment catalogue update — 4A
+Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. Earlier matrix totals in this document predate the replacement and should not be treated as current; see the latest workflow balance report.
