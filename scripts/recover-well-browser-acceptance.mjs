@@ -16,6 +16,16 @@ async function checkWidth(page,label){
  const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
  assert.ok(dims.scroll<=dims.client+3,label+' horizontal overflow '+JSON.stringify(dims));
 }
+async function clickPaged(page,selector){
+ const button=page.locator(selector);
+ for(let i=0;i<8;i++){
+  if(await button.isVisible()){await button.click();return;}
+  const next=page.locator('.mobile-choice-pager:not([hidden]) button').last();
+  if(!await next.isVisible()||await next.isDisabled())break;
+  await next.click();
+ }
+ throw Error('Choice inaccessible on phone: '+selector);
+}
 async function playRecovery(page,{caseName='supported',connected=false,choice='4A',strategy='strengthen',second=null,view='reading',label='standalone',sourceJourney=null,scenario='S2'}={}){
  const check=monitor(page,label);
  const scenarioRandom={S1:0.05,S2:0.4,S3:0.8}[scenario];
@@ -32,8 +42,8 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
  await page.locator('[data-next]').click();
  const family={'1':'personalized','2':'rehab','3':'warning','4':'response'};
  async function invest(id){
-  await page.locator('button[data-invest="'+family[id[0]]+'"]').click();
-  await page.locator('button[data-design="'+id+'"]').click();
+  await clickPaged(page,'button[data-invest="'+family[id[0]]+'"]');
+  await clickPaged(page,'button[data-design="'+id+'"]');
   await page.locator('[data-recovery-phase="designReveal"]').waitFor();
   await page.locator('[data-next]').click();
  }
@@ -45,7 +55,7 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
  await page.locator('button[data-prediction="NOT SURE"]').click();
  await page.locator('#reveal-impact').click();
  await page.locator('button[data-next]').click();
- await page.locator('button[data-response="ordinary"]').click();
+ await clickPaged(page,'button[data-response="ordinary"]');
  await page.locator('[data-recovery-phase="result"]').waitFor();
  const outcome=await page.locator('section.result h1').first().textContent();
  assert.ok(['HOLDS','STRAINED','EXPOSED'].includes(outcome.trim()),label+': missing status');
