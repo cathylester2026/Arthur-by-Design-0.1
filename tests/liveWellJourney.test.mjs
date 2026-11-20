@@ -64,3 +64,13 @@ test('Duplicate action ID is safe only for exact same action',()=>{
  assert.equal(applyLiveAction(r2,a),r2);
  assert.throws(()=>applyLiveAction(r2,{id:'same',type:'family',familyId:'care'}),/collision/);
 });
+
+test('A fresh authored round uses every disruption over stable independent run IDs',()=>{
+ const seen=new Set();
+ for(let i=0;i<200;i++){
+  const r=createLiveRun({runId:'balanced-round-'+i});
+  seen.add(r.scenarioId);
+  assert.equal(createLiveRun({runId:'balanced-round-'+i}).profileId,r.profileId);
+ }
+ assert.deepEqual([...seen].sort(),['S1','S2','S3']);
+});
