@@ -88,13 +88,23 @@ function chapterCloseView(){
  const c=recoveryChapterClosing(run);
  const label=run.policy==='aimedx'&&run.handoff?.source?.kind==='leave-well'?'Your recorded Leave Well choices':'Arthur’s starting hospital-to-home conditions';
  return `<section class="recovery-chapter-close" aria-labelledby="recovery-close-title">
- <div class="recovery-close-hero"><img src="${image()}" alt="Arthur at home — the same original character used throughout this game"><div><small>RECOVER WELL · CHAPTER COMPLETE</small><h1 id="recovery-close-title">Arthur’s recovery continues.</h1><p class="recovery-close-status">${e(c.status)}</p><p>${e(c.experience)}</p></div></div>
- ${investmentStatusView(run.result)}
- <div class="recovery-close-grid"><article><small>WHAT YOUR INVESTMENT CHANGED</small><h2>Support that mattered</h2><p>${e(c.route)}</p><p>${e(c.difference)}</p></article>
- <article><small>THE HOSPITAL-TO-HOME CONNECTION</small><h2>${e(label)}</h2><p>${e(c.prior)}</p></article></div>
- <section class="recovery-close-next"><small>THE RESPONSIBILITY THAT CONTINUES</small><h2>What happens next for Arthur?</h2><p>${e(c.next)}</p><p class="muted">This ending completes today's recovery event. It does not assume Arthur is fully recovered or that every future service is available.</p></section>
- ${facilitator?`<details class="facilitator-chapter-pause"><summary>Facilitator pause · discuss the next chapter</summary><p><b>Ask the group:</b> Which investment actually helped Arthur? What depended on people, services and space?</p><p><b>Carry forward:</b> Which responsibility could still limit Arthur’s everyday independence?</p><p>Pause for discussion, then continue. The game result does not change.</p></details>`:''}
- <button data-next>COMPLETE RECOVER WELL · RETURN TO JOURNEY</button>
+ <div class="chapter-page" data-chapter-page="0">
+  <div class="recovery-close-hero"><img src="${image()}" alt="Arthur at home — the original character used throughout the journey"><div><small>RECOVER WELL · WHAT HAPPENED</small><h1 id="recovery-close-title">Arthur’s recovery continues.</h1><p class="recovery-close-status">${e(c.status)}</p><p>${e(c.experience)}</p></div></div>
+  <button type="button" data-page-next="1">SEE WHAT YOUR INVESTMENTS CHANGED</button>
+ </div>
+ <div class="chapter-page" data-chapter-page="1" hidden>
+  <small>RECOVER WELL · YOUR INVESTMENTS</small><h1>What actually helped Arthur?</h1>
+  ${investmentStatusView(run.result)}
+  <details class="chapter-extra-detail"><summary>What else did your choices contribute?</summary><p>${e(c.route)}</p><p>${e(c.difference)}</p></details>
+  <div class="chapter-page-actions"><button type="button" class="secondary" data-page-prev="0">BACK</button><button type="button" data-page-next="2">SEE WHAT CARRIES FORWARD</button></div>
+ </div>
+ <div class="chapter-page" data-chapter-page="2" hidden>
+  <small>RECOVER WELL · CHAPTER HANDOFF</small><h1>What goes with Arthur?</h1>
+  <div class="recovery-close-grid"><article><small>FROM HOSPITAL TO HOME</small><h2>${e(label)}</h2><p>${e(c.prior)}</p></article><article><small>THE RESPONSIBILITY THAT CONTINUES</small><h2>What happens next?</h2><p>${e(c.next)}</p></article></div>
+  <p class="muted">Arthur’s recovery event is complete. His next step is not a promise that every community service is ready.</p>
+  ${facilitator?`<details class="facilitator-chapter-pause"><summary>Facilitator pause · discuss the next chapter</summary><p>Which capability helped Arthur? Where did it rely on people, space or an accountable service?</p><p>What responsibility could still limit Arthur’s everyday independence?</p></details>`:''}
+  <div class="chapter-page-actions"><button type="button" class="secondary" data-page-prev="1">BACK</button><button data-next>COMPLETE RECOVER WELL · RETURN TO JOURNEY</button></div>
+ </div>
  </section>`;
 }
 function compareView(){const inv=[{designId:'4A',strengthened:true}],cases=[['Supported handoff',fixtures.supported,'use'],['Open handoff',fixtures.open,'use'],['Open handoff + qualified repair',fixtures.open,'adapt']];return `<section class="lab"><small>FIRST MILESTONE · SAME DESIGN, SAME S2 EVENT</small><h2>Does the handoff make a difference?</h2><p>All three cases fund <b>Right Help, Right Time + Strengthen</b>. The third explicitly chooses Adapt to reconcile the open context through a qualified accepted reviewer. These are authored rehearsal fixtures, calculated from the actual local Leave Well engine—not attendee records.</p><div class="comparison">${cases.map(([title,h,response])=>{const v=resolveRecovery({handoff:h,investments:inv,scenarioId:'S2',response});return `<article data-case="${e(response+'-'+h.source.runId)}"><h3>${e(title)}</h3><small>Event response: ${e(responseTitle(response))}</small><strong class="outcome-${v.outcome.toLowerCase()}">${e(v.outcome)}</strong><p>${e(v.explanation)}</p>${chain(v)}<small>Source history: ${e(h.facts.verifiedTransitionPlan.state)} · ${e(h.source.runId)}</small></article>`}).join('')}</div><p>Outcomes differ through named evidence and an executed action—not a bonus for an earlier headline result.</p></section>`}
@@ -117,6 +127,12 @@ function body(){if(!run||entry)return entryView();const s=scenario(run.scenarioI
 }
 function renderCurrent(){root.classList.toggle('recovery-facilitator',facilitator);root.dataset.recoveryPhase=run?.phase||'entry';const budget=run&&!entry?`<span class="budget">${run.capital} Capital · ${run.change} Change</span>`:'';root.innerHTML=`<header class="top"><a href="${e(context.homeURL||'./')}" style="color:#124c4e;font-weight:bold;text-decoration:none">ARTHUR: BY DESIGN</a><a href="${e(context.hubURL)}" style="color:#124c4e">Journey menu</a><nav aria-label="Journey"><span>01 Leave Well</span><span>→</span><b>02 Recover Well</b><span>→</span><span>03 Live Well</span></nav>${budget}<button class="secondary view-toggle" id="recovery-view">${facilitator?'Reading view':'Facilitator view'}</button></header><main>${notice?`<p role="alert" class="notice">${e(notice)}</p>`:''}${body()}</main><footer><span>Recover Well · ${facilitator?'Facilitator preview':'Your design journey'}</span>${run?'<details class="saved-game"><summary>Your saved game</summary><button id="export-run" class="secondary">EXPORT RUN</button><button id="export-archive" class="secondary">EXPORT COMPLETED RUNS</button><button id="export-reflections" class="secondary">EXPORT MY REFLECTIONS</button><details><summary>Review earlier choices</summary><ul>'+run.investments.map(i=>'<li>'+e(CHOICES[i.designId].title)+(i.strengthened?' · made more dependable':'')+'</li>').join('')+'</ul></details></details>':''}</footer>`;
  mountMobileChoicePager(root,{selector:'.investment-cards, .design-cards, .response-cards, .cards.two'});
+ root.querySelectorAll('[data-page-next],[data-page-prev]').forEach(button=>button.addEventListener('click',()=>{
+  const page=Number(button.dataset.pageNext??button.dataset.pagePrev);
+  root.querySelectorAll('.chapter-page').forEach(panel=>{panel.hidden=Number(panel.dataset.chapterPage)!==page;});
+  root.querySelector('.chapter-page:not([hidden]) h1')?.focus?.();
+  scrollTo(0,0);
+ }));
  root.querySelector('#recovery-view')?.addEventListener('click',()=>{facilitator=!facilitator;render()});
  root.querySelector('#meet-change')?.addEventListener('click',()=>{disruptionSeen=true;try{localStorage.setItem(storageKey+':disruption-seen',run.runId)}catch{}render();scrollTo(0,0)});
  root.querySelector('#begin')?.addEventListener('click',begin);root.querySelector('#source')?.addEventListener('change',ev=>{source=ev.target.value});root.querySelector('#scenario')?.addEventListener('change',ev=>{scenarioId=ev.target.value;customFacts={};render()});root.querySelector('#compare')?.addEventListener('click',()=>{compare=!compare;render()});root.querySelectorAll('[data-fact]').forEach(x=>x.onchange=()=>{customFacts[x.dataset.fact]=x.checked});
