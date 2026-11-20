@@ -13,9 +13,9 @@
 - **All 12 designs** have at least one genuinely demonstrated, scoped route or contribution.
 - Separate Strong vs. Extend comparisons for **all 12 designs** require an observable incremental benefit and honest strength attribution.
 - Original 792 default-scenario response matrix remains covered by the existing regression suite.
-- Default all-combination results from 14 authored conditions (not a forecast of player outcomes): **639 HOLDS / 2,793 STRAINED / 264 EXPOSED**. Normalized futures: **415 ADAPTABLE_ACCOUNTABLE / 287 CONNECTED_FRAGILE / 2,994 FRAGMENTED**.
-- For the **11 player-eligible conditions**, selecting the best available response for each of the 66 legal portfolios yields **225 HOLDS / 501 STRAINED** across 726 evaluated combinations. That is **31.0% HOLDS**, a measure of theoretical legal strategy coverage, not an observed win rate or prediction of human choices.
-- Strengthen: 26/132 possible player-condition portfolios reached HOLDS; Extend: 199/594. Do not compare raw counts without normalizing: Extend has 54 possible portfolios, Strengthen 12. Stronger single investments demonstrably reduce burden or unlock a real backup where relevant.
+- Default all-combination results from 14 authored conditions (not a forecast of player outcomes): **705 HOLDS / 2,727 STRAINED / 264 EXPOSED**. Normalized futures: **466 ADAPTABLE_ACCOUNTABLE / 300 CONNECTED_FRAGILE / 2,930 FRAGMENTED**.
+- For the **11 player-eligible conditions**, selecting the best available response for each of the 66 legal portfolios yields **247 HOLDS / 479 STRAINED** across 726 evaluated combinations. That is **34.0% HOLDS**, a measure of theoretical legal strategy coverage, not an observed win rate or prediction of human choices.
+- Strengthen: 29/132 possible player-condition portfolios reached HOLDS; Extend: 218/594. Do not compare raw counts without normalizing: Extend has 54 possible portfolios, Strengthen 12. Stronger single investments demonstrably reduce burden or unlock a real backup where relevant.
 
 ## What the findings mean
 - A random irrelevant portfolio should not automatically succeed, even when a service exists. A credible favorable condition is an opportunity, **not a promise of success**.
@@ -28,4 +28,4 @@
 Live Well remains **an engine, not a playable chapter**. Build player run state, save/restore and connected journey route; mobile-first card screens, scenario/facilitator reveals, accessible imagery using the same Arthur; then run actual 375/390 px browser and multi-device workshop rehearsals. Do not merge this development branch into the live game until that acceptance is complete.
 
 ## Investment catalogue update — 4A
-Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. Earlier matrix totals in this document predate the replacement and should not be treated as current; see the latest workflow balance report.
+Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. The 14-profile balance matrix above reflects the 4A replacement; consult the latest workflow run for changes after this revision.
