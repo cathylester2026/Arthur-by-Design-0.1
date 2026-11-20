@@ -18,7 +18,16 @@ export function start(root,context={}){
  catch(err){error='The previous saved Live Well round could not be verified and was preserved: '+err.message;entry=true}
  function fresh(scenarioId=null){return createLiveRun({runId:globalThis.crypto?.randomUUID?.()||'live-'+Date.now(),start:options.start,scenarioId,lineage:options.lineage})}
  if(!run&&!entry){run=fresh();try{getStore().setItem(key,serializeLiveRun(run))}catch{}}
- function persist(){try{getStore().setItem(key,serializeLiveRun(run))}catch{error='This browser could not save the round. Keep this page open.'}}
+ function persist(){try{
+  const storage=getStore(),data=serializeLiveRun(run);
+  storage.setItem(key,data);
+  if(run.phase==='finale'){
+   const archiveKey=key+':completed';
+   const archive=JSON.parse(storage.getItem(archiveKey)||'{}');
+   archive[run.runId]=JSON.parse(data);
+   storage.setItem(archiveKey,JSON.stringify(archive));
+  }
+ }catch{error='This browser could not save the round. Keep this page open.'}}
  function act(type,args={}){try{run=applyLiveAction(run,{id:globalThis.crypto?.randomUUID?.()||'step-'+Date.now()+'-'+Math.random(),type,...args});error='';persist();render();window.scrollTo?.(0,0)}catch(err){error=err.message;render()}}
  const portfolio=()=>run.investments.map(x=>DESIGNS[x.designId].title+(x.strengthened?' · Strengthened':'')).join(' + ');
  const scenario=()=>balanceProfile(run.profileId);
@@ -38,7 +47,7 @@ return '<div class="lw-final-page" data-final-page="0"><small>THE FINAL CHAPTER 
 (facilitator?'<details class="lw-facilitator" open><summary>Facilitator closing prompt</summary><p>Where did architecture change Arthur’s options? Which technology still depended on an operating commitment? What should tomorrow’s community be designed to do?</p></details>':'')+
 '<div class="lw-actions"><button class="lw-choice" type="button" data-final-back>BACK TO ARTHUR’S STORY</button>'+
 btn(run.source.source==='connected'?'RETURN TO THE CONNECTED JOURNEY':'RETURN TO MAIN MENU','finish','1')+
-btn('DOWNLOAD MY LIVE WELL RESULT','export','1')+'</div></div>'}
+btn('DOWNLOAD MY LIVE WELL RESULT','export','1')+btn('REPLAY LIVE WELL','replay','1')+'</div></div>'}
  function contents(){if(entry)return '<h1>Saved game needs attention</h1><p>'+esc(error)+'</p><p>The existing saved data has not been overwritten.</p>'+btn('START A NEW ROUND','fresh','1');
  switch(run.phase){
  case 'intro':return renderIntro();case 'family':return familyView(false);case 'secondFamily':return familyView(true);case 'design':case 'secondDesign':return designView();case 'strategy':return strategyView();case 'event':return eventView();case 'response':return responseView();case 'outcome':return outcomeView();case 'futures':return futuresView();case 'finale':return finaleView();default:return '<p>Unknown screen.</p>'}}
@@ -53,6 +62,7 @@ btn('DOWNLOAD MY LIVE WELL RESULT','export','1')+'</div></div>'}
  root.querySelector('[data-final-back]')?.addEventListener('click',()=>{root.querySelector('[data-final-page="1"]').hidden=true;root.querySelector('[data-final-page="0"]').hidden=false;window.scrollTo?.(0,0)});
  root.querySelector('[data-finish]')?.addEventListener('click',()=>options.next(options.hubURL));
  root.querySelector('[data-export]')?.addEventListener('click',download);
+ root.querySelector('[data-replay]')?.addEventListener('click',()=>{run=fresh();entry=false;error='';persist();render();window.scrollTo?.(0,0)});
  root.querySelector('[data-fresh]')?.addEventListener('click',()=>{run=fresh();entry=false;error='';persist();render()});
  }
  render();
