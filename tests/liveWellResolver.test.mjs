@@ -192,7 +192,7 @@ test('General companions, care referral networks and inaccessible services canno
 test('All Three Futures labels and the unresolved safety outcome remain reachable without artificial scores',()=>{
  const fragmented=run('1A','S1');
  assert.equal(fragmented.metrics.future,'FRAGMENTED');
- const fragile=run('3A','S2');
+ const fragile=run('3A','S2',{communityReturnPossible:false});
  assert.equal(fragile.metrics.future,'CONNECTED_FRAGILE');
  const adaptable=run('1B','S1');
  assert.equal(adaptable.metrics.future,'ADAPTABLE_ACCOUNTABLE');
