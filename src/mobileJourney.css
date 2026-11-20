@@ -60,3 +60,36 @@
  .solo-review-navigation button{min-height:42px}
 }
 @media(max-width:375px){.mobile-choice-pager button{font-size:12px;padding:7px 8px}.solo-fixed-header{font-size:10px}}
+
+
+/* One meaningful reveal per screen, on phones and on the facilitator display. */
+.chapter-page[hidden]{display:none!important}
+.chapter-page{max-width:920px;margin:0 auto;min-height:min(65vh,650px)}
+.chapter-page-actions{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:15px 0}
+.chapter-page-actions button{margin:0}
+.chapter-page .recovery-investment-status{margin:10px 0}
+.chapter-page .recovery-close-grid{margin:12px 0;gap:12px}
+.chapter-page .recovery-close-grid h2{font-size:20px}
+.chapter-page .chapter-extra-detail{padding:9px 13px}
+@media(max-width:700px){
+ .chapter-page{min-height:0}
+ .chapter-page .recovery-close-hero{display:block;padding:13px}
+ .chapter-page .recovery-close-hero img{height:140px;width:100%;object-fit:cover;object-position:center 45%}
+ .chapter-page .recovery-close-hero p{font-size:15px;line-height:1.43}
+ .chapter-page .recovery-close-hero .recovery-close-status{font-size:17px!important}
+ .chapter-page h1{font-size:27px;line-height:1.12;margin:7px 0 13px}
+ .chapter-page .recovery-investment-status{padding:12px}
+ .chapter-page .recovery-investment-status h2{font-size:19px}
+ .chapter-page .recovery-investment-status>.muted{font-size:12px;line-height:1.35}
+ .chapter-page .recovery-investment-status-grid{margin-top:8px;gap:8px}
+ .chapter-page .recovery-investment-status-grid article{padding:10px}
+ .chapter-page .recovery-investment-status-grid h3{font-size:16px;margin:4px 0}
+ .chapter-page .recovery-investment-status-grid p{font-size:12px;line-height:1.36;margin:4px 0}
+ .chapter-page .recovery-close-grid article{padding:11px}
+ .chapter-page .recovery-close-grid h2{font-size:18px}
+ .chapter-page .recovery-close-grid p{font-size:13px;line-height:1.4}
+ .chapter-page-actions{position:sticky;bottom:0;z-index:8;background:#f5f7f1;border-top:1px solid #cbd8d2;padding:8px 0;gap:8px}
+ .chapter-page-actions button{min-height:44px;font-size:12px;padding:10px;flex:1}
+ .chapter-page>button[data-page-next]{width:100%;margin-top:14px;min-height:46px}
+ .chapter-page .facilitator-chapter-pause{padding:8px}
+}
