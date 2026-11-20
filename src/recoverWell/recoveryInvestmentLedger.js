@@ -1,12 +1,12 @@
 // Event-scoped investment attribution. Never equates a purchase with clinical readiness.
 // A capability may remain valuable outside this particular disruption.
-export function recoveryInvestmentLedger(investments,result) {
+export function recoveryInvestmentLedger(investments,result,baseline=null) {
  if(!Array.isArray(investments)||!result?.path||!Array.isArray(result.consideredPaths))
    throw new Error('Investment ledger requires a complete recovery result.');
  const chosen=result.path;
  return investments.map(investment=>{
   const id=investment.designId;
-  const applicable=result.consideredPaths.filter(p=>p.designIds?.includes(id));
+  // Include the pre-response funded pathway: ordinary care may be chosen even when a purchased route was available.\n  const paths=[...result.consideredPaths,...(baseline?.consideredPaths||[])];\n  const applicable=paths.filter(p=>p.designIds?.includes(id));
   const ready=applicable.some(p=>p.complete);
   const involved=chosen.designIds?.includes(id)===true;
   const used=involved&&chosen.complete;
