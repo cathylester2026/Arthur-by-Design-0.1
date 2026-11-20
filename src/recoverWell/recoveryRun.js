@@ -1,6 +1,7 @@
 import {enterRecovery,freeze} from './leaveWellHandoff.js';
 import {CAPABILITIES,CHOICES,COSTS,VERSION,scenario} from './recoveryContent.js';
 import {resolveRecovery,recoveryResponseOptions} from './recoveryResolver.js';
+import {recoveryExitPassport} from './recoveryExitPassport.js';
 export function createRecoveryRun({handoff,runId,policy='standalone',scenarioId='S2',facts={},lineage={}}){
  if(typeof runId!=='string'||!runId||runId.length>200)throw Error('A recovery run ID is required.');
  const inherited=enterRecovery(handoff,{policy});const identity={experienceMode:lineage.experienceMode||'independent',participantId:lineage.participantId||null,tableId:lineage.tableId||inherited.source.tableId||null,sessionId:lineage.sessionId||inherited.source.sessionId||null};if(!['independent','facilitated'].includes(identity.experienceMode)||Object.entries(identity).some(([k,v])=>k!=='experienceMode'&&v!==null&&(typeof v!=='string'||v.length>200)))throw Error('Invalid participant/table lineage.');scenario(scenarioId,facts);
@@ -40,7 +41,7 @@ export function applyRecoveryAction(run,action){
  }
  next.revision++;next.actions.push(structuredClone(action));return freeze(next);
 }
-export function serializeRun(run){return JSON.stringify({schema:'rw.saved-run.v1',version:VERSION,entry:{handoff:run.handoff,runId:run.runId,policy:run.policy,scenarioId:run.scenarioId,facts:run.facts,lineage:run.lineage},actions:run.actions,result:run.result,finalBudget:{capital:run.capital,change:run.change}})}
+export function serializeRun(run){return JSON.stringify({schema:'rw.saved-run.v1',version:VERSION,entry:{handoff:run.handoff,runId:run.runId,policy:run.policy,scenarioId:run.scenarioId,facts:run.facts,lineage:run.lineage},actions:run.actions,result:run.result,finalBudget:{capital:run.capital,change:run.change},exitPassport:run.result?recoveryExitPassport(run):null})}
 // Defaults before the Recover Well balancing pass. Used only to validate and preserve
 // an already-saved historical decision log. New runs record a full fact snapshot.
 const earlierScenarioDefaults={
@@ -60,4 +61,6 @@ export function restoreRun(text){if(typeof text!=='string'||text.length>1000000)
   run=replay({...data.entry,facts:{...earlier,...data.entry.facts}});
   if(!matches(run))throw Error('Saved recovery result/budget does not match its decision log.');
  }
+ if(data.exitPassport!==undefined&&JSON.stringify(data.exitPassport)!==JSON.stringify(run.result?recoveryExitPassport(run):null))
+  throw Error('Saved recovery exit passport does not match the validated decision log.');
  return run}
