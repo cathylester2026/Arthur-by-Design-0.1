@@ -171,11 +171,16 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  if(response==='adapt'&&selected.designId&&selected.burden>0)selected={...selected,burden:Math.max(0,selected.burden-1),reason:selected.reason+' Arthur uses an available local adjustment.'};
  // Coordinate adds coordination burden unless a real accepted service actually participates.
  if(response==='coordinate'&&selected.designId===null)selected={...base,reason:base.reason+' Coordination was requested but no usable service was established.'};
+ const selectedInvestment=investments.find(i=>i.designId===selected.designId);
+ const unstrengthened=selectedInvestment&&strategy==='strengthen'
+  ?capabilityEffect(selected.designId,scenarioId,facts,false,response):null;
+ const realizedStrength=strategy==='strengthen'&&!!selected.designId&&!!selected.strengthenedUsed&&
+  (!unstrengthened||!unstrengthened.participation&&selected.participation||unstrengthened.burden>selected.burden);
  const metrics=classify({scenarioId,path:selected,options:{response},facts});
  return {schema:LIVE_WELL_VERSION,scenarioId,response,strategy,investments:cloned(investments),startSource:start.source,
   priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
   spent:{capital:CAPITAL-capital,change:CHANGE-change},remaining:{capital,change},metrics,
-  route:{id:selected.kind,designId:selected.designId,reason:selected.reason,contributedStrength:!!selected.strengthenedUsed},
+  route:{id:selected.kind,designId:selected.designId,reason:selected.reason,contributedStrength:!!realizedStrength},
   considered:usable.map(x=>({id:x.designId,path:x.kind,participation:x.participation})),
   unmet:metrics.outcome==='EXPOSED'?['Qualified response or safe activity cannot be established.']:metrics.outcome==='STRAINED'?['Arthur’s intended participation was not completed.']:[],
   guardrail:'A single event outcome does not prove community-wide readiness, ongoing care entitlement or clinical safety outside this scenario.'};
