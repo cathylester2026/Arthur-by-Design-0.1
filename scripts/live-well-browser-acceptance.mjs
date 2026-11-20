@@ -27,9 +27,14 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await page.screenshot({path:artifacts+'/'+name+'-intro.png',fullPage:true});
  await step(page,'[data-next]');
  await page.locator('[data-live-phase="family"]').waitFor();
+ assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:4);
+ await width(page,name+' families');
+ await page.screenshot({path:artifacts+'/'+name+'-families.png',fullPage:true});
  await step(page,'[data-family="services"]');
  await page.locator('[data-live-phase="design"]').waitFor();
  assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:3);
+ await width(page,name+' designs');
+ await page.screenshot({path:artifacts+'/'+name+'-designs.png',fullPage:true});
  await step(page,'[data-design="4A"]');
  await page.locator('[data-live-phase="strategy"]').waitFor();
  await width(page,name+' strategy');
@@ -55,6 +60,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await step(page,'[data-next]');
  await page.locator('[data-live-phase="response"]').waitFor();
  assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:4);
+ await width(page,name+' response choices');
+ await page.screenshot({path:artifacts+'/'+name+'-responses.png',fullPage:true});
  await step(page,'[data-response="use"]');
  await page.locator('[data-live-phase="outcome"]').waitFor();
  await width(page,name+' outcome');
