@@ -154,3 +154,24 @@ test('Clinical assessment may succeed while Arthur appropriately does not resume
  assert.equal(v.metrics.outcome,'STRAINED');
  assert.notEqual(v.metrics.future,'ADAPTABLE_ACCOUNTABLE');
 });
+
+test('Adapt and Coordinate produce a real new path only when the relevant alternative is confirmed',()=>{
+ const route={strategy:'strengthen',investments:[{designId:'1A',strengthened:true}],start,scenarioId:'S1'};
+ const no= evaluateLiveWell({...route,response:'adapt',facts:{alternativeRouteVerified:false,physicalWayfindingAvailable:false}});
+ const yes=evaluateLiveWell({...route,response:'adapt',facts:{alternativeRouteVerified:false,physicalWayfindingAvailable:false,adaptedDetourVerified:true}});
+ assert.notEqual(no.metrics.outcome,'HOLDS');
+ assert.equal(yes.metrics.outcome,'HOLDS');
+ assert.equal(yes.route.id,'verified-local-detour');
+ const ride={strategy:'strengthen',investments:[{designId:'1C',strengthened:true}],start,scenarioId:'S1'};
+ assert.notEqual(evaluateLiveWell({...ride,response:'use'}).metrics.outcome,'HOLDS');
+ const accepted=evaluateLiveWell({...ride,response:'coordinate',facts:{coordinatedTransportAccepted:true}});
+ assert.equal(accepted.metrics.outcome,'HOLDS');
+ assert.equal(accepted.route.id,'coordinated-accepted-ride');
+ assert.notEqual(evaluateLiveWell({...ride,response:'coordinate',facts:{coordinatedTransportAccepted:true,accessibleTransportAvailable:false}}).metrics.outcome,'HOLDS');
+ const health={strategy:'strengthen',investments:[{designId:'2B',strengthened:true}],start,scenarioId:'S2'};
+ assert.equal(evaluateLiveWell({...health,response:'coordinate',facts:{coordinatedAssessmentConfirmed:true}}).metrics.outcome,'HOLDS');
+ assert.equal(evaluateLiveWell({...health,response:'coordinate',facts:{coordinatedAssessmentConfirmed:true,assessmentAccepted:false}}).metrics.outcome,'EXPOSED');
+ const event={strategy:'strengthen',investments:[{designId:'4C',strengthened:true}],start,scenarioId:'S3'};
+ assert.equal(evaluateLiveWell({...event,response:'coordinate',facts:{coordinatedRelocationAccepted:true}}).metrics.outcome,'HOLDS');
+ assert.notEqual(evaluateLiveWell({...event,response:'coordinate',facts:{coordinatedRelocationAccepted:true,alternateVenueConfirmed:false}}).metrics.outcome,'HOLDS');
+});
