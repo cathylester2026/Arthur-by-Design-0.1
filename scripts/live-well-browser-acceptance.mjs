@@ -89,6 +89,13 @@ try{
  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
  const page=await desktop.newPage();
  await play(page,{name:'desktop-standalone',widthPx:1440});
+ await step(page,'[data-final-next]');
+ const archiveBefore=await page.evaluate(()=>JSON.parse(localStorage.getItem('arthur-live-standalone-v1:completed')||'{}'));
+ assert.equal(Object.keys(archiveBefore).length,1,'Completed round must be archived');
+ await step(page,'[data-replay]');
+ await page.locator('[data-live-phase="intro"]').waitFor();
+ const archiveAfter=await page.evaluate(()=>JSON.parse(localStorage.getItem('arthur-live-standalone-v1:completed')||'{}'));
+ assert.deepEqual(archiveAfter,archiveBefore,'Replay must preserve all completed round history');
  const phone=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  await play(await phone.newPage(),{name:'phone-390-extend',widthPx:390,extend:true});
  const smaller=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true});
