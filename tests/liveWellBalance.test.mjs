@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BALANCE_PROFILES,PLAY_PROFILES,STRESS_PROFILES,balanceProfile,scenarioProfiles} from '../src/liveWell/liveBalance.js';
+import {BALANCE_PROFILES,PLAY_PROFILES,STRESS_PROFILES,balanceProfile,scenarioProfiles,selectPlayProfile} from '../src/liveWell/liveBalance.js';
 import {legalPortfolios,evaluateLiveWell,makeLiveStart,DESIGNS} from '../src/liveWell/liveResolver.js';
 
 const start=makeLiveStart();
@@ -153,4 +153,22 @@ test('Report player-oriented best available response and every design’s credit
  assert.ok(report.playerConditions.HOLDS>0);
  assert.ok(report.playerConditions.STRAINED>0);
  assert.ok(report.byStrategy.strengthen.wins>0&&report.byStrategy.extend.wins>0);
+});
+
+test('Seeded player scenario selection is deterministic and cannot select stress-only conditions',()=>{
+ for(const scenarioId of ['S1','S2','S3']){
+  const variants=new Set();
+  for(let i=0;i<160;i++){
+   const a=selectPlayProfile(scenarioId,'table-'+i);
+   const b=selectPlayProfile(scenarioId,'table-'+i);
+   assert.deepEqual(a,b);
+   assert.equal(a.scenarioId,scenarioId);
+   assert.ok(PLAY_PROFILES.some(p=>p.id===a.id));
+   assert.ok(!STRESS_PROFILES.some(p=>p.id===a.id));
+   variants.add(a.id);
+  }
+  assert.equal(variants.size,PLAY_PROFILES.filter(p=>p.scenarioId===scenarioId).length);
+ }
+ assert.throws(()=>selectPlayProfile('S0','a'),/Unknown/);
+ assert.throws(()=>selectPlayProfile('S1',''),/stable/);
 });
