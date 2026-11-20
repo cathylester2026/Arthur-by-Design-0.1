@@ -18,9 +18,11 @@ export function recoveryChapterClosing(run) {
       :path.id==='outage-local-continuation'
         ?'Arthur has a supported way to manage the specific task during the connection outage, using the available local route, alternative or safe deferral.'
         :'Arthur can adjust the identified routine within the limits already agreed with his care team.';
-  const route=used.length
-    ?'A funded capability contributed to the pathway Arthur actually used.'
-    :'Arthur used an ordinary pathway rather than one of the capabilities purchased in this session.';
+  const route=r.outcome==='EXPOSED'
+    ?used.length?'Arthur attempted a pathway involving a funded capability, but a required response dependency remains missing.':'The attempted response has not established every required step; no funded capability is credited with a completed response.'
+    :used.length
+      ?'A funded capability contributed to the established pathway Arthur used.'
+      :'Arthur used an ordinary pathway rather than one of the capabilities purchased in this session.';
   const difference=unused.length
     ?'Other selected capabilities still have value for different recovery needs, but were not required for this event.'
     :'The selected support was relevant to this event; it still depends on the people, information and conditions actually available.';
