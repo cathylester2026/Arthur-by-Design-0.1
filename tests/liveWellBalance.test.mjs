@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {BALANCE_PROFILES,balanceProfile,scenarioProfiles} from '../src/liveWell/liveBalance.js';
+import {BALANCE_PROFILES,PLAY_PROFILES,STRESS_PROFILES,balanceProfile,scenarioProfiles} from '../src/liveWell/liveBalance.js';
 import {legalPortfolios,evaluateLiveWell,makeLiveStart,DESIGNS} from '../src/liveWell/liveResolver.js';
 
 const start=makeLiveStart();
@@ -93,5 +93,33 @@ test('Every card is credited in its intended domain, not generically across all 
  };
  for(const row of rows.filter(x=>x.design)){
   assert.ok(scope[row.design]?.includes(row.scenario),row.design+' unexpectedly credited for '+row.scenario);
+ }
+});
+
+test('Player-facing profile pool retains attainable solutions; hard failures are explicit stress cases',()=>{
+ assert.equal(PLAY_PROFILES.length,11);
+ assert.equal(STRESS_PROFILES.length,3);
+ assert.ok(PLAY_PROFILES.every(p=>p.difficulty!=='stress'));
+ assert.ok(STRESS_PROFILES.every(p=>p.difficulty==='stress'));
+ for(const p of STRESS_PROFILES)assert.equal(rows.filter(r=>r.profile===p.id&&r.outcome==='HOLDS').length,0,p.id+' should never be an ordinary random roll');
+ const routine=PLAY_PROFILES.filter(p=>p.difficulty==='routine');
+ assert.equal(routine.length,10);
+ assert.ok(routine.every(p=>rows.some(r=>r.profile===p.id&&r.outcome==='HOLDS')),'Every routine case should have a viable, earned portfolio outcome');
+});
+test('Strengthen reduces verified effort or improves genuine contingency versus Extend without inventing service capacity',()=>{
+ const fixtures=[
+  ['1A','2A','S1-detour-confirmed'],['1B','2A','S1-detour-confirmed'],['1C','2A','S1-ride-accepted'],
+  ['2A','1A','S2-pod-accepted'],['2B','1A','S2-network-accepted'],['2C','1A','S2-mobile-accepted'],
+  ['3A','1A','S2-network-accepted'],['3B','1A','S2-pod-accepted'],['3C','1A','S3-remote-participation'],
+  ['4A','1A','S2-participation-not-advised'],['4B','2A','S3-event-confirmed'],['4C','2A','S3-concierge-confirmed']
+ ];
+ for(const [id,other,pid] of fixtures){
+  const p=balanceProfile(pid);
+  const strong=evaluateLiveWell({start,scenarioId:p.scenarioId,facts:p.facts,response:'use',strategy:'strengthen',investments:[{designId:id,strengthened:true}]});
+  const wide=evaluateLiveWell({start,scenarioId:p.scenarioId,facts:p.facts,response:'use',strategy:'extend',investments:[{designId:id,strengthened:false},{designId:other,strengthened:false}]});
+  assert.equal(strong.route.designId,id,'Strengthen scenario must exercise '+id+' rather than its fallback');
+  assert.equal(wide.route.designId,id,'Extend comparison must choose same '+id+' route');
+  assert.ok(strong.metrics.burden<wide.metrics.burden,id+' did not earn its incremental dependability');
+  assert.equal(strong.route.contributedStrength,true,id+' had an uncredited Strengthen contribution');
  }
 });
