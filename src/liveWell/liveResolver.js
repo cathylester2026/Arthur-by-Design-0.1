@@ -191,9 +191,23 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
   ?capabilityEffect(selected.designId,scenarioId,facts,false,response):null;
  const realizedStrength=strategy==='strengthen'&&!!selected.designId&&
   (!unstrengthened||!unstrengthened.participation&&selected.participation||unstrengthened.burden>selected.burden);
+ // Upstream evidence affects effort only when a current, accepted clinical path can use it.
+ // It never authorizes care, changes safety, creates capacity, or changes participation.
+ const prior=start.source==='connected'?start.linkedRecovery:null;
+ const clinicalPath=scenarioId==='S2'&&selected.designId!==null&&
+   ['pod-assessment','network-assessment','mobile-assessment','supported-pacing-and-assessment','context-supported-assessment','remote-participation-after-care','coordinated-assessment','supported-activity-return','coordinated-qualified-advice'].includes(selected.kind);
+ const verifiedPrior=prior&&(prior.established.priorClinicalContextUsable===true||prior.established.contextReconciledInRecovery===true);
+ const currentReceivingContext=facts.clinicalContextCurrent===true&&facts.assessmentAccepted===true&&facts.assessmentQualified===true&&facts.assessmentWithinWindow===true;
+ const continuityApplied=!!(clinicalPath&&verifiedPrior&&currentReceivingContext&&selected.burden>0);
+ const continuity={status:continuityApplied?'enabled':clinicalPath&&prior?'not-established':'not-relevant',
+   effect:continuityApplied?'Earlier verified recovery context was current and usable by this accepted assessment; Arthur repeats less information.':clinicalPath&&prior?'The earlier record is known, but current receiving-service usability was not established. No benefit was assumed.':'Earlier decisions are retained as history; they did not materially change this event.',
+   burdenReduction:continuityApplied?1:0,
+   leaveWellRunId:prior?.source?.leaveWellRunId||null,
+   recoverWellRunId:prior?.source?.runId||null};
+ if(continuityApplied)selected={...selected,burden:Math.max(0,selected.burden-1)};
  const metrics=classify({scenarioId,path:selected,options:{response},facts});
  return {schema:LIVE_WELL_VERSION,scenarioId,response,strategy,investments:cloned(investments),startSource:start.source,
-  priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
+  continuity,priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
   spent:{capital:CAPITAL-capital,change:CHANGE-change},remaining:{capital,change},metrics,
   route:{id:selected.kind,designId:selected.designId,reason:selected.reason,contributedStrength:!!realizedStrength},
   considered:usable.map(x=>({id:x.designId,path:x.kind,participation:x.participation})),

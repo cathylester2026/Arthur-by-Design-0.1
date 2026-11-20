@@ -212,3 +212,27 @@ test('All Three Futures labels and the unresolved safety outcome remain reachabl
  assert.equal(exposed.metrics.outcome,'EXPOSED');
  assert.equal(exposed.metrics.future,'FRAGMENTED');
 });
+
+test('Connected continuity lowers only verified clinical handoff effort, never invents a service or clearance',()=>{
+ const passport={schema:'rw.exit.v1',source:{chapter:'recover-well',runId:'recovery-evidence',leaveWellRunId:'leave-evidence'},
+  established:{outcome:'HOLDS',priorClinicalContextUsable:true,contextReconciledInRecovery:false},
+  dependencies:{unresolved:[],continuingCommunityServiceAccepted:null,ongoingMonitoringOwnerConfirmed:null},
+  resourcesRemaining:{capital:0,change:0}};
+ const linked=makeLiveStart({recoveryPassport:passport});
+ const portfolio={strategy:'strengthen',investments:[{designId:'2A',strengthened:true}],scenarioId:'S2',response:'use'};
+ const facts={podClinicianAccepted:true,clinicalContextCurrent:true};
+ const baseline=evaluateLiveWell({...portfolio,start,facts});
+ const carried=evaluateLiveWell({...portfolio,start:linked,facts});
+ assert.equal(carried.metrics.outcome,baseline.metrics.outcome);
+ assert.equal(carried.metrics.participation,baseline.metrics.participation);
+ assert.equal(carried.metrics.burden,Math.max(0,baseline.metrics.burden-1));
+ assert.equal(carried.continuity.status,'enabled');
+ assert.equal(carried.continuity.leaveWellRunId,'leave-evidence');
+ const stale=evaluateLiveWell({...portfolio,start:linked,facts:{...facts,clinicalContextCurrent:false}});
+ assert.equal(stale.continuity.burdenReduction,0);
+ const unavailable=evaluateLiveWell({...portfolio,start:linked,facts:{...facts,podClinicianAccepted:false,assessmentAccepted:false}});
+ assert.equal(unavailable.metrics.outcome,'EXPOSED');
+ assert.equal(unavailable.continuity.burdenReduction,0);
+ const route=evaluateLiveWell({start:linked,strategy:'strengthen',investments:[{designId:'1B',strengthened:true}],scenarioId:'S1',response:'use'});
+ assert.equal(route.continuity.burdenReduction,0);
+});
