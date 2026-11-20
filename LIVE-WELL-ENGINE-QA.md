@@ -42,7 +42,7 @@ Clinical safety is evaluated independently of participation. Qualified advice ma
 ## QA and limitations
 Automated suite enumerates **66 legal portfolios × 3 disruptions × 4 responses = 792 default affordable response cases**, plus hostile missing-service facts and direct clinical/route/event guardrail tests.
 
-The default scenario matrix is intentionally demanding: **63 HOLDS / 729 STRAINED / 0 EXPOSED**. EXPOSED is reachable and tested when qualified advice is not established in S2. This is a baseline matrix, not a gameplay balance target. Most default candidates lack verified acceptance or capacity; diversify scenario variants and observed outcome distribution before releasing a player-facing game.
+The default scenario matrix is intentionally demanding: **63 HOLDS / 729 STRAINED / 0 EXPOSED (original default-only scenarios)**. EXPOSED is reachable and tested when qualified advice is not established in S2. This is a baseline matrix, not a gameplay balance target. Most default candidates lack verified acceptance or capacity; diversify scenario variants and observed outcome distribution before releasing a player-facing game.
 
 Not yet delivered:
 - Live Well phone UI and facilitator screens.
@@ -54,4 +54,4 @@ Not yet delivered:
 Keep Live Well separate from production until those are built and accepted.
 
 ## Investment catalogue update — 4A
-Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. Earlier matrix totals in this document predate the replacement and should not be treated as current; see the latest workflow balance report.
+Autonomous Delivery has been replaced with **Flexible Participation Support**. This directly influences Arthur's participation through accessible rest, shortened activity formats and staffed human flexibility, while remaining dependent on physical access, qualified advice in S2, available staff, and a confirmed gathering in S3. The original 7 Capital / 6 Change and all four family costs stay unchanged. The 14-profile balance matrix above reflects the 4A replacement; consult the latest workflow run for changes after this revision.
