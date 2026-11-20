@@ -46,7 +46,10 @@ test('Live Well refuses skipped phases and impossible resource commitments',()=>
  r=action(r,'strategy',{choice:'extend'});
  assert.throws(()=>action(r,'family',{familyId:'care'}),/different/);
  r=action(r,'family',{familyId:'services'});
- assert.throws(()=>action(r,'design',{designId:'4A'}),/Insufficient/);
+ r=action(r,'design',{designId:'4A'});
+ assert.equal(r.capital,1);
+ assert.equal(r.change,1);
+ assert.throws(()=>action(r,'design',{designId:'4B'}),/current/);
 });
 test('Replay detects changed choice outcomes, costs and forged result',()=>{
  const r=play({id:'tamper-test',first:'4A',scenarioId:'S2'});
