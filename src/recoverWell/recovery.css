@@ -35,3 +35,13 @@
 .recovery-close-grid p,.recovery-close-next p{line-height:1.55}
 .recovery-close-next{border-top-color:#124c4e}
 @media(max-width:700px){.recovery-close-hero,.recovery-close-grid{grid-template-columns:1fr}.recovery-close-hero{padding:16px;gap:12px}.recovery-close-hero img{height:190px}.recovery-close-grid article,.recovery-close-next{padding:15px}}
+
+/* Event-based attribution: purchase, actual event readiness, and actual use stay distinct. */
+.recovery-investment-status{margin:20px 0;padding:20px;border:1px solid #cbd8d0;background:#f5f7f1;border-radius:10px}
+.recovery-investment-status h2{margin:0 0 7px;font-size:23px}
+.recovery-investment-status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:14px}
+.recovery-investment-status-grid article{background:#fff;border-left:4px solid #397c68;padding:15px;border-radius:6px}
+.recovery-investment-status-grid h3{font-size:18px;color:#124c4e;margin:5px 0 10px}
+.recovery-investment-status-grid strong{display:block;font-size:12px;letter-spacing:.045em}
+.recovery-investment-status-grid p{font-size:14px;margin:8px 0 0}
+@media(max-width:700px){.recovery-investment-status{padding:14px}.recovery-investment-status-grid{grid-template-columns:1fr}}
