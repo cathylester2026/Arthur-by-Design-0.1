@@ -188,3 +188,15 @@ test('General companions, care referral networks and inaccessible services canno
  assert.equal(run('4C','S2',{communityConciergeAccepted:true}).metrics.outcome,'HOLDS');
  assert.equal(run('1C','S3',{updatedEventKnown:true,changedTransportAccepted:true}).metrics.outcome,'HOLDS');
 });
+
+test('All Three Futures labels and the unresolved safety outcome remain reachable without artificial scores',()=>{
+ const fragmented=run('1A','S1');
+ assert.equal(fragmented.metrics.future,'FRAGMENTED');
+ const fragile=run('3A','S2');
+ assert.equal(fragile.metrics.future,'CONNECTED_FRAGILE');
+ const adaptable=run('1B','S1');
+ assert.equal(adaptable.metrics.future,'ADAPTABLE_ACCOUNTABLE');
+ const exposed=run('2A','S2',{assessmentAccepted:false,podClinicianAccepted:false});
+ assert.equal(exposed.metrics.outcome,'EXPOSED');
+ assert.equal(exposed.metrics.future,'FRAGMENTED');
+});
