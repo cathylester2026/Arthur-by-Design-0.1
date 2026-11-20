@@ -31,3 +31,13 @@ export function scenarioProfiles(scenarioId){
  if(!SCENARIOS[scenarioId])throw Error('Unknown Live Well disruption.');
  return BALANCE_PROFILES.filter(p=>p.scenarioId===scenarioId);
 }
+
+/** Choose a reproducible player scenario independently of purchases or desired outcomes.
+ * The facilitator may explicitly select a profile instead. Stress-only cases are excluded. */
+export function selectPlayProfile(scenarioId,seed){
+ if(!SCENARIOS[scenarioId])throw Error('Unknown Live Well disruption.');
+ if((typeof seed!=='string'&&typeof seed!=='number')||String(seed).length>200||!String(seed).trim())throw Error('Provide a stable round seed.');
+ const candidates=PLAY_PROFILES.filter(p=>p.scenarioId===scenarioId);
+ const hash=Array.from(String(seed)).reduce((acc,ch)=>Math.imul(acc^ch.charCodeAt(0),16777619)>>>0,2166136261);
+ return balanceProfile(candidates[hash%candidates.length].id);
+}
