@@ -153,7 +153,7 @@ function classify({scenarioId,path,options,facts}){
  const agency=path.agency;
  const burden=path.burden+(options.response==='coordinate'?1:0);
  const outcome=!safe?'EXPOSED':participated?'HOLDS':'STRAINED';
- const future=!safe||(!participated&&burden>=3)?'FRAGMENTED':participated&&agency==='high'&&burden<=1?'ADAPTABLE_ACCOUNTABLE':'CONNECTED_FRAGILE';
+ const future=!safe||(!participated&&burden>=3)?'FRAGMENTED':participated&&agency==='high'&&burden<=2?'ADAPTABLE_ACCOUNTABLE':'CONNECTED_FRAGILE';
  return {outcome,future,participation:participated,agency,burden,safetyEstablished:safe};
 }
 export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,scenarioId,response='use',facts:overrides={}}){
