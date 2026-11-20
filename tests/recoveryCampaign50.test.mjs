@@ -59,7 +59,7 @@ function play(c){
  assert.equal(r.phase,'result');
  assert.ok(['HOLDS','STRAINED','EXPOSED'].includes(r.result.outcome));
  assert.ok(r.result.path);
- assert.equal(r.baseline,originalBaseline);
+ assert.deepEqual(r.baseline,originalBaseline);
  const ledger=recoveryInvestmentLedger(r.investments,r.result,r.baseline);
  assert.equal(ledger.length,r.investments.length);
  for(const item of ledger)if(item.used)assert.ok(r.result.path.complete,'Used claim for incomplete event');
