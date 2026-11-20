@@ -1,3 +1,4 @@
+import './mobileJourney.css';
 import {mountMobileChoicePager} from './mobileChoicePager.js';
 import {optionArtwork} from './leaveWellArtwork.js';
 import {mountSoloReflection,reflectionDone,reflectionPending,syncSoloReflections,soloReflectionRecords} from './soloReflections.js';
