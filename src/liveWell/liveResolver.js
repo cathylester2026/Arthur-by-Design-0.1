@@ -88,9 +88,9 @@ function capabilityEffect(id,scenario,f,strengthened,response){
  const result=(kind,participation,agency,burden,required,reason,used=true)=>({designId:id,kind,participation,agency,burden,required,reason,strengthenedUsed:strong&&used});
  if(scenario==='S1'){
   switch(id){
-   case '1A': if(f.alternativeRouteExists&&f.alternativeRouteAccessible&&f.alternativeRouteVerified&&f.routeFitsArthur&&(f.currentRouteData||(strong&&f.offlineGuideUsable)))return result('guided-detour',true,'high',1,[], 'Arthur understands a verified usable detour.',strong&&!f.currentRouteData);break;
-   case '1B': if(f.alternativeRouteExists&&f.alternativeRouteAccessible&&f.routeFitsArthur&&(f.alternativeRouteVerified||(strong&&f.physicalWayfindingAvailable)))return result('built-detour',true,'high',0,[],'A usable accessible detour is physically legible.',strong&&!f.alternativeRouteVerified);break;
-   case '1C': if(f.pickupAccessible&&((f.accessibleTransportAvailable&&f.transportRequestAccepted)||(strong&&f.backupTransportAvailable&&f.assistanceAccepted)))return result('accepted-ride',true,'high',1,[],'A real accessible ride is accepted.',strong&&!f.transportRequestAccepted);break;
+   case '1A': if(f.alternativeRouteExists&&f.alternativeRouteAccessible&&f.alternativeRouteVerified&&f.routeFitsArthur&&(f.currentRouteData||(strong&&f.offlineGuideUsable)))return result('guided-detour',true,'high',strong?1:2,[], 'Arthur understands a verified usable detour.',strong&&!f.currentRouteData);break;
+   case '1B': if(f.alternativeRouteExists&&f.alternativeRouteAccessible&&f.routeFitsArthur&&(f.alternativeRouteVerified||(strong&&f.physicalWayfindingAvailable)))return result('built-detour',true,'high',strong?0:1,[],'A usable accessible detour is physically legible.',strong&&!f.alternativeRouteVerified);break;
+   case '1C': if(f.pickupAccessible&&((f.accessibleTransportAvailable&&f.transportRequestAccepted)||(strong&&f.backupTransportAvailable&&f.assistanceAccepted)))return result('accepted-ride',true,'high',strong?1:2,[],'A real accessible ride is accepted.',strong&&!f.transportRequestAccepted);break;
    case '3A': if(f.alternativeRouteExists&&f.alternativeRouteAccessible&&f.routeFitsArthur&&f.alternativeRouteVerified)return result('pacing-detour',true,'high',2,[],'Approved pacing helps Arthur take a known accessible detour.',false);break;
    case '3B': break; // A personal health companion is not a dedicated mobility route provider.
    case '3C': break;
@@ -104,25 +104,25 @@ function capabilityEffect(id,scenario,f,strengthened,response){
   const safe=f.safeRestAvailable;
   if(!safe)return null;
   switch(id){
-   case '2A': if(f.podAccessible&&f.podOperational&&f.podEquipmentReady&&f.podClinicianAccepted&&qualified)return result('pod-assessment',true,'high',1,[],'Qualified assessment is accepted through an operational care pod.',strong);break;
-   case '2B': if(f.referralAccepted&&f.referralCapacity&&qualified)return result('network-assessment',true,'high',1,[],'A qualified local assessment is accepted through the network.',strong);break;
-   case '2C': if(f.mobileServiceAccepted&&f.mobileServiceCapacity&&qualified)return result('mobile-assessment',true,'medium',1,[],'A staffed appropriate mobile service accepts the assessment.',strong);break;
-   case '3A': if(qualified&&f.currentApprovedGoals&&f.approvedActivityEnvelope&&f.walkingFeedbackValid)return result('supported-pacing-and-assessment',true,'high',2,[],'Arthur pauses, uses approved cues and obtains qualified advice.',strong);break;
-   case '3B': if(qualified&&f.clinicalContextCurrent&&(f.remoteAdviceAccepted||f.ordinaryContactAvailable))return result('context-supported-assessment',true,'high',1,[],'Current clinical context accompanies an accepted qualified consultation.',strong);break;
-   case '3C': if(qualified&&f.remoteParticipationAccepted)return result('remote-participation-after-care',true,'high',1,[],'Arthur accepts a participation alternative after qualified advice.',strong);break;
-   case '4C': if(qualified&&f.ordinaryContactAvailable&&f.communityConciergeAccepted)return result('coordinated-assessment',true,'medium',2,[],'The accepted assessment and next step are coordinated.',strong);break;
-   case '4A': if(f.deliveryServiceAvailable&&f.deliveryAccepted&&qualified&&f.agreedPlanForReturningHome)return result('delivery-preserves-energy',false,'high',2,[],'Delivery reduces errands but does not achieve the gathering.',strong);break;
+   case '2A': if(f.podAccessible&&f.podOperational&&f.podEquipmentReady&&f.podClinicianAccepted&&qualified)return result('pod-assessment',true,'high',strong?1:2,[],'Qualified assessment is accepted through an operational care pod.',strong);break;
+   case '2B': if(f.referralAccepted&&f.referralCapacity&&qualified)return result('network-assessment',true,'high',strong?1:2,[],'A qualified local assessment is accepted through the network.',strong);break;
+   case '2C': if(f.mobileServiceAccepted&&f.mobileServiceCapacity&&qualified)return result('mobile-assessment',true,'medium',strong?1:2,[],'A staffed appropriate mobile service accepts the assessment.',strong);break;
+   case '3A': if(qualified&&f.currentApprovedGoals&&f.approvedActivityEnvelope&&f.walkingFeedbackValid)return result('supported-pacing-and-assessment',true,'high',strong?2:3,[],'Arthur pauses, uses approved cues and obtains qualified advice.',strong);break;
+   case '3B': if(qualified&&f.clinicalContextCurrent&&(f.remoteAdviceAccepted||f.ordinaryContactAvailable))return result('context-supported-assessment',true,'high',strong?1:2,[],'Current clinical context accompanies an accepted qualified consultation.',strong);break;
+   case '3C': if(qualified&&f.remoteParticipationAccepted)return result('remote-participation-after-care',true,'high',strong?1:2,[],'Arthur accepts a participation alternative after qualified advice.',strong);break;
+   case '4C': if(qualified&&f.ordinaryContactAvailable&&f.communityConciergeAccepted)return result('coordinated-assessment',true,'medium',strong?2:3,[],'The accepted assessment and next step are coordinated.',strong);break;
+   case '4A': if(f.deliveryServiceAvailable&&f.deliveryAccepted&&qualified&&f.agreedPlanForReturningHome)return result('delivery-preserves-energy',false,'high',strong?2:3,[],'Delivery reduces errands but does not achieve the gathering.',strong);break;
    case '1C': if(qualified&&f.transportRequestAccepted&&f.transportCapacity&&f.agreedPlanForReturningHome)return result('ride-home-after-advice',false,'high',1,[],'Accepted transportation helps Arthur return home.',strong);break;
   }
  }
  if(scenario==='S3'){
   switch(id){
-   case '1A': if(f.updatedEventKnown&&f.officialUpdateVerified&&f.routeToNewVenueAccessible&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('updated-guide',true,'high',1,[],'A verified update and accessible journey reach the new venue.',strong);break;
+   case '1A': if(f.updatedEventKnown&&f.officialUpdateVerified&&f.routeToNewVenueAccessible&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('updated-guide',true,'high',strong?1:2,[],'A verified update and accessible journey reach the new venue.',strong);break;
    case '1B': if(f.updatedEventKnown&&f.routeToNewVenueAccessible&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('physical-alternative',true,'high',1,[],'The new destination is accessible and known.',false);break;
-   case '1C': if(f.updatedEventKnown&&f.changedTransportAccepted&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('changed-transport',true,'medium',1,[],'Accepted transport adapts to the new destination.',strong);break;
-   case '3C': if(f.alternateParticipationOffered&&f.remoteParticipationAccepted)return result('accepted-remote-participation',true,'high',1,[],'Arthur chooses an accepted accessible alternative to being there.',strong);break;
-   case '4B': if(f.communityHubActive&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.alternateVenueStaffed&&((strong&&f.communityHubConfirmed)||f.eventOrganizerConfirmed)&&f.usableTravelAvailable)return result('confirmed-community-hub',true,'high',0,[],'A staffed accessible substitute venue and travel are confirmed.',strong&&!f.eventOrganizerConfirmed);break;
-   case '4C': if(f.conciergeAvailable&&(f.conciergeAccepted||(strong&&f.backupConciergeAvailable&&f.backupConciergeAccepted))&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.usableTravelAvailable)return result('coordinated-relocation',true,'high',1,[],'A responsible person confirms the usable relocation.',strong&&!f.conciergeAccepted);break;
+   case '1C': if(f.updatedEventKnown&&f.changedTransportAccepted&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('changed-transport',true,'medium',strong?1:2,[],'Accepted transport adapts to the new destination.',strong);break;
+   case '3C': if(f.alternateParticipationOffered&&f.remoteParticipationAccepted)return result('accepted-remote-participation',true,'high',strong?1:2,[],'Arthur chooses an accepted accessible alternative to being there.',strong);break;
+   case '4B': if(f.communityHubActive&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.alternateVenueStaffed&&((strong&&f.communityHubConfirmed)||f.eventOrganizerConfirmed)&&f.usableTravelAvailable)return result('confirmed-community-hub',true,'high',strong?0:1,[],'A staffed accessible substitute venue and travel are confirmed.',strong&&!f.eventOrganizerConfirmed);break;
+   case '4C': if(f.conciergeAvailable&&(f.conciergeAccepted||(strong&&f.backupConciergeAvailable&&f.backupConciergeAccepted))&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.usableTravelAvailable)return result('coordinated-relocation',true,'high',strong?1:2,[],'A responsible person confirms the usable relocation.',strong&&!f.conciergeAccepted);break;
    case '2B': break; // A distributed clinical care network is not an event relocation system.
   }
  }
