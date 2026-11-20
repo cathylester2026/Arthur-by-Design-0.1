@@ -123,3 +123,34 @@ test('Strengthen reduces verified effort or improves genuine contingency versus 
   assert.equal(strong.route.contributedStrength,true,id+' had an uncredited Strengthen contribution');
  }
 });
+
+test('Report player-oriented best available response and every design’s credited operating effect',()=>{
+ const order={HOLDS:3,STRAINED:2,EXPOSED:1},grade={high:3,medium:2,low:1};
+ const best=[];
+ for(const profile of BALANCE_PROFILES){
+  for(const p of portfolios){
+   const option=rows.filter(x=>x.profile===profile.id&&x.investment===p.investments.map(i=>i.designId).join('+')&&x.strategy===p.strategy)
+    .sort((a,b)=>order[b.outcome]-order[a.outcome]||grade[b.agency]-grade[a.agency]||a.burden-b.burden||Number(a.response==='ordinary')-Number(b.response==='ordinary'))[0];
+   assert.ok(option,'No legal response for '+profile.id);
+   best.push(option);
+  }
+ }
+ const relevant=best.filter(x=>PLAY_PROFILES.some(p=>p.id===x.profile));
+ const report={
+  allConditions:count(best,'outcome'),
+  playerConditions:count(relevant,'outcome'),
+  playerFutures:count(relevant,'future'),
+  byStrategy:{
+   strengthen:{cases:relevant.filter(x=>x.strategy==='strengthen').length,wins:relevant.filter(x=>x.strategy==='strengthen'&&x.outcome==='HOLDS').length},
+   extend:{cases:relevant.filter(x=>x.strategy==='extend').length,wins:relevant.filter(x=>x.strategy==='extend'&&x.outcome==='HOLDS').length}
+  },
+  creditedDesigns:[...new Set(rows.filter(x=>x.design).map(x=>x.design))].sort(),
+  profilesExcludedFromOrdinaryPlay:STRESS_PROFILES.map(p=>p.id)
+ };
+ console.log('LIVE_PLAYER_BALANCE '+JSON.stringify(report));
+ assert.deepEqual(report.creditedDesigns,Object.keys(DESIGNS).sort(),'Every investment design needs at least one real bounded contribution');
+ assert.equal(relevant.length,PLAY_PROFILES.length*portfolios.length);
+ assert.ok(report.playerConditions.HOLDS>0);
+ assert.ok(report.playerConditions.STRAINED>0);
+ assert.ok(report.byStrategy.strengthen.wins>0&&report.byStrategy.extend.wins>0);
+});
