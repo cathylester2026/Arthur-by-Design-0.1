@@ -16,8 +16,10 @@ async function checkWidth(page,label){
  const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
  assert.ok(dims.scroll<=dims.client+3,label+' horizontal overflow '+JSON.stringify(dims));
 }
-async function playRecovery(page,{caseName='supported',connected=false,choice='4A',strategy='strengthen',second=null,view='reading',label='standalone',sourceJourney=null}={}){
+async function playRecovery(page,{caseName='supported',connected=false,choice='4A',strategy='strengthen',second=null,view='reading',label='standalone',sourceJourney=null,scenario='S2'}={}){
  const check=monitor(page,label);
+ const scenarioRandom={S1:0.05,S2:0.4,S3:0.8}[scenario];
+ await page.addInitScript(value=>{Math.random=()=>value;},scenarioRandom);
  if(!connected){
   await page.goto(base+'?mode=recover-standalone');
   await page.getByRole('link',{name:caseName==='supported'?'Play with a checked plan':'Play with a plan to check'}).click();
@@ -38,6 +40,7 @@ async function playRecovery(page,{caseName='supported',connected=false,choice='4
  await invest(choice);
  if(strategy==='strengthen')await page.locator('button[data-strategy="strengthen"]').click();
  else {await page.locator('button[data-strategy="extend"]').click();await invest(second);}
+ await page.locator('[data-disruption="'+scenario+'"] #meet-change').waitFor();
  if(await page.locator('#meet-change').count())await page.locator('#meet-change').click();
  await page.locator('button[data-prediction="NOT SURE"]').click();
  await page.locator('#reveal-impact').click();
@@ -76,14 +79,14 @@ try {
  assert.ok(imgs.every(x=>x.ok),'Landing Arthur imagery must load: '+JSON.stringify(imgs));
  homeCheck();passed++;
  const checked=await desktop.newPage();
- await playRecovery(checked,{caseName:'supported',choice:'4A',label:'desktop-checked'});
+ await playRecovery(checked,{caseName:'supported',choice:'4A',label:'desktop-checked',scenario:'S2'});
  const open=await desktop.newPage();
- await playRecovery(open,{caseName:'open',choice:'2B',label:'desktop-open'});
+ await playRecovery(open,{caseName:'open',choice:'2B',label:'desktop-open',scenario:'S1'});
  const narrow=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:1});
  const mobile=await narrow.newPage();
  await mobile.goto(base);
  await checkWidth(mobile,'landing mobile');
- await playRecovery(mobile,{caseName:'supported',choice:'2C',label:'mobile-robot'});
+ await playRecovery(mobile,{caseName:'supported',choice:'2C',label:'mobile-robot',scenario:'S3'});
  const linked=await desktop.newPage();
  await linked.goto(base);
  const journeyId=await linked.evaluate(async()=>{
@@ -95,7 +98,7 @@ try {
   const entry=connectLeaveWell({runId:'browser-acceptance-leave-1',team:{id:'browser-table-1',investments,game_state:{evaluation,responseId:'use',applied_decisions:{}}},completed:true,completedAt:'2026-11-20T19:30:00Z',experienceMode:'independent',sourceReturn:{mode:'studio-solo',preview:'1'}},{uuid:()=> 'browser-acceptance-journey-1'});
   return entry.id;
  });
- await playRecovery(linked,{connected:true,sourceJourney:journeyId,choice:'4A',label:'connected-leave-to-recover'});
+ await playRecovery(linked,{connected:true,sourceJourney:journeyId,choice:'4A',label:'connected-leave-to-recover',scenario:'S2'});
  await narrow.close();await desktop.close();
  console.log('BROWSER_ACCEPTANCE '+JSON.stringify({passed,scenarios:['landing','desktop checked plan','desktop open plan','mobile robot outage path','connected Leave Well → Recover Well'],artifacts}));
 } finally {await browser.close();}
