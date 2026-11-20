@@ -16,7 +16,7 @@ export function applyRecoveryAction(run,action){
  const charge=cost=>{if(next.capital<cost.capital||next.change<cost.change)throw Error('Insufficient Capital or Change.');next.capital-=cost.capital;next.change-=cost.change};
  switch(action.type){
  case 'next':{
-  const target={brief:'invest',activation:'design',designReveal:next.investments.length===2?'event':'strategy',impact:'respond',result:'journey'}[p];if(!target)throw Error('This screen needs a decision before continuing.');next.phase=target;break;
+  const target={brief:'invest',activation:'design',designReveal:next.investments.length===2?'event':'strategy',impact:'respond',result:'chapterClose',chapterClose:'journey'}[p];if(!target)throw Error('This screen needs a decision before continuing.');next.phase=target;break;
  }
  case 'invest':{
   requirePhase('invest');const c=cap(action.capabilityId);if(!c||next.investments.length>=2||next.investments.some(i=>CHOICES[i.designId].capabilityId===c.id))throw Error('Choose a different valid capability.');charge(c.cost);next.pendingCapability=c.id;next.phase='activation';break;
