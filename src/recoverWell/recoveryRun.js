@@ -1,10 +1,11 @@
 import {enterRecovery,freeze} from './leaveWellHandoff.js';
 import {CAPABILITIES,CHOICES,COSTS,VERSION,scenario} from './recoveryContent.js';
 import {resolveRecovery,recoveryResponseOptions} from './recoveryResolver.js';
+import {recoveryExitPassport} from './recoveryExitPassport.js';
 export function createRecoveryRun({handoff,runId,policy='standalone',scenarioId='S2',facts={},lineage={}}){
  if(typeof runId!=='string'||!runId||runId.length>200)throw Error('A recovery run ID is required.');
  const inherited=enterRecovery(handoff,{policy});const identity={experienceMode:lineage.experienceMode||'independent',participantId:lineage.participantId||null,tableId:lineage.tableId||inherited.source.tableId||null,sessionId:lineage.sessionId||inherited.source.sessionId||null};if(!['independent','facilitated'].includes(identity.experienceMode)||Object.entries(identity).some(([k,v])=>k!=='experienceMode'&&v!==null&&(typeof v!=='string'||v.length>200)))throw Error('Invalid participant/table lineage.');scenario(scenarioId,facts);
- return freeze({schema:'rw.run.v1',version:VERSION,runId,policy,lineage:identity,handoff:inherited,scenarioId,facts:structuredClone(facts),phase:'brief',capital:7,change:6,investments:[],pendingCapability:null,strategy:null,prediction:null,shareMovement:false,baseline:null,result:null,response:null,revision:0,actions:[]});
+ return freeze({schema:'rw.run.v1',version:VERSION,runId,policy,lineage:identity,handoff:inherited,scenarioId,facts:scenario(scenarioId,facts).facts,phase:'brief',capital:7,change:6,investments:[],pendingCapability:null,strategy:null,prediction:null,shareMovement:false,baseline:null,result:null,response:null,revision:0,actions:[]});
 }
 const cap=id=>CAPABILITIES.find(c=>c.id===id);
 export function inputFor(run){return {handoff:run.handoff,investments:run.investments,scenarioId:run.scenarioId,facts:run.facts,shareMovement:run.shareMovement}}
@@ -16,7 +17,7 @@ export function applyRecoveryAction(run,action){
  const charge=cost=>{if(next.capital<cost.capital||next.change<cost.change)throw Error('Insufficient Capital or Change.');next.capital-=cost.capital;next.change-=cost.change};
  switch(action.type){
  case 'next':{
-  const target={brief:'invest',activation:'design',designReveal:next.investments.length===2?'event':'strategy',impact:'respond',result:'journey'}[p];if(!target)throw Error('This screen needs a decision before continuing.');next.phase=target;break;
+  const target={brief:'invest',activation:'design',designReveal:next.investments.length===2?'event':'strategy',impact:'respond',result:'chapterClose',chapterClose:'journey'}[p];if(!target)throw Error('This screen needs a decision before continuing.');next.phase=target;break;
  }
  case 'invest':{
   requirePhase('invest');const c=cap(action.capabilityId);if(!c||next.investments.length>=2||next.investments.some(i=>CHOICES[i.designId].capabilityId===c.id))throw Error('Choose a different valid capability.');charge(c.cost);next.pendingCapability=c.id;next.phase='activation';break;
@@ -40,5 +41,26 @@ export function applyRecoveryAction(run,action){
  }
  next.revision++;next.actions.push(structuredClone(action));return freeze(next);
 }
-export function serializeRun(run){return JSON.stringify({schema:'rw.saved-run.v1',version:VERSION,entry:{handoff:run.handoff,runId:run.runId,policy:run.policy,scenarioId:run.scenarioId,facts:run.facts,lineage:run.lineage},actions:run.actions,result:run.result,finalBudget:{capital:run.capital,change:run.change}})}
-export function restoreRun(text){if(typeof text!=='string'||text.length>1000000)throw Error('Saved recovery run is too large.');const data=JSON.parse(text);if(data.schema!=='rw.saved-run.v1'||data.version!==VERSION||!Array.isArray(data.actions)||data.actions.length>1000)throw Error('Unsupported recovery save.');const run=data.actions.reduce(applyRecoveryAction,createRecoveryRun(data.entry));if(JSON.stringify(run.result)!==JSON.stringify(data.result)||JSON.stringify({capital:run.capital,change:run.change})!==JSON.stringify(data.finalBudget))throw Error('Saved recovery result/budget does not match its decision log.');return run}
+export function serializeRun(run){return JSON.stringify({schema:'rw.saved-run.v1',version:VERSION,entry:{handoff:run.handoff,runId:run.runId,policy:run.policy,scenarioId:run.scenarioId,facts:run.facts,lineage:run.lineage},actions:run.actions,result:run.result,finalBudget:{capital:run.capital,change:run.change},exitPassport:run.result?recoveryExitPassport(run):null})}
+// Defaults before the Recover Well balancing pass. Used only to validate and preserve
+// an already-saved historical decision log. New runs record a full fact snapshot.
+const earlierScenarioDefaults={
+ S1:{routineAlternativeAvailable:false,routineAlternativeFits:false,rehabAlternativeAvailable:false,rehabAlternativeFits:false,homeTaskFits:true,rehabEnvironmentFits:true},
+ S2:{ordinaryAssessmentNeedsRepeatedHistory:false},
+ S3:{safeTaskDeferral:false}
+};
+export function restoreRun(text){if(typeof text!=='string'||text.length>1000000)throw Error('Saved recovery run is too large.');const data=JSON.parse(text);if(data.schema!=='rw.saved-run.v1'||data.version!==VERSION||!Array.isArray(data.actions)||data.actions.length>1000)throw Error('Unsupported recovery save.');const matches=run=>JSON.stringify(run.result)===JSON.stringify(data.result)&&JSON.stringify({capital:run.capital,change:run.change})===JSON.stringify(data.finalBudget);
+ const replay=entry=>data.actions.reduce(applyRecoveryAction,createRecoveryRun(entry));
+ let run=replay(data.entry);
+ if(!matches(run)){
+  // Only test the historical authored defaults if the saved run itself did
+  // not declare any conflicting facts. Never accept a mismatched outcome.
+  const earlier=earlierScenarioDefaults[data.entry.scenarioId];
+  if(!earlier||Object.entries(earlier).some(([key,value])=>key in (data.entry.facts||{})&&data.entry.facts[key]!==value))
+   throw Error('Saved recovery result/budget does not match its decision log.');
+  run=replay({...data.entry,facts:{...earlier,...data.entry.facts}});
+  if(!matches(run))throw Error('Saved recovery result/budget does not match its decision log.');
+ }
+ if(data.exitPassport!==undefined&&JSON.stringify(data.exitPassport)!==JSON.stringify(run.result?recoveryExitPassport(run):null))
+  throw Error('Saved recovery exit passport does not match the validated decision log.');
+ return run}

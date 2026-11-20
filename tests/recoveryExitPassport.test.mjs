@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {recoveryExitPassport} from '../src/recoverWell/recoveryExitPassport.js';
+import {createRecoveryRun,applyRecoveryAction,serializeRun,restoreRun} from '../src/recoverWell/recoveryRun.js';
+import {standaloneHandoff} from '../src/recoverWell/leaveWellHandoff.js';
+test('Recover Well exit passport preserves decisions, resource capacity, and explicitly unknown future services',()=>{
+ let r=createRecoveryRun({runId:'recovery-passport-test',handoff:standaloneHandoff('supported'),scenarioId:'S2'});
+ const steps=[['next',{}],['invest',{capabilityId:'response'}],['next',{}],['design',{designId:'4A'}],['next',{}],['strategy',{choice:'strengthen'}],['revealImpact',{}],['next',{}],['respond',{choice:'use'}]];
+ for(const [i,[type,detail]] of steps.entries())r=applyRecoveryAction(r,{id:'step-'+i,type,...detail});
+ const p=recoveryExitPassport(r);
+ assert.equal(p.schema,'rw.exit.v1');
+ assert.equal(p.decisions.portfolio[0].designId,'4A');
+ assert.equal(p.established.outcome,'HOLDS');
+ assert.equal(p.dependencies.continuingCommunityServiceAccepted,null);
+ assert.equal(p.dependencies.ongoingMonitoringOwnerConfirmed,null);
+ assert.equal(p.resourcesRemaining.capital,r.capital);
+ const saved=JSON.parse(serializeRun(r));
+ assert.deepEqual(saved.exitPassport,p);
+ assert.deepEqual(recoveryExitPassport(restoreRun(JSON.stringify(saved))),p);
+ saved.exitPassport.dependencies.continuingCommunityServiceAccepted=true;
+ assert.throws(()=>restoreRun(JSON.stringify(saved)),/passport does not match/);
+});

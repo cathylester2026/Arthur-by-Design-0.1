@@ -1,0 +1,35 @@
+name: Recover Well browser acceptance
+on:
+  push:
+    branches:
+      - feature/recover-well-arthur-continuity
+  workflow_dispatch: {}
+jobs:
+  browser-acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install isolated browser test tooling
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Start local preview server
+        run: |
+          (npm run dev -- --host 127.0.0.1 --port 4177 > /tmp/arthur-vite.log 2>&1 &)
+          for i in $(seq 1 40); do curl -fsS http://127.0.0.1:4177/ > /dev/null && exit 0; sleep 1; done
+          cat /tmp/arthur-vite.log
+          exit 1
+      - name: Real desktop and mobile browser journeys
+        run: node scripts/recover-well-browser-acceptance.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recover-well-browser-screenshots
+          path: /tmp/arthur-browser-artifacts
+          if-no-files-found: ignore
