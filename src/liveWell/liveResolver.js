@@ -15,7 +15,7 @@ export const SCENARIOS=Object.freeze({
   assessmentAccepted:true,assessmentQualified:true,assessmentWithinWindow:true,clinicalContextCurrent:true,
   podAccessible:true,podOperational:true,podClinicianAccepted:false,podEquipmentReady:true,
   referralAccepted:false,referralCapacity:false,mobileServiceAccepted:false,mobileServiceCapacity:false,
-  remoteAdviceAccepted:false,remoteParticipationAccepted:false,communityConciergeAccepted:false,communityReturnPossible:true,deliveryServiceAvailable:true,deliveryAccepted:true,
+  remoteAdviceAccepted:false,remoteParticipationAccepted:false,communityConciergeAccepted:false,communityReturnPossible:true,participationSupportAccepted:false,participationStaffAvailable:true,participationBackupReady:false,
   agreedPlanForReturningHome:false,transportRequestAccepted:false,transportCapacity:false,approvedLocalAdjustmentAvailable:false,coordinatedAssessmentConfirmed:false}},
  S3:{id:'S3',name:'The gathering changes venues',task:'Confirm where the event is and participate in a usable way.',required:'Confirmed viable venue and accessible route or accepted participation alternative',facts:{
   venueChanged:true,updatedEventKnown:false,alternateVenueConfirmed:true,alternateVenueAccessible:true,
@@ -23,7 +23,7 @@ export const SCENARIOS=Object.freeze({
   alternateVenueStaffed:true,alternateParticipationOffered:true,remoteParticipationAccepted:false,changedTransportAccepted:false,backupConciergeAccepted:false,
   conciergeAvailable:true,conciergeAccepted:false,backupConciergeAvailable:false,
   eventOrganizerConfirmed:false,communityHubActive:true,communityHubConfirmed:false,
-  deliveryServiceAvailable:true,adaptedParticipationAccepted:false,coordinatedRelocationAccepted:false}}
+  eventParticipationSupportAccepted:false,eventParticipationStaffAvailable:true,eventParticipationBackupReady:false,adaptedParticipationAccepted:false,coordinatedRelocationAccepted:false}}
 });
 const cloned=x=>JSON.parse(JSON.stringify(x));
 const checkObject=x=>x&&typeof x==='object'&&!Array.isArray(x);
@@ -111,7 +111,7 @@ function capabilityEffect(id,scenario,f,strengthened,response){
    case '3B': if(qualified&&f.clinicalContextCurrent&&(f.remoteAdviceAccepted||f.ordinaryContactAvailable))return result('context-supported-assessment',true,'high',strong?1:2,[],'Current clinical context accompanies an accepted qualified consultation.',strong);break;
    case '3C': if(qualified&&f.remoteParticipationAccepted)return result('remote-participation-after-care',true,'high',strong?1:2,[],'Arthur accepts a participation alternative after qualified advice.',strong);break;
    case '4C': if(qualified&&f.ordinaryContactAvailable&&f.communityConciergeAccepted)return result('coordinated-assessment',true,'medium',strong?2:3,[],'The accepted assessment and next step are coordinated.',strong);break;
-   case '4A': if(f.deliveryServiceAvailable&&f.deliveryAccepted&&qualified&&f.agreedPlanForReturningHome)return result('delivery-preserves-energy',false,'high',strong?2:3,[],'Delivery reduces errands but does not achieve the gathering.',strong);break;
+   case '4A': if(qualified&&f.safeRestAvailable&&f.communityReturnPossible&&f.participationSupportAccepted&&f.participationStaffAvailable)return result('supported-activity-return',true,'high',strong&&f.participationBackupReady?1:2,[],'Staff provide a confirmed accessible rest area and shorter participation format after qualified advice.',strong&&f.participationBackupReady);break;
    case '1C': if(qualified&&f.transportRequestAccepted&&f.transportCapacity&&f.agreedPlanForReturningHome)return result('ride-home-after-advice',false,'high',1,[],'Accepted transportation helps Arthur return home.',strong);break;
   }
  }
@@ -121,6 +121,7 @@ function capabilityEffect(id,scenario,f,strengthened,response){
    case '1B': if(f.updatedEventKnown&&f.routeToNewVenueAccessible&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('physical-alternative',true,'high',1,[],'The new destination is accessible and known.',false);break;
    case '1C': if(f.updatedEventKnown&&f.changedTransportAccepted&&f.usableTravelAvailable&&f.alternateVenueConfirmed&&f.alternateVenueAccessible)return result('changed-transport',true,'medium',strong?1:2,[],'Accepted transport adapts to the new destination.',strong);break;
    case '3C': if(f.alternateParticipationOffered&&f.remoteParticipationAccepted)return result('accepted-remote-participation',true,'high',strong?1:2,[],'Arthur chooses an accepted accessible alternative to being there.',strong);break;
+   case '4A': if(f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.usableTravelAvailable&&f.eventParticipationSupportAccepted&&f.eventParticipationStaffAvailable)return result('adapted-in-person-gathering',true,'high',strong&&f.eventParticipationBackupReady?1:2,[],'The replacement gathering confirms staffed flexible seating, rest and an agreed shorter participation option.',strong&&f.eventParticipationBackupReady);break;
    case '4B': if(f.communityHubActive&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.alternateVenueStaffed&&((strong&&f.communityHubConfirmed)||f.eventOrganizerConfirmed)&&f.usableTravelAvailable)return result('confirmed-community-hub',true,'high',strong?0:1,[],'A staffed accessible substitute venue and travel are confirmed.',strong&&!f.eventOrganizerConfirmed);break;
    case '4C': if(f.conciergeAvailable&&(f.conciergeAccepted||(strong&&f.backupConciergeAvailable&&f.backupConciergeAccepted))&&f.alternateVenueConfirmed&&f.alternateVenueAccessible&&f.usableTravelAvailable)return result('coordinated-relocation',true,'high',strong?1:2,[],'A responsible person confirms the usable relocation.',strong&&!f.conciergeAccepted);break;
    case '2B': break; // A distributed clinical care network is not an event relocation system.
