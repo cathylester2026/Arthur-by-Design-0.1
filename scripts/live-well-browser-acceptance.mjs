@@ -66,8 +66,12 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await page.screenshot({path:artifacts+'/'+name+'-futures.png',fullPage:true});
  await step(page,'[data-next]');
  await page.locator('[data-live-phase="finale"]').waitFor();
- await width(page,name+' finale');
- await page.screenshot({path:artifacts+'/'+name+'-finale.png',fullPage:true});
+ await width(page,name+' Arthur closing');
+ await page.screenshot({path:artifacts+'/'+name+'-finale-arthur.png',fullPage:true});
+ await step(page,'[data-final-next]');
+ await page.locator('[data-final-page="1"]:visible').waitFor();
+ await width(page,name+' three-chapter close');
+ await page.screenshot({path:artifacts+'/'+name+'-finale-journey.png',fullPage:true});
  await page.reload();
  await page.locator('[data-live-phase="finale"]').waitFor();
  const saved=await page.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('arthur-live-')));
@@ -105,6 +109,7 @@ try{
  assert.ok((await cp.locator('main').innerText()).includes('Recover Well outcome'));
  await width(cp,'connected intro');
  await play(cp,{name:'connected-phone-390',widthPx:390,connected:true});
+ await step(cp,'[data-final-next]');
  await step(cp,'[data-finish]');
  await cp.locator('.journey-chapters').waitFor();
  const card=cp.locator('.journey-chapters article').last();
