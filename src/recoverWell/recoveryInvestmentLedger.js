@@ -6,7 +6,9 @@ export function recoveryInvestmentLedger(investments,result,baseline=null) {
  const chosen=result.path;
  return investments.map(investment=>{
   const id=investment.designId;
-  // Include the pre-response funded pathway: ordinary care may be chosen even when a purchased route was available.\n  const paths=[...result.consideredPaths,...(baseline?.consideredPaths||[])];\n  const applicable=paths.filter(p=>p.designIds?.includes(id));
+  // Include the pre-response funded pathway: ordinary care may be chosen even when a purchased route was available.
+  const paths=[...result.consideredPaths,...(baseline?.consideredPaths||[])];
+  const applicable=paths.filter(p=>p.designIds?.includes(id));
   const ready=applicable.some(p=>p.complete);
   const involved=chosen.designIds?.includes(id)===true;
   const used=involved&&chosen.complete;
