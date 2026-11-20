@@ -102,10 +102,10 @@
     "choices": [
       {
         "id": "4A",
-        "title": "Autonomous Delivery",
-        "enables": "Eligible essentials delivery by a real approved service.",
-        "strengthen": "Valid delivery coverage, secure handoff and nonrobotic fallback.",
-        "limits": "Delivery cannot solve mobility barriers or medical concerns."
+        "title": "Flexible Participation Support",
+        "enables": "Staffed, accessible rest and flexible on-site participation arrangements help Arthur adjust the length, intensity or format of a community activity while retaining choice.",
+        "strengthen": "A verified accessible rest/participation zone, trained staff, agreed participation adaptations and tested backup coverage when the setting changes.",
+        "limits": "Cannot diagnose symptoms, provide clinical clearance, create an inaccessible route, or promise staff or an event that is not actually available."
       },
       {
         "id": "4B",
