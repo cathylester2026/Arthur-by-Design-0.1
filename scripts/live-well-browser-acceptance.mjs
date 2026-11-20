@@ -42,6 +42,10 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
   await step(page,'[data-design="3C"]');
  }else await step(page,'[data-strategy="strengthen"]');
  await page.locator('[data-live-phase="event"]').waitFor();
+ if(name==='desktop-standalone'){
+  await page.locator('.lw-view').click();
+  await page.locator('.lw-facilitator summary').waitFor();
+ }
  await width(page,name+' event');
  const budget=await page.locator('.lw-budget').innerText();
  assert.ok(budget.includes('Capital')&&budget.includes('Change'));
@@ -101,6 +105,11 @@ try{
  assert.ok((await cp.locator('main').innerText()).includes('Recover Well outcome'));
  await width(cp,'connected intro');
  await play(cp,{name:'connected-phone-390',widthPx:390,connected:true});
+ await step(cp,'[data-finish]');
+ await cp.locator('.journey-chapters').waitFor();
+ const card=cp.locator('.journey-chapters article').last();
+ assert.ok((await card.innerText()).includes('Your community choices are saved.'));
+ assert.ok((await card.innerText()).includes('Review Live Well'));
  assert.deepEqual(errors,[]);
  console.log('LIVE_BROWSER_ACCEPTANCE '+JSON.stringify({passed,checks:['desktop standalone','390px Extend','375px Strengthen','connected Leave→Recover→Live'],artifacts}));
 }finally{await browser.close()}
