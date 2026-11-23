@@ -62,3 +62,27 @@
  .live-well .lw-narrative-beat{padding:10px 12px;margin:9px 0 12px}
  .live-well .lw-narrative-beat p{font-size:15px;line-height:1.35}
 }
+
+
+/* Viewport-aware story media: image supports the decision, never displaces it. */
+.live-well .lw-hero{gap:clamp(10px,2vw,22px)}
+.live-well .lw-hero img{height:clamp(125px,27svh,225px);max-height:225px;object-fit:contain;background:#e9eee8}
+.live-well .lw-journey-art img{height:clamp(75px,14svh,115px);aspect-ratio:auto;object-fit:contain;background:#e9eee8}
+.live-well .lw-story-frame img{max-height:min(24svh,185px);object-fit:contain}
+.live-well .lw-journey-art{margin:10px 0;gap:8px}
+.live-well .lw-history-grid>div{padding:9px}
+.live-well .lw-history-grid p{font-size:13px;line-height:1.32}
+.live-well .lw-narrative-beat{padding:11px 14px;margin:9px 0 12px}
+.live-well .lw-event-story{padding:13px;gap:12px;margin:10px 0}
+@media(max-width:700px){
+ .live-well main{padding:10px 12px 28px}
+ .live-well .lw-hero img{height:clamp(100px,19svh,145px);max-height:145px;object-fit:contain;object-position:center;margin-bottom:5px}
+ .live-well .lw-journey-art img{height:clamp(65px,11svh,90px);aspect-ratio:auto;object-fit:contain}
+ .live-well .lw-journey-art figcaption small{display:none}
+ .live-well .lw-history-grid{gap:5px}
+ .live-well .lw-history-grid>div{padding:7px}
+ .live-well .lw-history-grid p{font-size:12px}
+ .live-well .lw-story-frame img{max-height:min(18svh,140px);object-fit:contain}
+ .live-well .lw-options>article{padding:10px}
+ .live-well .lw-pictogram{width:46px;height:46px;padding:9px}
+}
