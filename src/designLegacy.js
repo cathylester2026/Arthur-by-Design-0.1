@@ -78,3 +78,63 @@ export function liveDesignReadiness(passport,id){
   reason:rule.prior?(carry.state==='foundation'?'Earlier usable clinical information can reduce repeated work, but does not establish this service.':'Current clinical information needs to be checked or reconstructed; the service must independently accept Arthur.'):
    'This design does not require an earlier investment, but its real-world operating conditions must still be established.'});
 }
+
+/** Player-facing causal transition. Every claim is scoped to facts from the saved run. */
+export function leaveConsequences(handoff){
+ const f=handoff.facts,plan=f.verifiedTransitionPlan.state;
+ const established=plan==='established';
+ return frozen({
+  title:established?'Arthur brings a checked plan home.':'Arthur must check his plan again.',
+  enables:established?'Receiving care can use the verified discharge reference if it is still current and accepted.':'Arthur can seek care, but support relying on changed instructions needs a qualified check.',
+  needs:established?'A receiving care team must confirm the plan remains current and usable.':'Plan confirmation remains unfinished; purchasing recovery guidance cannot complete it.',
+  difference:established?'The next chapter can start from verified information rather than assuming it must be recreated.':'A recovery response may need verification or fresh qualified assessment before using the plan.',
+  budget:'No hospital Capital or Change transfers to the home chapter.'
+ });
+}
+export function recoveryConsequences(run){
+ if(!run?.result)throw Error('A completed recovery outcome is required.');
+ const result=run.result,original=run.handoff?.facts?.verifiedTransitionPlan?.state;
+ const reused=result.inheritance?.priorContextUsable===true;
+ const repaired=result.inheritance?.recoveryReconciliationUsed===true;
+ const response=result.response||run.response;
+ const charge=repaired&&response==='adapt'?{capital:0,change:1}:null;
+ const used=(result.path?.designIds||[]).filter(id=>(run.investments||[]).some(i=>i.designId===id));
+ let title,enables,needs;
+ if(repaired){
+  title='Recovery made new information usable.';
+  enables='A qualified reconciliation established context for this recovery event. Arthur can carry that evidence into a later accepted clinical handoff.';
+  needs='The original discharge gap still occurred. Live Well must recheck currentness and service acceptance.';
+ }else if(reused){
+  title='Arthur used an earlier clinical foundation.';
+  enables='The current recovery pathway used verified prior clinical context without a new reconciliation for this event.';
+  needs='A new receiving service must still accept the information. This does not create ongoing care coverage.';
+ }else{
+  title='No reusable clinical foundation was established here.';
+  enables=result.outcome==='EXPOSED'?'The recovery event did not establish every required next step.':'Arthur may still have an appropriate next step or a usable nonclinical design.';
+  needs='Clinical context must be checked independently if a later qualified service requires it.';
+ }
+ const effective=result.outcome==='EXPOSED'?'An essential step remained unestablished.':used.length?'Used recovery investment'+(used.length>1?'s ':' ')+used.join(', ')+' contributed to this event.':'The selected recovery investments were not credited as used in the chosen response.';
+ return frozen({title,enables,needs,actual:effective,used,repaired,reused,originalPlanState:original||'unknown',
+  repairEffort:charge?'The Adapt response spent 1 Recovery Change to enable the reconciliation pathway.':'No new cross-chapter resource charge is inferred.',
+  carryToLive:repaired?'Newly reconciled clinical context may reduce later repeated work if accepted.':reused?'Verified context may reduce repeated work for a new accepted qualified receiver.':'No clinical handoff benefit is automatically granted.',
+  budget:'Unspent Recovery Capital and Change do not carry into Live Well.'});
+}
+export function liveConsequences(passport,result){
+ if(!result)throw Error('A completed Live Well result is required.');
+ const legacy=result.designLegacy;
+ const purchased=result.investments.map(i=>i.designId),used=result.route?.designId;
+ const basedOnRecovery=!!passport;
+ const origin=passport?.established?.contextReconciledInRecovery===true?'reconciled':
+   passport?.established?.priorClinicalContextUsable===true?'reused':'none';
+ let why;
+ if(legacy?.reduction){
+  why=origin==='reconciled'?'Recovery had to reconcile clinical information before Arthur could reuse it. This event avoided one unit of repeated handoff effort.':'The earlier usable care information was accepted here and avoided one unit of repeated handoff effort.';
+ }else if(legacy?.status==='requires-verification'){
+  why='An earlier record did not demonstrate current, accepted clinical information for this event. No handoff-effort reduction was awarded.';
+ }else why='The earlier design history did not materially change this community response.';
+ const investedButUnused=purchased.filter(id=>id!==used);
+ return frozen({title:result.metrics.participation?'Arthur found a workable way to take part.':result.metrics.safetyEstablished?'Arthur did not complete this outing.':'Arthur still needs a safe response.',
+  why,origin,used:used||null,unused:investedButUnused,burdenReduction:legacy?.reduction||0,
+  needs:result.metrics.safetyEstablished?'This event does not establish ongoing future service or infrastructure availability.':'An accepted qualified response is still required before claiming safe participation.',
+  independent:!basedOnRecovery?'This standalone run does not claim earlier decisions.':'Prior hospital investments do not automatically create community routes, staffing or care capacity.'});
+}
