@@ -4,3 +4,46 @@
 .join-link{font-size:10px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px}.join-link:hover{color:var(--accent)}@media(max-width:640px){.landing-experience header{flex-wrap:wrap}.join-link{font-size:10px}}
 
 .chapter-entry-note{margin:18px 0 3px;padding:15px 18px;background:#e8eee7;border-left:3px solid #a6553a;font-size:13px;line-height:1.6;color:#263b35}.chapter-entry-note b{font-weight:700}@media(max-width:640px){.chapter-entry-note{padding:13px 14px;font-size:12px}}
+
+
+/* Compact above-the-fold front door; retain Arthur's original image without distortion. */
+.landing-experience .opening{padding:22px 0 20px;gap:clamp(20px,4vw,58px)}
+.landing-experience .opening h1{font-size:clamp(48px,6vw,78px);line-height:1.02;margin-bottom:12px;letter-spacing:-.045em}
+.landing-experience .kicker{margin-bottom:8px}
+.landing-experience .opening .thesis{font-size:clamp(16px,1.45vw,20px);margin-bottom:7px}
+.landing-experience .opening .chapter{margin-top:13px}
+.landing-experience .opening figure{max-height:min(38svh,310px);align-self:center}
+.landing-experience .opening img{height:min(34svh,275px);aspect-ratio:auto;object-fit:contain;object-position:center;background:transparent}
+.landing-experience .opening figcaption{margin-top:5px}
+.landing-experience .landing-quickplay{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:15px 0 6px}
+.landing-experience .play-solo-primary{display:inline-flex;align-items:center;justify-content:space-between;gap:16px;border-radius:8px;padding:12px 17px;min-height:44px;background:#263b35;color:#fff;font-weight:700;font-size:12px;letter-spacing:.03em;text-decoration:none}
+.landing-experience .landing-quickplay>span{font-size:11px;color:var(--muted)}
+.landing-experience .section-label{padding-bottom:6px}
+.landing-experience .entry-row{padding:11px 0;gap:12px}
+.landing-experience .entry-row h2{font-size:clamp(19px,2vw,26px)}
+.landing-experience .entry-row p{line-height:1.38}
+@media(max-width:640px){
+ .landing-experience .page{padding:0 17px}
+ .landing-experience header{padding:12px 0}
+ .landing-experience .opening{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:9px;padding:14px 0 13px;align-items:start}
+ .landing-experience .opening h1{font-size:clamp(35px,9vw,47px);letter-spacing:-.04em;margin:0 0 8px}
+ .landing-experience .opening .kicker{font-size:7px;letter-spacing:.07em;margin-bottom:7px}
+ .landing-experience .opening .thesis{font-size:13px;line-height:1.32;margin:0 0 7px}
+ .landing-experience .opening .intro{font-size:11px;line-height:1.3}
+ .landing-experience .opening figure{margin:0;max-height:none}
+ .landing-experience .opening img{height:135px;width:100%;object-fit:cover;object-position:48% 18%;border-radius:7px}
+ .landing-experience .opening figcaption{display:none}
+ .landing-experience .opening .chapter{margin-top:8px;font-size:6px;gap:5px}
+ .landing-experience .landing-quickplay{margin:9px 0 0;gap:5px}
+ .landing-experience .play-solo-primary{font-size:10px;padding:8px 10px;min-height:44px;width:100%}
+ .landing-experience .landing-quickplay>span{font-size:9px}
+ .landing-experience .entry-row{padding:10px 0;gap:6px}
+ .landing-experience .entry-row h2{font-size:19px}
+ .landing-experience .entry-row p{font-size:10px;line-height:1.25}
+ .landing-experience .chapter-entry-note{font-size:11px;line-height:1.4}
+}
+@media(max-height:680px) and (min-width:641px){
+ .landing-experience .opening{padding:10px 0}
+ .landing-experience .opening img{height:min(29svh,205px)}
+ .landing-experience .opening figure{max-height:230px}
+}
