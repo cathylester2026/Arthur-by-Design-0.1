@@ -6,7 +6,7 @@ export function leaveLegacy(handoff){
  return frozen({
   chapter:'leave-well',runId:source.runId,
   remaining:null,
-  investments:source.investments.map(x=>({...x})),
+  investments:(source.investments||[]).map(x=>({...x})),
   established:[
    {id:'plan',name:'Checked transition plan',state:f.verifiedTransitionPlan.state,why:f.verifiedTransitionPlan.reason,now:'Can support receiving care when current and accepted.'},
    {id:'medication',name:'Portable medication information',state:f.portableMedicationContext.state,why:f.portableMedicationContext.reason,now:'Useful only within confirmed participating settings.'},
@@ -44,7 +44,7 @@ export function recoveryInvestmentReadiness(handoff,familyId){
  const checked=handoff.facts.verifiedTransitionPlan.state==='established';
  const relevant=familyId==='personalized'||familyId==='response';
  return frozen({state:relevant?(checked?'foundation':'needs-work'):'independent',need:item.need,reason:relevant?(checked?'A checked discharge plan exists; verify it remains usable here.':'The discharge plan is not confirmed by your earlier decisions; a current qualified check is needed.'):item.why,
-  canInvest:true,notYet:true});
+  canInvest:true});
 }
 const liveNeeds={
  mobility:{need:'Accessible physical route or accepted transport',type:'independent'},
