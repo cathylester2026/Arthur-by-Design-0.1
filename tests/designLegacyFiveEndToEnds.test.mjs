@@ -90,4 +90,12 @@ test('Five completed Leave Well -> journey map -> Recover Well -> journey map ->
  assert.equal(new Set(results.map(x=>x.RecoverWell.path)).size>=3,true);
  assert.ok(results.some(x=>x.LeaveWell.plan==='established')&&results.some(x=>x.LeaveWell.plan!=='established'));
  assert.ok(results.every(x=>x.LiveWell.legacy));
+ assert.match(results[0].LiveWell.why,/earlier usable care information/i);
+ assert.match(results[1].LiveWell.why,/had to reconcile clinical information/i);
+ assert.notEqual(results[0].LiveWell.why,results[1].LiveWell.why);
+ assert.equal(results[2].LiveWell.used,null,'The unverified community route must not credit the AI purchase');
+ assert.ok(results[2].LiveWell.unused.includes('1A'));
+ assert.equal(results[3].LiveWell.used,null,'Ordinary care must not credit purchased clinical network');
+ assert.ok(results.every(x=>x.RecoverWell.remaining.capital>=0&&x.RecoverWell.remaining.change>=0));
+
 });
