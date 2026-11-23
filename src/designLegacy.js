@@ -81,10 +81,12 @@ export function liveDesignReadiness(passport,id){
 
 /** Player-facing causal transition. Every claim is scoped to facts from the saved run. */
 export function leaveConsequences(handoff){
- const f=handoff.facts,plan=f.verifiedTransitionPlan.state;
+ const f=handoff.facts,source=handoff.source,plan=f.verifiedTransitionPlan.state;
  const established=plan==='established';
  return frozen({
   title:established?'Arthur brings a checked plan home.':'Arthur must check his plan again.',
+  overallOutcome:source.evaluation?.outcome||null,
+  context:established&&source.evaluation?.outcome!=='HOLDS'?'The plan was verified, even though other hospital needs prevented the overall discharge journey from holding.':null,
   enables:established?'Receiving care can use the verified discharge reference if it is still current and accepted.':'Arthur can seek care, but support relying on changed instructions needs a qualified check.',
   needs:established?'A receiving care team must confirm the plan remains current and usable.':'Plan confirmation remains unfinished; purchasing recovery guidance cannot complete it.',
   difference:established?'The next chapter can start from verified information rather than assuming it must be recreated.':'A recovery response may need verification or fresh qualified assessment before using the plan.',
@@ -115,7 +117,7 @@ export function recoveryConsequences(run){
  }
  const effective=result.outcome==='EXPOSED'?'An essential step remained unestablished.':used.length?'Used recovery investment'+(used.length>1?'s ':' ')+used.join(', ')+' contributed to this event.':'The selected recovery investments were not credited as used in the chosen response.';
  return frozen({title,enables,needs,actual:effective,used,repaired,reused,originalPlanState:original||'unknown',
-  repairEffort:charge?'The Adapt response spent 1 Recovery Change to enable the reconciliation pathway.':'No new cross-chapter resource charge is inferred.',
+  repairEffort:charge?'The Adapt response cost 1 Recovery Change; the chosen response included qualified reconciliation.':'No new cross-chapter resource charge is inferred.',
   carryToLive:repaired?'Newly reconciled clinical context may reduce later repeated work if accepted.':reused?'Verified context may reduce repeated work for a new accepted qualified receiver.':'No clinical handoff benefit is automatically granted.',
   budget:'Unspent Recovery Capital and Change do not carry into Live Well.'});
 }
