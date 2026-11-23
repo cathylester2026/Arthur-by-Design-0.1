@@ -45,3 +45,14 @@
 .recovery-investment-status-grid strong{display:block;font-size:12px;letter-spacing:.045em}
 .recovery-investment-status-grid p{font-size:14px;margin:8px 0 0}
 @media(max-width:700px){.recovery-investment-status{padding:14px}.recovery-investment-status-grid{grid-template-columns:1fr}}
+
+
+/* Limit story artwork on common phone screens without stretching or face-cropping Arthur. */
+.welcome img{max-height:min(30svh,230px);object-fit:contain;background:#e9eee8}
+.scene{height:clamp(115px,23svh,190px);object-fit:contain;background:#e9eee8}
+.recovery-close-hero img,.arthur-moment img{max-height:min(27svh,225px);object-fit:contain}
+@media(max-width:700px){
+ .welcome img{height:clamp(95px,19svh,145px);max-height:145px;object-fit:contain}
+ .scene{height:clamp(100px,19svh,145px)}
+ .recovery-close-hero img,.arthur-moment img{max-height:150px;object-fit:contain}
+}
