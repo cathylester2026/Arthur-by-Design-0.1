@@ -23,6 +23,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  monitor(page,name);
  if(!connected)await page.goto(base+'?mode=live-standalone');
  await page.locator('[data-live-phase="intro"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('The neighbors are getting together'));
+ assert.equal(await page.locator('.lw-narrative-beat').count(),0,'The experience must not be revealed at the start');
  await width(page,name+' intro');
  await page.screenshot({path:artifacts+'/'+name+'-intro.png',fullPage:true});
  await step(page,'[data-next]');
@@ -47,6 +49,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
   await step(page,'[data-design="3C"]');
  }else await step(page,'[data-strategy="strengthen"]');
  await page.locator('[data-live-phase="event"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('ARTHUR’S MOMENT'));
+ assert.ok(!(await page.locator('main').innerText()).includes('WHAT ARTHUR EXPERIENCED'));
  if(name==='desktop-standalone'){
   await page.locator('.lw-view').click();
   await page.locator('.lw-facilitator summary').waitFor();
@@ -64,6 +68,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await page.screenshot({path:artifacts+'/'+name+'-responses.png',fullPage:true});
  await step(page,'[data-response="use"]');
  await page.locator('[data-live-phase="outcome"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('WHAT ARTHUR EXPERIENCED'));
+ assert.ok((await page.locator('main').innerText()).includes('DESIGN INSIGHT'));
  await width(page,name+' outcome');
  await page.screenshot({path:artifacts+'/'+name+'-outcome.png',fullPage:true});
  await step(page,'[data-next]');
