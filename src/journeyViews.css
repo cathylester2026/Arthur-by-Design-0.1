@@ -33,3 +33,22 @@
  .connected-journey .journey-intro img{max-height:125px;object-fit:contain}
  .connected-journey .chapter-transition-summary{padding:12px}
 }
+
+/* Design Legacy: causality rather than a purchase receipt. */
+.connected-journey .design-legacy{margin:22px 0;padding:19px;border:1px solid #c5d7cc;background:#fdfefb;border-radius:12px}
+.connected-journey .design-legacy>small{font-weight:800;color:#486459}
+.connected-journey .design-legacy h2{font-size:clamp(23px,3vw,31px);margin:8px 0}
+.connected-journey .design-legacy details{margin:12px 0;border-bottom:1px solid #d1dfd7;padding:4px 0 10px}
+.connected-journey .design-legacy-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:9px 0}
+.connected-journey .design-legacy-card{padding:12px;border:1px solid #d7dfd7;border-left:4px solid #b7a574;background:#fff;border-radius:8px}
+.connected-journey .design-legacy-card.established{border-left-color:#367260}
+.connected-journey .design-legacy-card.open{border-left-color:#c08a43}
+.connected-journey .design-legacy-card h3{margin:4px 0;font-size:16px}
+.connected-journey .design-legacy-card small,.connected-journey .design-legacy-opportunities small{font-size:10px;font-weight:850;letter-spacing:.065em}
+.connected-journey .design-legacy-card p{font-size:13px;line-height:1.4;margin:6px 0}
+.connected-journey .design-legacy-opportunities{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.connected-journey .design-legacy-opportunities article{background:#edf3ec;border-radius:8px;padding:11px}
+.connected-journey .design-legacy-opportunities h4{font-size:16px;text-transform:capitalize;margin:4px 0}
+.connected-journey .design-legacy-opportunities p{font-size:12px;line-height:1.4}
+.connected-journey .design-legacy-budget{background:#eaf3eb;padding:11px;border-radius:8px;font-size:13px}
+@media(max-width:700px){.connected-journey .design-legacy{padding:12px}.connected-journey .design-legacy-grid{grid-template-columns:1fr}.connected-journey .design-legacy-opportunities{grid-template-columns:repeat(2,minmax(0,1fr))}.connected-journey .design-legacy-card p{font-size:12px}}
