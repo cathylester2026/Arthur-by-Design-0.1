@@ -147,6 +147,14 @@ try{
  await step(cp,'[data-final-next]');
  await step(cp,'[data-finish]');
  await cp.locator('.journey-chapters').waitFor();
+ assert.equal(await cp.locator('.legacy-cause-step').count(),3,'Final journey map must tell the consequences of all three chapters');
+ assert.ok((await cp.locator('.legacy-cause-bridge').innerText()).includes('What changed for Arthur?'));
+ assert.ok((await cp.locator('.legacy-cause-bridge').innerText()).includes('LEAVE WELL'));
+ assert.ok((await cp.locator('.legacy-cause-bridge').innerText()).includes('RECOVER WELL'));
+ assert.ok((await cp.locator('.legacy-cause-bridge').innerText()).includes('LIVE WELL'));
+ await width(cp,'connected final consequence map');
+ await cp.screenshot({path:artifacts+'/connected-consequence-map-390.png',fullPage:true});
+
  const card=cp.locator('.journey-chapters article').last();
  assert.ok((await card.innerText()).includes('Your community choices are saved.'));
  assert.ok((await card.innerText()).includes('Review Live Well'));
