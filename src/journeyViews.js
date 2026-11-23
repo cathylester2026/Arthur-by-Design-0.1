@@ -31,7 +31,7 @@ function bridgeConsequences(entry,recovery,liveRun){
  const v=liveRun?.result?liveConsequences(p,liveRun.result):null;
  const item=(number,title,established,remaining)=>'<article class="legacy-cause-step"><small>0'+number+' · '+e(title)+'</small><h3>'+e(established)+'</h3><p>'+e(remaining)+'</p></article>';
  return '<section class="legacy-cause-bridge" aria-label="How your decisions changed Arthur’s journey"><small>THE CONSEQUENCES OF YOUR CHOICES</small><h2>What changed for Arthur?</h2><div class="legacy-cause-steps">'+
- item(1,'LEAVE WELL',l.title,l.difference)+
+ item(1,'LEAVE WELL',l.title,(l.context?l.context+' ':'')+l.difference)+
  (r?item(2,'RECOVER WELL',r.title,r.carryToLive+' '+r.repairEffort):'')+
  (v?item(3,'LIVE WELL',v.title,v.why):'')+'</div><p class="legacy-bridge-note">Funding creates a possibility. Verified conditions and real services determine whether Arthur can use it. Each chapter has a separate budget.</p></section>';
 }
