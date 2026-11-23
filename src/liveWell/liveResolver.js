@@ -67,7 +67,7 @@ export function validateRecoveryPassport(passport){
 }
 export function makeLiveStart({recoveryPassport=null}={}){
  const checked=validateRecoveryPassport(recoveryPassport);
- return {schema:'live.start.v1',source:checked.kind,linkedRecovery:checked.passport,resources:{capital:CAPITAL,change:CHANGE},note:checked.kind==='standalone'?
+ return {schema:'live.start.v1',source:checked.kind,linkedRecovery:checked.passport,...(checked.kind==='connected'?{legacyPolicy:'verified-handoff-v1'}:{}),resources:{capital:CAPITAL,change:CHANGE},note:checked.kind==='standalone'?
   'Authored standalone community starting condition; no earlier hospital or recovery decisions are claimed.':
   'Verified prior chapter evidence carries forward. Community-service availability, ongoing monitoring, transport and clinical acceptance must be established separately.'};
 }
@@ -194,7 +194,8 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  // Evidence-based Design Legacy: an accepted qualified assessment can use verified
  // prior clinical context to avoid one unit of repeated information work.
  // This cannot alter clinical safety, participation, physical access or service capacity.
- const upstream=start.source==='connected'?start.linkedRecovery:null;
+ const legacyEnabled=start.legacyPolicy==='verified-handoff-v1'&&start.source==='connected';
+ const upstream=legacyEnabled?start.linkedRecovery:null;
  const verifiedPrior=!!upstream&&(upstream.established.priorClinicalContextUsable===true||upstream.established.contextReconciledInRecovery===true);
  const usingQualifiedPath=scenarioId==='S2'&&selected.designId!==null&&
   ['pod-assessment','network-assessment','mobile-assessment','supported-pacing-and-assessment','context-supported-assessment','remote-participation-after-care','coordinated-assessment','supported-activity-return','coordinated-qualified-advice'].includes(selected.kind);
@@ -208,7 +209,7 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  if(continuityApplied)selected={...selected,burden:selected.burden-1};
   const metrics=classify({scenarioId,path:selected,options:{response},facts});
  return {schema:LIVE_WELL_VERSION,scenarioId,response,strategy,investments:cloned(investments),startSource:start.source,
-  designLegacy,priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
+  ...(legacyEnabled?{designLegacy}:{}),priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
   spent:{capital:CAPITAL-capital,change:CHANGE-change},remaining:{capital,change},metrics,
   route:{id:selected.kind,designId:selected.designId,reason:selected.reason,contributedStrength:!!realizedStrength},
   considered:usable.map(x=>({id:x.designId,path:x.kind,participation:x.participation})),
