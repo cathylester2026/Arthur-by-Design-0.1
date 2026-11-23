@@ -23,6 +23,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  monitor(page,name);
  if(!connected)await page.goto(base+'?mode=live-standalone');
  await page.locator('[data-live-phase="intro"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('The neighbors are getting together'));
+ assert.equal(await page.locator('.lw-narrative-beat').count(),0,'The experience must not be revealed at the start');
  await width(page,name+' intro');
  await page.screenshot({path:artifacts+'/'+name+'-intro.png',fullPage:true});
  await step(page,'[data-next]');
@@ -47,6 +49,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
   await step(page,'[data-design="3C"]');
  }else await step(page,'[data-strategy="strengthen"]');
  await page.locator('[data-live-phase="event"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('ARTHUR’S MOMENT'));
+ assert.ok(!(await page.locator('main').innerText()).includes('WHAT ARTHUR EXPERIENCED'));
  if(name==='desktop-standalone'){
   await page.locator('.lw-view').click();
   await page.locator('.lw-facilitator summary').waitFor();
@@ -64,6 +68,8 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await page.screenshot({path:artifacts+'/'+name+'-responses.png',fullPage:true});
  await step(page,'[data-response="use"]');
  await page.locator('[data-live-phase="outcome"]').waitFor();
+ assert.ok((await page.locator('main').innerText()).includes('WHAT ARTHUR EXPERIENCED'));
+ assert.ok((await page.locator('main').innerText()).includes('DESIGN INSIGHT'));
  await width(page,name+' outcome');
  await page.screenshot({path:artifacts+'/'+name+'-outcome.png',fullPage:true});
  await step(page,'[data-next]');
@@ -86,6 +92,34 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  passed++;
 }
 try{
+ const landingContext=await browser.newContext({viewport:{width:390,height:844}});
+ const landingPage=await landingContext.newPage();
+ monitor(landingPage,'front-door');
+ await landingPage.goto(base);
+ await landingPage.locator('.landing-experience').waitFor();
+ const leaveSolo=landingPage.locator('a.play-solo-primary');
+ assert.ok((await leaveSolo.innerText()).includes('PLAY LEAVE WELL SOLO'));
+ assert.ok((await leaveSolo.getAttribute('href')).includes('mode=solo'));
+ await width(landingPage,'landing 390px');
+ const landingArt=await landingPage.locator('.opening img').boundingBox();
+ assert.ok(landingArt.height<=140,'Landing image must fit phone viewport');
+ await landingPage.screenshot({path:artifacts+'/landing-phone-compact.png',fullPage:true});
+ await leaveSolo.click();
+ await landingPage.locator('main').waitFor();
+ assert.ok(!(await landingPage.locator('main').innerText()).includes('workshop room code'),'Leave Well solo must not require workshop code');
+ await landingContext.close();
+ const reportingContext=await browser.newContext({viewport:{width:390,height:844}});
+ const reportingPage=await reportingContext.newPage();
+ monitor(reportingPage,'reporting');
+ await reportingPage.goto(base);
+ await reportingPage.locator('a[href*="mode=reporting"]').waitFor();
+ await reportingPage.locator('a[href*="mode=reporting"]').click();
+ await reportingPage.locator('.reporting-dashboard').waitFor();
+ assert.equal(await reportingPage.locator('[data-export]').count(),0,'No private export before authorization');
+ assert.ok((await reportingPage.locator('main').innerText()).includes('Reporting & exports'));
+ await width(reportingPage,'reporting 390px');
+ await reportingPage.screenshot({path:artifacts+'/reporting-phone-locked.png',fullPage:true});
+ await reportingContext.close();
  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
  const page=await desktop.newPage();
  await play(page,{name:'desktop-standalone',widthPx:1440});

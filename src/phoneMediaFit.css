@@ -13,3 +13,12 @@ main.phone .phone-budget,main.phone .story-resources{flex-wrap:wrap}
 main.phone button{min-height:44px}main.phone textarea,main.phone input,main.phone select{max-width:100%;min-width:0}
 main.phone :focus-visible{outline:3px solid #b36a45;outline-offset:3px}
 @media(max-height:620px){main.phone>img,main.phone .phone-hero-locked{height:140px!important}main.phone article>img,main.phone article img{height:126px!important}main.phone.phone-story .story-media img,main.phone.phone-story .story-media video{height:148px!important}main.phone h1{font-size:27px!important}}
+
+
+/* Independent Leave Well: generous artwork, but not a full-screen image. */
+main.phone.studio-solo>img{height:clamp(110px,22svh,170px)!important;max-height:170px!important;object-fit:contain!important}
+main.phone.studio-solo article>img{height:clamp(95px,18svh,138px)!important;max-height:138px!important;object-fit:contain!important}
+@media(max-height:680px){
+ main.phone.studio-solo>img{height:120px!important}
+ main.phone.studio-solo article>img{height:108px!important}
+}
