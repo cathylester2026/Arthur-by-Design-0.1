@@ -40,3 +40,12 @@ test('Earlier confirmed context reduces effort, not service acceptance, clinical
  assert.equal(liveInvestmentReadiness(passport(false),'care').state,'needs-work');
  assert.equal(liveInvestmentReadiness(passport(true),'mobility').state,'independent');
 });
+
+test('Existing saved Live Well starts replay without the new legacy outcome field',()=>{
+ const old=makeLiveStart({recoveryPassport:passport(true)});
+ delete old.legacyPolicy;
+ const result=request(old);
+ assert.equal(Object.hasOwn(result,'designLegacy'),false);
+ const fresh=makeLiveStart({recoveryPassport:passport(true)});
+ assert.equal(request(fresh).designLegacy.status,'enabled');
+});
