@@ -6,7 +6,7 @@ import {createRecoveryRun,applyRecoveryAction,serializeRun,restoreRun,responseOp
 import {recoveryExitPassport} from '../src/recoverWell/recoveryExitPassport.js';
 import {createLiveRun,applyLiveAction,serializeLiveRun,restoreLiveRun} from '../src/liveWell/liveRun.js';
 import {makeLiveStart,DESIGNS} from '../src/liveWell/liveResolver.js';
-import {leaveLegacy,recoveryLegacy,liveDesignReadiness} from '../src/designLegacy.js';
+import {leaveLegacy,recoveryLegacy,liveDesignReadiness,leaveConsequences,recoveryConsequences,liveConsequences} from '../src/designLegacy.js';
 
 const cases=[
  {name:'01-strong-verified-transition',lw:[['ambient','shared'],['meds','pharmacy']],rw:'4A',rwScenario:'S2',rwResponse:'use',live:'3B',liveScenario:'S2',liveResponse:'use', intent:'Verified information should help only when a new qualified receiver can use it.'},
@@ -27,6 +27,9 @@ function play(c,n){
  const entry=connectLeaveWell({runId:prefix+'-leave',team,completed:true,completedAt:'2026-11-23T17:00:00Z',experienceMode:'independent',sourceReturn:{mode:'studio-solo',preview:'1'}},{storage,uuid:()=>prefix+'-journey'});
  assert.equal(getJourney(entry.id,{storage}).id,entry.id);
  const leave=leaveLegacy(entry.handoff);
+ const leaveImpact=leaveConsequences(entry.handoff);
+ assert.ok(leaveImpact.title&&leaveImpact.difference);
+
  const recoveryRunId=prefix+'-recover';
  let r=createRecoveryRun({handoff:entry.handoff,runId:recoveryRunId,policy:'aimedx',scenarioId:c.rwScenario});
  let action=0;
@@ -45,6 +48,14 @@ function play(c,n){
  assert.equal(recoveryProgress(entry,{storage}).run.result.outcome,r.result.outcome);
  assert.equal(restoreRun(serializeRun(r)).phase,'journey');
  const recover=recoveryLegacy(r),passport=recoveryExitPassport(r);
+ const recoveryImpact=recoveryConsequences(r);
+ assert.ok(recoveryImpact.title&&recoveryImpact.needs&&recoveryImpact.carryToLive);
+ assert.equal(recoveryImpact.originalPlanState,entry.handoff.facts.verifiedTransitionPlan.state);
+ if(passport.established.contextReconciledInRecovery){
+   assert.equal(recoveryImpact.repaired,true);
+   assert.ok(recoveryImpact.needs.includes('original discharge gap')||recoveryImpact.needs.includes('discharge'));
+ }
+
  const start=makeLiveStart({recoveryPassport:passport});
  assert.equal(start.resources.capital,7);
  assert.equal(start.resources.change,6);
@@ -58,11 +69,17 @@ function play(c,n){
  assert.equal(l.result.designLegacy.recoveryRunId,recoveryRunId);
  assert.equal(l.result.designLegacy.leaveWellRunId,prefix+'-leave');
  const decision=liveDesignReadiness(passport,c.live);
+ const liveImpact=liveConsequences(passport,l.result);
+ assert.equal(liveImpact.burdenReduction,l.result.designLegacy.reduction);
+ assert.ok(liveImpact.why&&liveImpact.needs);
+ if(l.result.route.designId===null)assert.equal(liveImpact.used,null);
+ if(liveImpact.used)assert.ok(l.investments.some(x=>x.designId===liveImpact.used));
+
  const summary={
   name:c.name,intent:c.intent,
   LeaveWell:{outcome:team.game_state.evaluation.outcome,investments:team.investments.map(x=>x.capabilityId+':'+x.commitmentId),plan:entry.handoff.facts.verifiedTransitionPlan.state,established:leave.established.map(x=>x.id+':'+x.state)},
-  RecoverWell:{outcome:r.result.outcome,path:r.result.path.id,investments:r.investments.map(x=>x.designId),used:r.result.path.designIds,remaining:{capital:r.capital,change:r.change},usableClinicalContext:passport.established.priorClinicalContextUsable,reconciled:passport.established.contextReconciledInRecovery,gaps:passport.dependencies.unresolved},
-  LiveWell:{outcome:l.result.metrics.outcome,future:l.result.metrics.future,participation:l.result.metrics.participation,route:l.result.route.id,design:c.live,readiness:decision.state,legacy:l.result.designLegacy.status,burdenReduction:l.result.designLegacy.reduction,remaining:l.result.remaining}
+  RecoverWell:{impact:recoveryImpact.title,repairEffort:recoveryImpact.repairEffort,outcome:r.result.outcome,path:r.result.path.id,investments:r.investments.map(x=>x.designId),used:r.result.path.designIds,remaining:{capital:r.capital,change:r.change},usableClinicalContext:passport.established.priorClinicalContextUsable,reconciled:passport.established.contextReconciledInRecovery,gaps:passport.dependencies.unresolved},
+  LiveWell:{impact:liveImpact.title,why:liveImpact.why,used:liveImpact.used,unused:liveImpact.unused,outcome:l.result.metrics.outcome,future:l.result.metrics.future,participation:l.result.metrics.participation,route:l.result.route.id,design:c.live,readiness:decision.state,legacy:l.result.designLegacy.status,burdenReduction:l.result.designLegacy.reduction,remaining:l.result.remaining}
  };
  console.log('DESIGN_LEGACY_FIVE_END_TO_END '+JSON.stringify(summary));
  return summary;
