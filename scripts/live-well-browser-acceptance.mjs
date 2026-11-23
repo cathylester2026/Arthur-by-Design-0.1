@@ -92,6 +92,22 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  passed++;
 }
 try{
+ const landingContext=await browser.newContext({viewport:{width:390,height:844}});
+ const landingPage=await landingContext.newPage();
+ monitor(landingPage,'front-door');
+ await landingPage.goto(base);
+ await landingPage.locator('.landing-experience').waitFor();
+ const leaveSolo=landingPage.locator('a.play-solo-primary');
+ assert.ok((await leaveSolo.innerText()).includes('PLAY LEAVE WELL SOLO'));
+ assert.ok((await leaveSolo.getAttribute('href')).includes('mode=solo'));
+ await width(landingPage,'landing 390px');
+ const landingArt=await landingPage.locator('.opening img').boundingBox();
+ assert.ok(landingArt.height<=140,'Landing image must fit phone viewport');
+ await landingPage.screenshot({path:artifacts+'/landing-phone-compact.png',fullPage:true});
+ await leaveSolo.click();
+ await landingPage.locator('main').waitFor();
+ assert.ok(!(await landingPage.locator('main').innerText()).includes('workshop room code'),'Leave Well solo must not require workshop code');
+ await landingContext.close();
  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
  const page=await desktop.newPage();
  await play(page,{name:'desktop-standalone',widthPx:1440});
