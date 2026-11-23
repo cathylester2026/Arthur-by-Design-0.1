@@ -49,7 +49,7 @@ export function recoveryInvestmentReadiness(handoff,familyId){
 const liveNeeds={
  mobility:{need:'Accessible physical route or accepted transport',type:'independent'},
  care:{need:'Qualified receiving service and current clinical information',type:'clinical'},
- wellness:{need:'Approved goals and current information for health-related designs',type:'clinical'},
+ wellness:{need:'Approved goals and current information for health-related designs',type:'mixed'},
  services:{need:'Confirmed venue and accountable community support',type:'independent'}
 };
 export function liveInvestmentReadiness(passport,familyId){
@@ -63,3 +63,18 @@ export function liveInvestmentReadiness(passport,familyId){
  });
 }
 export const budgetPolicy=frozen({capital:7,change:6,carryForward:false,why:'Capital and Change are chapter-specific allocations. Only verified capabilities and unresolved dependencies cross chapters.'});
+
+const designRules={
+ '1A':{name:'Verified route data',prior:false},'1B':{name:'Real accessible paths and detours',prior:false},'1C':{name:'Accepted accessible transport',prior:false},
+ '2A':{name:'Operational pod and accepted qualified clinician',prior:true},'2B':{name:'Accepted qualified local care network',prior:true},'2C':{name:'Staffed mobile assessment acceptance',prior:true},
+ '3A':{name:'Approved activity goals and safe pacing limits',prior:false},'3B':{name:'Current usable clinical information and qualified receiving service',prior:true},'3C':{name:'An accepted accessible way to join the activity',prior:false},
+ '4A':{name:'Accessible staffed participation and rest arrangements',prior:false},'4B':{name:'Confirmed accessible community venue',prior:false},'4C':{name:'An accountable coordinator and actually accepted services',prior:false}
+};
+export function liveDesignReadiness(passport,id){
+ const rule=designRules[id];
+ if(!rule)throw Error('Unknown community design.');
+ const carry=liveInvestmentReadiness(passport,rule.prior?'care':'services');
+ return frozen({need:rule.name,state:rule.prior?carry.state:'independent',canInvest:true,
+  reason:rule.prior?(carry.state==='foundation'?'Earlier usable clinical information can reduce repeated work, but does not establish this service.':'Current clinical information needs to be checked or reconstructed; the service must independently accept Arthur.'):
+   'This design does not require an earlier investment, but its real-world operating conditions must still be established.'});
+}
