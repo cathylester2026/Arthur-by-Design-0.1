@@ -50,3 +50,15 @@
  .live-well .lw-futures article{display:grid;grid-template-columns:54px 1fr;column-gap:10px;align-items:start}
  .live-well .lw-futures article .lw-pictogram{width:48px;height:48px;padding:10px;grid-row:span 3}
 }
+
+/* Narrative beats: one thought per screen, reveal hidden until the outcome phase. */
+.live-well .lw-invitation{margin:14px 0;padding:12px 17px;border-left:4px solid #bc945c;background:#fff8ec;border-radius:0 10px 10px 0;color:#35463f;font-size:clamp(16px,2vw,21px);font-weight:650;line-height:1.42}
+.live-well .lw-narrative-beat{padding:15px 18px;margin:12px 0 17px;border-left:5px solid #b68b53;border-radius:9px;background:#fcf5e9}
+.live-well .lw-narrative-beat small{color:#795d39;font-weight:800;letter-spacing:.075em;font-size:11px}
+.live-well .lw-narrative-beat p{font-size:clamp(16px,1.8vw,19px);line-height:1.4;margin:6px 0 0}
+.live-well .lw-scenario-details{margin:8px 0 16px;padding:5px 12px;border:1px solid #d8e2d9;background:#fff;border-radius:9px}
+@media(max-width:700px){
+ .live-well .lw-invitation{font-size:16px;padding:10px 12px;margin:10px 0}
+ .live-well .lw-narrative-beat{padding:10px 12px;margin:9px 0 12px}
+ .live-well .lw-narrative-beat p{font-size:15px;line-height:1.35}
+}
