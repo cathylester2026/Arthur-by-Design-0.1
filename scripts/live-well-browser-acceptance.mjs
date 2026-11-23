@@ -86,6 +86,27 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  passed++;
 }
 try{
+ const fullContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ const fullPage=await fullContext.newPage();monitor(fullPage,'full-journey-starter');
+ await fullPage.goto(base);
+ await fullPage.locator('a[href*="mode=connected-try"]').waitFor();
+ assert.ok((await fullPage.locator('main').innerText()).includes('Play the Full Journey'));
+ await fullPage.locator('a[href*="mode=connected-try"]').first().click();
+ await fullPage.locator('#begin-connected-preview').waitFor();
+ assert.equal(await fullPage.locator('.journey-start-card').count(),3);
+ await width(fullPage,'full journey starter');
+ await fullPage.screenshot({path:artifacts+'/full-journey-start-390.png',fullPage:true});
+ await fullPage.locator('#begin-connected-preview').click();
+ await fullPage.waitForURL(/mode=studio-solo/);
+ assert.ok(new URL(fullPage.url()).searchParams.get('room'),'A preview room is created automatically');
+ assert.equal(await fullPage.locator('#independent-room').count(),0,'No room code should be requested');
+ await fullPage.locator('#solo-register').waitFor();
+ await fullPage.locator('#solo-role').selectOption({index:1});
+ await fullPage.locator('#solo-register').click();
+ await fullPage.locator('main.studio-solo').waitFor();
+ assert.ok((await fullPage.locator('main.studio-solo').innerText()).includes('LEAVE WELL'));
+ await width(fullPage,'full journey Leave Well entrance');
+ await fullContext.close();
  const desktop=await browser.newContext({viewport:{width:1440,height:900}});
  const page=await desktop.newPage();
  await play(page,{name:'desktop-standalone',widthPx:1440});
