@@ -42,7 +42,7 @@ const pictograms={
 };
 const diagram=id=>'<svg class="lw-design-diagram" viewBox="0 0 260 190" role="img" aria-label="Conceptual illustration of '+esc(designs[id][0].toLowerCase())+'" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="260" height="190" rx="18" fill="#edf3ed"/>'+pictograms[id]+'</svg>';
 
-const asset=name=>(import.meta.env.BASE_URL||'./')+'assets/'+name;
+const asset=name=>(import.meta.env?.BASE_URL||'./')+'assets/'+name;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const row=(name,items)=>'<div class="lw-visual-steps" aria-label="'+esc(name)+'">'+items.map((x,i)=>'<div class="lw-visual-step"><span class="lw-visual-number">'+(i+1)+'</span><span>'+esc(x)+'</span></div>').join('<span class="lw-visual-connector" aria-hidden="true">→</span>')+'</div>';
 export function familyVisual(id){const x=scenes[id];if(!x)throw Error('Unknown family illustration');return '<figure class="lw-family-visual"><img src="'+asset(x.image)+'" alt="'+esc(x.alt)+'" loading="lazy"/><figcaption>'+esc(x.label)+'</figcaption></figure>';}
