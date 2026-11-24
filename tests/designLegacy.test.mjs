@@ -49,3 +49,31 @@ test('Existing saved Live Well starts replay without the new legacy outcome fiel
  const fresh=makeLiveStart({recoveryPassport:passport(true)});
  assert.equal(request(fresh).designLegacy.status,'enabled');
 });
+
+test('Second independently usable design earns a bounded fallback, not a fabricated service',()=>{
+ const start=makeLiveStart({recoveryPassport:passport(false)});
+ const two={start,scenarioId:'S1',strategy:'extend',investments:[{designId:'1A',strengthened:false},{designId:'1B',strengthened:false}],response:'use',
+  facts:{alternativeRouteVerified:true,currentRouteData:true,physicalWayfindingAvailable:true}};
+ const a=evaluateLiveWell(two);
+ const b=evaluateLiveWell({...two,start:{...start,legacyPolicy:'verified-handoff-v1'}});
+ assert.equal(a.designLegacy.fallbackUsed!==null,true);
+ assert.equal(a.metrics.participation,b.metrics.participation);
+ assert.equal(a.metrics.safetyEstablished,b.metrics.safetyEstablished);
+ assert.equal(a.metrics.burden,b.metrics.burden-1);
+ const blocked=evaluateLiveWell({...two,facts:{alternativeRouteVerified:false,currentRouteData:false,physicalWayfindingAvailable:false}});
+ assert.equal(blocked.designLegacy.fallbackUsed,null);
+ assert.notEqual(blocked.metrics.outcome,'HOLDS');
+});
+test('Usable prior context reduces repetition on existing ordinary qualified care without granting participation',()=>{
+ const start=makeLiveStart({recoveryPassport:passport(true)});
+ const input={start,investments:[{designId:'2B',strengthened:true}],strategy:'strengthen',scenarioId:'S2',response:'ordinary'};
+ const prior=evaluateLiveWell(input),noPrior=evaluateLiveWell({...input,start:makeLiveStart({recoveryPassport:passport(false)})});
+ assert.equal(prior.route.designId,null);
+ assert.equal(prior.metrics.outcome,'STRAINED');
+ assert.equal(prior.metrics.participation,false);
+ assert.equal(prior.designLegacy.reduction,1);
+ assert.equal(prior.metrics.burden,noPrior.metrics.burden-1);
+ const declined=evaluateLiveWell({...input,facts:{assessmentAccepted:false}});
+ assert.equal(declined.designLegacy.reduction,0);
+ assert.equal(declined.metrics.outcome,'EXPOSED');
+});
