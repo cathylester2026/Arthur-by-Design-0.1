@@ -33,6 +33,7 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await step(page,'[data-family="services"]');
  await page.locator('[data-live-phase="design"]').waitFor();
  assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:3);
+ assert.ok((await page.locator('.lw-paged').innerText()).includes('Useful for:'),'Investment relevance must be disclosed before buying');
  await width(page,name+' designs');
  await page.screenshot({path:artifacts+'/'+name+'-designs.png',fullPage:true});
  await step(page,'[data-design="4A"]');
@@ -51,6 +52,7 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
   await page.locator('.lw-view').click();
   await page.locator('.lw-facilitator summary').waitFor();
  }
+ assert.ok((await page.locator('main').innerText()).includes('What fits this disruption?'),'Actual design relevance must be revealed before response');
  await width(page,name+' event');
  const budget=await page.locator('.lw-budget').innerText();
  assert.ok(budget.includes('Capital')&&budget.includes('Change'));
