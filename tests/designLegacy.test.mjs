@@ -52,7 +52,7 @@ test('Existing saved Live Well starts replay without the new legacy outcome fiel
 
 test('Second independently usable design earns a bounded fallback, not a fabricated service',()=>{
  const start=makeLiveStart({recoveryPassport:passport(false)});
- const two={start,scenarioId:'S1',strategy:'extend',investments:[{designId:'1A',strengthened:false},{designId:'1B',strengthened:false}],response:'use',
+ const two={start,scenarioId:'S1',strategy:'extend',investments:[{designId:'1A',strengthened:false},{designId:'3A',strengthened:false}],response:'use',
   facts:{alternativeRouteVerified:true,currentRouteData:true,physicalWayfindingAvailable:true}};
  const a=evaluateLiveWell(two);
  const b=evaluateLiveWell({...two,start:{...start,legacyPolicy:'verified-handoff-v1'}});
