@@ -67,7 +67,7 @@ export function validateRecoveryPassport(passport){
 }
 export function makeLiveStart({recoveryPassport=null}={}){
  const checked=validateRecoveryPassport(recoveryPassport);
- return {schema:'live.start.v1',source:checked.kind,linkedRecovery:checked.passport,resources:{capital:CAPITAL,change:CHANGE},note:checked.kind==='standalone'?
+ return {schema:'live.start.v1',source:checked.kind,linkedRecovery:checked.passport,...(checked.kind==='connected'?{legacyPolicy:'verified-handoff-v2'}:{}),resources:{capital:CAPITAL,change:CHANGE},note:checked.kind==='standalone'?
   'Authored standalone community starting condition; no earlier hospital or recovery decisions are claimed.':
   'Verified prior chapter evidence carries forward. Community-service availability, ongoing monitoring, transport and clinical acceptance must be established separately.'};
 }
@@ -186,14 +186,39 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  if(response==='adapt'&&scenarioId==='S2'&&facts.approvedLocalAdjustmentAvailable&&selected.designId&&selected.burden>0)selected={...selected,burden:Math.max(0,selected.burden-1),reason:selected.reason+' An approved local adjustment reduces effort.'};
  // Coordinate adds coordination burden unless a real accepted service actually participates.
  if(response==='coordinate'&&selected.designId===null)selected={...base,reason:base.reason+' Coordination was requested but no usable service was established.'};
- const selectedInvestment=investments.find(i=>i.designId===selected.designId);
+ // Two independently supported investments can provide a real fallback.
+ // Both paths must already be usable in this event; a second purchase alone is not enough.
+ const fallbackPaths=usable.filter(p=>p.designId&&p.designId!==selected.designId&&p.participation&&selected.participation);
+ const fallback=investments.length===2&&fallbackPaths.length>0
+  ?fallbackPaths.sort((a,b)=>a.burden-b.burden)[0]:null;
+ const fallbackEarned=start.legacyPolicy==='verified-handoff-v2'&&!!fallback&&selected.burden>0;
+ if(fallbackEarned)selected={...selected,burden:selected.burden-1,
+  reason:selected.reason+' A second independently usable funded pathway reduced reliance on one response.'};
+  const selectedInvestment=investments.find(i=>i.designId===selected.designId);
  const unstrengthened=selectedInvestment&&strategy==='strengthen'
   ?capabilityEffect(selected.designId,scenarioId,facts,false,response):null;
  const realizedStrength=strategy==='strengthen'&&!!selected.designId&&
   (!unstrengthened||!unstrengthened.participation&&selected.participation||unstrengthened.burden>selected.burden);
- const metrics=classify({scenarioId,path:selected,options:{response},facts});
+ // Evidence-based Design Legacy: an accepted qualified assessment can use verified
+ // prior clinical context to avoid one unit of repeated information work.
+ // This cannot alter clinical safety, participation, physical access or service capacity.
+ const legacyEnabled=['verified-handoff-v1','verified-handoff-v2'].includes(start.legacyPolicy)&&start.source==='connected';
+ const upstream=legacyEnabled?start.linkedRecovery:null;
+ const verifiedPrior=!!upstream&&(upstream.established.priorClinicalContextUsable===true||upstream.established.contextReconciledInRecovery===true);
+ const ordinaryAccepted=scenarioId==='S2'&&selected.kind==='ordinary-qualified-assessment'&&start.legacyPolicy==='verified-handoff-v2';
+ const usingQualifiedPath=scenarioId==='S2'&&(ordinaryAccepted||(selected.designId!==null&&
+  ['pod-assessment','network-assessment','mobile-assessment','supported-pacing-and-assessment','context-supported-assessment','remote-participation-after-care','coordinated-assessment','supported-activity-return','coordinated-qualified-advice'].includes(selected.kind)));
+ const currentUsable=facts.clinicalContextCurrent&&facts.assessmentAccepted&&facts.assessmentQualified&&facts.assessmentWithinWindow;
+ const continuityApplied=!!(verifiedPrior&&usingQualifiedPath&&currentUsable&&selected.burden>0);
+ const designLegacy={...(start.legacyPolicy==='verified-handoff-v2'?{fallbackUsed:fallbackEarned?fallback.designId:null}:{}),status:continuityApplied?'enabled':usingQualifiedPath&&upstream?'requires-verification':'not-used',
+  reduction:continuityApplied?1:0,
+  explanation:continuityApplied?'Verified earlier clinical context is current and usable by this accepted qualified service, reducing Arthur’s repeated handoff work.':usingQualifiedPath&&upstream?'Earlier context exists as a record, but its current receiving-service usability was not established; no benefit was assumed.':'Earlier investments remain in Arthur’s history but were not used by this event.',
+  recoveryRunId:upstream?.source?.runId||null,
+  leaveWellRunId:upstream?.source?.leaveWellRunId||null};
+ if(continuityApplied)selected={...selected,burden:selected.burden-1};
+  const metrics=classify({scenarioId,path:selected,options:{response},facts});
  return {schema:LIVE_WELL_VERSION,scenarioId,response,strategy,investments:cloned(investments),startSource:start.source,
-  priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
+  ...(legacyEnabled?{designLegacy}:{}),priorRecovery:start.source==='connected'?{runId:start.linkedRecovery.source.runId,outcome:start.linkedRecovery.established.outcome,unresolved:cloned(start.linkedRecovery.dependencies.unresolved)}:null,
   spent:{capital:CAPITAL-capital,change:CHANGE-change},remaining:{capital,change},metrics,
   route:{id:selected.kind,designId:selected.designId,reason:selected.reason,contributedStrength:!!realizedStrength},
   considered:usable.map(x=>({id:x.designId,path:x.kind,participation:x.participation})),

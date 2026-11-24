@@ -7,6 +7,8 @@ on:
     paths:
       - 'src/liveWell/**'
       - 'tests/liveWellResolver.test.mjs'
+      - 'tests/designLegacyFiveEndToEnds.test.mjs'
+      - 'src/designLegacy.js'
 jobs:
   validate:
     runs-on: ubuntu-24.04

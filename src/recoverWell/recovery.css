@@ -45,3 +45,14 @@
 .recovery-investment-status-grid strong{display:block;font-size:12px;letter-spacing:.045em}
 .recovery-investment-status-grid p{font-size:14px;margin:8px 0 0}
 @media(max-width:700px){.recovery-investment-status{padding:14px}.recovery-investment-status-grid{grid-template-columns:1fr}}
+
+.recovery-legacy-cue{background:#edf4e9;border-left:4px solid #5a8a74;border-radius:6px;padding:10px 12px;margin:10px 0}
+.recovery-legacy-cue b{font-size:12px;color:#225747}
+.recovery-legacy-cue p{font-size:13px;line-height:1.35;margin:4px 0}
+@media(max-width:700px){.recovery-legacy-cue{padding:8px}.recovery-legacy-cue p{font-size:12px}}
+
+.recovery-consequence{margin:14px 0;padding:14px;border:1px solid #cbded0;border-left:5px solid #397c69;background:#f3f8f2;border-radius:8px}
+.recovery-consequence>small{font-size:11px;font-weight:800;color:#3b6657;letter-spacing:.07em}
+.recovery-consequence h2{font-size:22px;margin:7px 0}
+.recovery-consequence p{font-size:14px;line-height:1.4;margin:7px 0}
+@media(max-width:700px){.recovery-consequence{padding:10px}.recovery-consequence h2{font-size:19px}.recovery-consequence p{font-size:13px}}
