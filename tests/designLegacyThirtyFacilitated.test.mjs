@@ -77,7 +77,7 @@ function simulate(round,table){
  return {round,table:table+1,profile:p.name,players:5,ballots:ballots.length*5,dissent:ballots.reduce((v,x)=>v+5-x.majority,0),
   leave:{outcome,plan:entry.handoff.facts.verifiedTransitionPlan.state,choices:investments.map(x=>x.capabilityId+'.'+x.commitmentId)},
   recover:{outcome:r.result.outcome,scenario:r.scenarioId,choices:r.investments.map(x=>x.designId),used:r.result.path.designIds||[],reconciled:passport.established.contextReconciledInRecovery,capital:r.capital,change:r.change},
-  live:{outcome:l.result.metrics.outcome,profile:l.profileId,choices:l.investments.map(x=>x.designId),used:l.result.route.designId,participation:l.result.metrics.participation,future:l.result.metrics.future,benefit:l.result.designLegacy.reduction,capital:l.capital,change:l.change},
+  live:{outcome:l.result.metrics.outcome,profile:l.profileId,choices:l.investments.map(x=>x.designId),used:l.result.route.designId,participation:l.result.metrics.participation,future:l.result.metrics.future,benefit:l.result.designLegacy.reduction,backup:l.result.designLegacy.fallbackUsed||null,ordinaryBenefit:l.result.route.designId===null&&l.result.designLegacy.reduction>0,capital:l.capital,change:l.change},
   unused:vc.unused.length,ballotDetails:ballots};
 }
 test('30 rounds of 5 facilitated tables of 5 simulated players complete all 3 chapters',()=>{
@@ -85,11 +85,11 @@ test('30 rounds of 5 facilitated tables of 5 simulated players complete all 3 ch
  assert.equal(runs.length,150);assert.equal(runs.reduce((a,x)=>a+x.players,0),750);
  const total={rounds:30,tableJourneys:150,playerParticipations:750,ballots:runs.reduce((a,x)=>a+x.ballots,0),dissent:runs.reduce((a,x)=>a+x.dissent,0),
   leave:states(runs,x=>x.leave.outcome),recover:states(runs,x=>x.recover.outcome),live:states(runs,x=>x.live.outcome),
-  benefit:runs.filter(x=>x.live.benefit>0).length,unusedPurchases:runs.filter(x=>x.unused>0).length};
+  benefit:runs.filter(x=>x.live.benefit>0).length,backups:runs.filter(x=>x.live.backup).length,ordinaryBenefits:runs.filter(x=>x.live.ordinaryBenefit).length,unusedPurchases:runs.filter(x=>x.unused>0).length};
  console.log('SIM_30_TOTAL '+JSON.stringify(total));
  for(let t=1;t<=5;t++){const a=runs.filter(x=>x.table===t);
   console.log('SIM_30_TABLE '+JSON.stringify({table:t,name:a[0].profile,rounds:a.length,players:150,leave:states(a,x=>x.leave.outcome),recover:states(a,x=>x.recover.outcome),live:states(a,x=>x.live.outcome),
-   participation:a.filter(x=>x.live.participation).length,benefit:a.filter(x=>x.live.benefit>0).length,reconciled:a.filter(x=>x.recover.reconciled).length,unused:a.filter(x=>x.unused>0).length,
+   participation:a.filter(x=>x.live.participation).length,benefit:a.filter(x=>x.live.benefit>0).length,backups:a.filter(x=>x.live.backup).length,ordinaryBenefits:a.filter(x=>x.live.ordinaryBenefit).length,reconciled:a.filter(x=>x.recover.reconciled).length,unused:a.filter(x=>x.unused>0).length,
    leavePortfolios:new Set(a.map(x=>x.leave.choices.join('+'))).size,recoverPortfolios:new Set(a.map(x=>x.recover.choices.join('+'))).size,livePortfolios:new Set(a.map(x=>x.live.choices.join('+'))).size,
    ballots:a.reduce((v,x)=>v+x.ballots,0),dissent:a.reduce((v,x)=>v+x.dissent,0),
    capital:a.reduce((v,x)=>v+x.recover.capital+x.live.capital,0)}));
