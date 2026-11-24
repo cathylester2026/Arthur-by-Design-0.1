@@ -28,12 +28,14 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await step(page,'[data-next]');
  await page.locator('[data-live-phase="family"]').waitFor();
  assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:4);
+ assert.ok(await page.locator('.lw-family-visual img').count()>=4,'Each family requires a visual');
  await width(page,name+' families');
  await page.screenshot({path:artifacts+'/'+name+'-families.png',fullPage:true});
  await step(page,'[data-family="services"]');
  await page.locator('[data-live-phase="design"]').waitFor();
  assert.equal(await page.locator('.lw-paged > article:visible').count(),widthPx<=700?1:3);
  assert.ok((await page.locator('.lw-paged').innerText()).includes('Useful for:'),'Investment relevance must be disclosed before buying');
+ assert.equal(await page.locator('.lw-design-diagram').count(),3,'All three options need distinct conceptual illustrations');
  await width(page,name+' designs');
  await page.screenshot({path:artifacts+'/'+name+'-designs.png',fullPage:true});
  await step(page,'[data-design="4A"]');
@@ -53,6 +55,7 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
   await page.locator('.lw-facilitator summary').waitFor();
  }
  assert.ok((await page.locator('main').innerText()).includes('What fits this disruption?'),'Actual design relevance must be revealed before response');
+ assert.equal(await page.locator('.lw-event-visual').count(),1,'Disruption needs a distinct story visual');
  await width(page,name+' event');
  const budget=await page.locator('.lw-budget').innerText();
  assert.ok(budget.includes('Capital')&&budget.includes('Change'));
@@ -66,11 +69,13 @@ async function play(page,{name,widthPx,extend=false,connected=false}={}){
  await page.screenshot({path:artifacts+'/'+name+'-responses.png',fullPage:true});
  await step(page,'[data-response="use"]');
  await page.locator('[data-live-phase="outcome"]').waitFor();
+ assert.equal(await page.locator('.lw-impact-visual').count(),1,'Consequence reveal needs a visual explanation');
  await width(page,name+' outcome');
  await page.screenshot({path:artifacts+'/'+name+'-outcome.png',fullPage:true});
  await step(page,'[data-next]');
  await page.locator('[data-live-phase="futures"]').waitFor();
  assert.equal(await page.locator('.lw-futures article.chosen').count(),1);
+ assert.equal(await page.locator('.lw-future-tile').count(),3,'Three futures need visual distinction');
  await width(page,name+' futures');
  await page.screenshot({path:artifacts+'/'+name+'-futures.png',fullPage:true});
  await step(page,'[data-next]');
