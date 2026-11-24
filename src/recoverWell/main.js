@@ -95,6 +95,19 @@ function investmentStatusView(result){
  const ledger=recoveryInvestmentLedger(run.investments,result,run.baseline);
  return `<section class="recovery-investment-status" aria-label="What your recovery investments enabled"><h2>What your investments made possible</h2><p class="muted">Purchased means you funded it. Event-ready means this particular pathway had its required conditions. Used means the funded capability contributed to Arthur’s established response—not merely that it was selected.</p><div class="recovery-investment-status-grid">${ledger.map(i=>`<article><small>${e(i.strengthened?'PURCHASED + STRENGTHENED':'PURCHASED')}</small><h3>${e(CHOICES[i.designId].title)}</h3><strong>${e(i.status)}</strong><p>${e(i.consequence)}</p></article>`).join('')}</div></section>`;
 }
+function recoveryVisualThread(){
+ const checked=run.handoff.facts.verifiedTransitionPlan.state==='established';
+ const result=run.result;
+ const reused=result.inheritance?.priorContextUsable===true;
+ const repaired=result.inheritance?.recoveryReconciliationUsed===true;
+ const used=(result.path?.designIds||[]);
+ const steps=[
+  {label:'LEAVE WELL',title:checked?'Verified plan':'Plan requires a check',note:checked?'An earlier foundation can be used if accepted.':'Discharge information needs confirmation.'},
+  {label:'RECOVER WELL',title:repaired?'Information reconciled':reused?'Earlier information used':used.length?'Recovery design used':'Response still has gaps',note:repaired?'A qualified check was completed in this event.':used.length?'An investment helped in the actual recovery response.':'No purchased response is automatically credited.'},
+  {label:'LIVE WELL',title:'New environment, new acceptance',note:'Care, accessible routes and community services still require their own operating conditions.'}
+ ];
+ return '<div class="recovery-visual-thread" role="group" aria-label="Design legacy across Arthur’s journey">'+steps.map((x,i)=>'<article><small>0'+(i+1)+' · '+e(x.label)+'</small><strong>'+e(x.title)+'</strong><p>'+e(x.note)+'</p></article>').join('')+'</div>';
+}
 function chapterCloseView(){
  const c=recoveryChapterClosing(run);
  const label=run.policy==='aimedx'&&run.handoff?.source?.kind==='leave-well'?'Your recorded Leave Well choices':'Arthur’s starting hospital-to-home conditions';
@@ -105,12 +118,14 @@ function chapterCloseView(){
  </div>
  <div class="chapter-page" data-chapter-page="1" hidden>
   <small>RECOVER WELL · YOUR INVESTMENTS</small><h1>What actually helped Arthur?</h1>
+  ${run.investments.map(i=>visualHTML(i.designId)).join('')}
   ${investmentStatusView(run.result)}
   <details class="chapter-extra-detail"><summary>What else did your choices contribute?</summary><p>${e(c.route)}</p><p>${e(c.difference)}</p></details>
   <div class="chapter-page-actions"><button type="button" class="secondary" data-page-prev="0">BACK</button><button type="button" data-page-next="2">SEE WHAT CARRIES FORWARD</button></div>
  </div>
  <div class="chapter-page" data-chapter-page="2" hidden>
   <small>RECOVER WELL · CHAPTER HANDOFF</small><h1>What goes with Arthur?</h1>
+  ${recoveryVisualThread()}
   <div class="recovery-close-grid"><article><small>FROM HOSPITAL TO HOME</small><h2>${e(label)}</h2><p>${e(c.prior)}</p></article><article><small>THE RESPONSIBILITY THAT CONTINUES</small><h2>What happens next?</h2><p>${e(c.next)}</p></article></div>
   <p class="muted">Arthur’s recovery event is complete. His next step is not a promise that every community service is ready.</p>
   ${facilitator?`<details class="facilitator-chapter-pause"><summary>Facilitator pause · discuss the next chapter</summary><p>Which capability helped Arthur? Where did it rely on people, space or an accountable service?</p><p>What responsibility could still limit Arthur’s everyday independence?</p></details>`:''}
