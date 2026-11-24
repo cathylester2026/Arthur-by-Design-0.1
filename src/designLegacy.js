@@ -70,11 +70,18 @@ const designRules={
  '3A':{name:'Approved activity goals and safe pacing limits',prior:false},'3B':{name:'Current usable clinical information and qualified receiving service',prior:true},'3C':{name:'An accepted accessible way to join the activity',prior:false},
  '4A':{name:'Accessible staffed participation and rest arrangements',prior:false},'4B':{name:'Confirmed accessible community venue',prior:false},'4C':{name:'An accountable coordinator and actually accepted services',prior:false}
 };
+export const LIVE_DESIGN_SCOPE=Object.freeze({
+ '1A':['route','venue'],'1B':['route','venue'],'1C':['route','care','venue'],
+ '2A':['care'],'2B':['care'],'2C':['care'],
+ '3A':['route','care'],'3B':['care'],'3C':['care','venue'],
+ '4A':['care','venue'],'4B':['venue'],'4C':['route','care','venue']
+});
+export const LIVE_SCENARIO_LABELS=Object.freeze({route:'Route disruption',care:'Health concern',venue:'Venue change'});
 export function liveDesignReadiness(passport,id){
  const rule=designRules[id];
  if(!rule)throw Error('Unknown community design.');
  const carry=liveInvestmentReadiness(passport,rule.prior?'care':'services');
- return frozen({need:rule.name,state:rule.prior?carry.state:'independent',canInvest:true,
+ return frozen({need:rule.name,scope:LIVE_DESIGN_SCOPE[id],scopeLabels:LIVE_DESIGN_SCOPE[id].map(k=>LIVE_SCENARIO_LABELS[k]),state:rule.prior?carry.state:'independent',canInvest:true,
   reason:rule.prior?(carry.state==='foundation'?'Earlier usable clinical information can reduce repeated work, but does not establish this service.':'Current clinical information needs to be checked or reconstructed; the service must independently accept Arthur.'):
    'This design does not require an earlier investment, but its real-world operating conditions must still be established.'});
 }
@@ -124,7 +131,7 @@ export function recoveryConsequences(run){
 export function liveConsequences(passport,result){
  if(!result)throw Error('A completed Live Well result is required.');
  const legacy=result.designLegacy;
- const purchased=result.investments.map(i=>i.designId),used=result.route?.designId;
+ const purchased=result.investments.map(i=>i.designId),used=result.route?.designId,backup=result.designLegacy?.fallbackUsed||null;
  const basedOnRecovery=!!passport;
  const origin=passport?.established?.contextReconciledInRecovery===true?'reconciled':
    passport?.established?.priorClinicalContextUsable===true?'reused':'none';
@@ -134,9 +141,9 @@ export function liveConsequences(passport,result){
  }else if(legacy?.status==='requires-verification'){
   why='An earlier record did not demonstrate current, accepted clinical information for this event. No handoff-effort reduction was awarded.';
  }else why='The earlier design history did not materially change this community response.';
- const investedButUnused=purchased.filter(id=>id!==used);
+ const investedButUnused=purchased.filter(id=>id!==used&&id!==backup);
  return frozen({title:result.metrics.participation?'Arthur found a workable way to take part.':result.metrics.safetyEstablished?'Arthur did not complete this outing.':'Arthur still needs a safe response.',
-  why,origin,used:used||null,unused:investedButUnused,burdenReduction:legacy?.reduction||0,
+  why,origin,used:used||null,backup,unused:investedButUnused,burdenReduction:legacy?.reduction||0,
   needs:result.metrics.safetyEstablished?'This event does not establish ongoing future service or infrastructure availability.':'An accepted qualified response is still required before claiming safe participation.',
   independent:!basedOnRecovery?'This standalone run does not claim earlier decisions.':'Prior hospital investments do not automatically create community routes, staffing or care capacity.'});
 }
