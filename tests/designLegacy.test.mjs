@@ -77,3 +77,16 @@ test('Usable prior context reduces repetition on existing ordinary qualified car
  assert.equal(declined.designLegacy.reduction,0);
  assert.equal(declined.metrics.outcome,'EXPOSED');
 });
+
+test('Older v1 connected saved runs replay exactly under their original consequence rules',async()=>{
+ const {createLiveRun,applyLiveAction,serializeLiveRun,restoreLiveRun}=await import('../src/liveWell/liveRun.js');
+ const prior=makeLiveStart({recoveryPassport:passport(true)});
+ prior.legacyPolicy='verified-handoff-v1';
+ let r=createLiveRun({runId:'old-v1-replay',start:prior,scenarioId:'S2'});
+ const steps=[['next',{}],['family',{familyId:'care'}],['design',{designId:'2B'}],['strategy',{choice:'strengthen'}],['next',{}],['respond',{choice:'ordinary'}],['next',{}],['next',{}]];
+ for(const [i,[type,args]] of steps.entries())r=applyLiveAction(r,{id:'old-'+i,type,...args});
+ assert.equal(r.phase,'finale');
+ assert.ok(!('fallbackUsed' in r.result.designLegacy));
+ assert.equal(r.result.designLegacy.reduction,0);
+ assert.deepEqual(restoreLiveRun(serializeLiveRun(r)),r);
+});
