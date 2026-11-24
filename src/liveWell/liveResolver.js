@@ -206,8 +206,8 @@ export function evaluateLiveWell({start=makeLiveStart(),investments,strategy,sce
  const upstream=legacyEnabled?start.linkedRecovery:null;
  const verifiedPrior=!!upstream&&(upstream.established.priorClinicalContextUsable===true||upstream.established.contextReconciledInRecovery===true);
  const ordinaryAccepted=scenarioId==='S2'&&selected.kind==='ordinary-qualified-assessment'&&start.legacyPolicy==='verified-handoff-v2';
- const usingQualifiedPath=scenarioId==='S2'&&(ordinaryAccepted||selected.designId!==null)&&
-  ['pod-assessment','network-assessment','mobile-assessment','supported-pacing-and-assessment','context-supported-assessment','remote-participation-after-care','coordinated-assessment','supported-activity-return','coordinated-qualified-advice'].includes(selected.kind);
+ const usingQualifiedPath=scenarioId==='S2'&&(ordinaryAccepted||(selected.designId!==null&&
+  ['pod-assessment','network-assessment','mobile-assessment','supported-pacing-and-assessment','context-supported-assessment','remote-participation-after-care','coordinated-assessment','supported-activity-return','coordinated-qualified-advice'].includes(selected.kind)));
  const currentUsable=facts.clinicalContextCurrent&&facts.assessmentAccepted&&facts.assessmentQualified&&facts.assessmentWithinWindow;
  const continuityApplied=!!(verifiedPrior&&usingQualifiedPath&&currentUsable&&selected.burden>0);
  const designLegacy={...(start.legacyPolicy==='verified-handoff-v2'?{fallbackUsed:fallbackEarned?fallback.designId:null}:{}),status:continuityApplied?'enabled':usingQualifiedPath&&upstream?'requires-verification':'not-used',
