@@ -6,3 +6,47 @@
 .live-well .lw-legacy-cue p{font-size:13px;line-height:1.35;margin:3px 0}
 .live-well .lw-legacy-result{border-left:4px solid #548974}
 @media(max-width:600px){.live-well .lw-legacy-cue{padding:8px}.live-well .lw-legacy-cue p{font-size:12px}}
+
+/* Visual-first Live Well. Artwork illustrates possibilities, never operational readiness. */
+.live-well .lw-family-visual,.live-well .lw-design-visual,.live-well .lw-event-visual{margin:0 0 12px;overflow:hidden;border-radius:9px;background:#e8eee8;border:1px solid #d2e0d5}
+.live-well .lw-family-visual img{display:block;width:100%;height:125px;object-fit:cover;object-position:center 40%}
+.live-well .lw-family-visual figcaption,.live-well .lw-design-visual figcaption{padding:6px 10px;color:#315d51;font-size:10px;letter-spacing:.09em;font-weight:850}
+.live-well .lw-design-visual{display:flex;flex-direction:column;background:#edf3ed}
+.live-well .lw-design-diagram{display:block;width:100%;height:142px;object-fit:contain}
+.live-well .lw-visual-steps{display:flex;align-items:stretch;gap:3px;padding:6px 7px 9px}
+.live-well .lw-visual-step{flex:1;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center;text-align:center;background:#fff;border-radius:6px;min-width:0;padding:7px 3px;font-size:10px;line-height:1.15;font-weight:700;color:#284f47;overflow-wrap:anywhere}
+.live-well .lw-visual-number{width:21px;height:21px;border-radius:100%;display:grid;place-items:center;color:white;background:#267265;font-size:10px;font-weight:900}
+.live-well .lw-visual-connector{align-self:center;color:#267265;font-size:15px;font-weight:900}
+.live-well .lw-event-visual{display:grid;grid-template-columns:1fr 1.15fr;align-items:center;background:#eef4ec}
+.live-well .lw-event-visual>img{width:100%;height:190px;object-fit:cover}
+.live-well .lw-event-visual>figcaption{padding:10px}
+.live-well .lw-event-visual>figcaption>strong{display:block;font-size:12px;color:#285b50;letter-spacing:.07em;margin-bottom:8px}
+.live-well .lw-impact-visual{border-radius:10px;background:#eef4ed;border:1px solid #c9d9cc;padding:12px;margin:12px 0}
+.live-well .lw-impact-status{background:#d5e8dc;padding:12px;border-left:5px solid #367966;display:flex;flex-direction:column;gap:4px;line-height:1.3}
+.live-well .lw-impact-status.strained{background:#f7ebd4;border-color:#ae793c}
+.live-well .lw-impact-status.exposed{background:#f9e6dd;border-color:#ae543c}
+.live-well .lw-impact-status strong{font-size:19px}
+.live-well .lw-impact-status span{font-size:13px}
+.live-well .lw-future-ribbon{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:11px 0}
+.live-well .lw-future-tile{min-width:0;display:flex;flex-direction:column;gap:3px;padding:10px;border:1px solid #d4ddd5;background:#f3f6f1;border-radius:9px;font-size:12px}
+.live-well .lw-future-tile.selected{background:#d7ead9;border:2px solid #267265}
+.live-well .lw-future-tile span{color:#587568;font-weight:900;font-size:11px}
+.live-well .lw-future-tile small{color:#1e6553;font-weight:900;font-size:10px}
+@media(max-width:700px){
+ .live-well .lw-family-visual{display:flex;align-items:center;gap:9px}
+ .live-well .lw-family-visual img{width:86px;min-width:86px;height:86px;object-fit:cover}
+ .live-well .lw-family-visual figcaption{font-size:10px}
+ .live-well .lw-design-visual{display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center}
+ .live-well .lw-design-diagram{height:96px;width:90px;grid-row:span 2}
+ .live-well .lw-design-visual figcaption{padding:6px 4px}
+ .live-well .lw-design-visual .lw-visual-steps{padding:0 5px 5px}
+ .live-well .lw-design-visual .lw-visual-step{font-size:9px;padding:3px}
+ .live-well .lw-design-visual .lw-visual-number{width:16px;height:16px;font-size:9px}
+ .live-well .lw-event-visual{grid-template-columns:1fr}
+ .live-well .lw-event-visual>img{height:125px;object-fit:cover;object-position:center 40%}
+ .live-well .lw-event-visual>figcaption{padding:7px}
+ .live-well .lw-event-visual .lw-visual-step{font-size:10px}
+ .live-well .lw-future-tile{padding:6px;font-size:10px}
+ .live-well .lw-impact-status strong{font-size:17px}
+}
+@media(prefers-reduced-motion:reduce){.live-well .lw-future-tile,.live-well .lw-visual-step{transition:none}}
